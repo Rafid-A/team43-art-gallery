@@ -1,0 +1,197 @@
+/*
+ * style.css - Art Gallery styles on top of Semantic UI (Lab 14's semantic/ folder).
+ * CS 4485 Task04C, Phuc Tran (pmt220000), Team 43
+ */
+body {
+   background: #f3f1ec;
+}
+
+/* ---------- top bar ---------- */
+.ui.inverted.menu.gallery-bar {
+   border-radius: 0;
+   margin: 0 0 1.25em 0;
+   background: #2b2a33;
+   padding: 0.2em 0;
+}
+.gallery-bar .gallery-brand {
+   font-size: 1.3em;
+   letter-spacing: 0.02em;
+}
+.gallery-bar .gallery-brand .icon {
+   color: #e8b04b;
+}
+.gallery-bar .welcome strong {
+   color: #e8b04b;
+}
+.flash-area {
+   margin-bottom: 1em;
+}
+.gallery-main {
+   padding-bottom: 3em;
+}
+
+/* ---------- artist list (left column) ---------- */
+.artist-panel {
+   position: sticky;
+   top: 1em;
+}
+.artist-list.ui.menu {
+   max-height: 75vh;
+   overflow-y: auto;
+   box-shadow: none;
+}
+.artist-list.ui.vertical.menu > .item {
+   display: flex;
+   align-items: center;
+   gap: 0.5em;
+}
+.artist-list.ui.vertical.menu > .item > .label {
+   float: none;
+   margin-left: auto;
+   flex-shrink: 0;
+}
+.artist-list .artist-name {
+   min-width: 0;
+}
+.artist-list .first-name {
+   color: #888;
+}
+.artist-list.ui.vertical.menu .active.item {
+   background: #2b2a33;
+   color: #fff;
+}
+.artist-list.ui.vertical.menu .active.item .first-name {
+   color: #ccc;
+}
+
+/* ---------- artwork list (right column) ---------- */
+.list-heading {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   gap: 1em;
+   margin-bottom: 1em;
+}
+.list-heading .ui.header {
+   margin: 0;
+}
+.ui.items > .item.painting {
+   padding: 1em 0.5em;
+}
+.ui.items > .item.painting > .image > img {
+   width: 150px;
+   height: 150px;
+   object-fit: cover;
+   border-radius: 4px;
+   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+.ui.items > .item.painting .meta a {
+   font-weight: bold;
+}
+.ui.items > .item.painting .meta .dot {
+   margin: 0 0.35em;
+}
+.ui.items > .item.painting .description {
+   max-height: 4.6em;
+   overflow: hidden;
+   color: #444;
+}
+.ui.items > .item.painting .extra {
+   display: flex;
+   align-items: center;
+   flex-wrap: wrap;
+   gap: 0.75em;
+}
+.painting .gallery-name {
+   color: #777;
+   order: 1;
+}
+.ui.items > .item.painting .extra > .painting-id {
+   color: #aaa;
+   font-size: 0.85em;
+   margin-left: auto;
+   order: 2;
+}
+.ui.items > .item.painting .extra > .delete-form {
+   order: 3;
+   margin: 0;
+}
+.painting.new-painting {
+   background: #f0faf0;
+   border-left: 4px solid #21ba45;
+}
+.pagination-wrap {
+   text-align: center;
+   margin-top: 1.5em;
+}
+
+/* ---------- Add Artwork form ---------- */
+.add-segment .picture-box {
+   height: 100%;
+}
+.picture-preview {
+   text-align: center;
+   margin: 0.75em 0;
+}
+.picture-preview img {
+   border-radius: 4px;
+   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+.no-preview {
+   display: inline-block;
+   width: 150px;
+   height: 150px;
+   padding-top: 40px;
+   border: 2px dashed #ccc;
+   border-radius: 4px;
+   color: #999;
+}
+.no-preview[hidden] {
+   display: none;
+}
+.hint {
+   display: block;
+   color: #777;
+   margin-top: 0.3em;
+}
+.required-star {
+   color: #db2828;
+}
+.form-actions {
+   display: flex;
+   justify-content: flex-end;
+   align-items: center;
+   gap: 1em;
+}
+.ui.huge.button.add-big-button {
+   min-width: 220px;
+   letter-spacing: 0.1em;
+}
+
+/* ---------- login page ---------- */
+body.login-page {
+   min-height: 100vh;
+   background: linear-gradient(135deg, #2b2a33 0%, #4b3f5c 55%, #a8743a 100%);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+.login-box {
+   width: 100%;
+   max-width: 420px;
+   padding: 2em 1em;
+}
+.ui.segment.login-card {
+   padding: 2em;
+   border-radius: 8px;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.login-title .icon {
+   color: #a8743a;
+}
+.login-footer {
+   color: rgba(255, 255, 255, 0.75);
+   text-align: center;
+   margin-top: 1em;
+   font-size: 0.9em;
+}

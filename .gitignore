@@ -1,0 +1,13 @@
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.log
+**/backups/
+
+# Local course artifacts are not part of the runnable Task04C package.
+/Task04C/*.docx
+/Task04C/*.zip
+/Task04C/results/
+/Task04C/local-notes/
