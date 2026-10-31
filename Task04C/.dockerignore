@@ -1,0 +1,10 @@
+results/
+*.docx
+*.zip
+.DS_Store
+.git/
+.env
+.env.*
+!.env.example
+*.log
+backups/
