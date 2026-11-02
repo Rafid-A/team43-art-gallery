@@ -6,6 +6,7 @@ $checks = [
     'Genre assignments with missing artworks' => 'SELECT COUNT(*) FROM PaintingGenres j LEFT JOIN Paintings p ON p.PaintingID=j.PaintingID WHERE p.PaintingID IS NULL',
     'Genre assignments with missing genres' => 'SELECT COUNT(*) FROM PaintingGenres j LEFT JOIN Genres g ON g.GenreID=j.GenreID WHERE g.GenreID IS NULL',
     'Subject assignments with missing artworks' => 'SELECT COUNT(*) FROM PaintingSubjects j LEFT JOIN Paintings p ON p.PaintingID=j.PaintingID WHERE p.PaintingID IS NULL',
+    'Subject assignments with missing subjects' => 'SELECT COUNT(*) FROM PaintingSubjects j LEFT JOIN Subjects s ON s.SubjectID=j.SubjectID WHERE s.SubjectID IS NULL',
     'Duplicate genre pairs' => 'SELECT COUNT(*) FROM (SELECT PaintingID, GenreID FROM PaintingGenres GROUP BY PaintingID, GenreID HAVING COUNT(*)>1) duplicates',
     'Duplicate subject pairs' => 'SELECT COUNT(*) FROM (SELECT PaintingID, SubjectID FROM PaintingSubjects GROUP BY PaintingID, SubjectID HAVING COUNT(*)>1) duplicates',
 ];

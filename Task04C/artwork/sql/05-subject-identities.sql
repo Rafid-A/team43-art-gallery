@@ -90,7 +90,7 @@ subject_migration: BEGIN
 
   DROP TABLE IF EXISTS `Subjects_migrated`;
   CREATE TABLE `Subjects_migrated` (
-    `SubjectID` INTEGER NOT NULL,
+    `SubjectID` INTEGER NOT NULL AUTO_INCREMENT,
     `SubjectName` VARCHAR(255) NOT NULL,
     PRIMARY KEY (`SubjectID`)
   ) ENGINE=innodb DEFAULT CHARSET=utf8;

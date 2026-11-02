@@ -4380,7 +4380,7 @@ INSERT INTO `Shapes` (`ShapeName`) VALUES ('Slim');
 DROP TABLE IF EXISTS `Subjects`;
 
 CREATE TABLE `Subjects` (
-  `SubjectID` INTEGER NOT NULL,
+  `SubjectID` INTEGER NOT NULL AUTO_INCREMENT,
   `SubjectName` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`SubjectID`)
 ) ENGINE=innodb DEFAULT CHARSET=utf8;

@@ -19,8 +19,7 @@ function library_objects()
             'gate' => 'Era records can be explored. Adding and deleting require an approved immutable era identity; the supplied schema has no primary key.'],
         'subjects' => ['table' => 'Subjects', 'key' => 'SubjectID', 'label' => 'Subjects', 'one' => 'subject', 'name' => 'SubjectName',
             'fields' => ['SubjectName' => ['Subject name', 255, 'required']],
-            'dependency' => ['PaintingSubjects', 'SubjectID'],
-            'gate' => 'Subject identities come from the authoritative mapping and cannot be added or deleted here.'],
+            'dependency' => ['PaintingSubjects', 'SubjectID']],
         'painting-genres' => ['table' => 'PaintingGenres', 'key' => 'PaintingGenreID', 'label' => 'Artwork genres', 'one' => 'genre assignment', 'name' => 'PaintingGenreID',
             'fields' => ['PaintingID' => ['Artwork', 0, 'painting'], 'GenreID' => ['Genre', 0, 'genre']], 'relationship' => true],
         'painting-subjects' => ['table' => 'PaintingSubjects', 'key' => 'PaintingSubjectID', 'label' => 'Artwork subjects', 'one' => 'subject assignment', 'name' => 'PaintingSubjectID',
@@ -96,6 +95,7 @@ function object_select($type)
     if ($type === 'artists') return 'SELECT o.*, (SELECT COUNT(*) FROM Paintings p WHERE p.ArtistID=o.ArtistID) AS WorkCount FROM Artists o';
     if ($type === 'galleries') return 'SELECT o.*, (SELECT COUNT(*) FROM Paintings p WHERE p.GalleryID=o.GalleryID) AS WorkCount FROM Galleries o';
     if ($type === 'genres') return 'SELECT o.*, (SELECT COUNT(DISTINCT PaintingID) FROM PaintingGenres j WHERE j.GenreID=o.GenreID) AS WorkCount FROM Genres o';
+    if ($type === 'subjects') return 'SELECT o.*, (SELECT COUNT(DISTINCT PaintingID) FROM PaintingSubjects j WHERE j.SubjectID=o.SubjectID) AS WorkCount FROM Subjects o';
     if ($type === 'painting-genres') return 'SELECT o.*, p.Title, g.GenreName FROM PaintingGenres o LEFT JOIN Paintings p ON p.PaintingID=o.PaintingID LEFT JOIN Genres g ON g.GenreID=o.GenreID';
     if ($type === 'painting-subjects') return 'SELECT o.*, p.Title, s.SubjectName FROM PaintingSubjects o LEFT JOIN Paintings p ON p.PaintingID=o.PaintingID LEFT JOIN Subjects s ON s.SubjectID=o.SubjectID';
     return 'SELECT o.* FROM ' . library_objects()[$type]['table'] . ' o';
@@ -213,7 +213,7 @@ function artwork_image($painting, $eager = false)
 
 function related_paintings($type, $id)
 {
-    $conditions = ['artists' => 'p.ArtistID=?', 'galleries' => 'p.GalleryID=?', 'genres' => 'EXISTS (SELECT 1 FROM PaintingGenres j WHERE j.PaintingID=p.PaintingID AND j.GenreID=?)'];
+    $conditions = ['artists' => 'p.ArtistID=?', 'galleries' => 'p.GalleryID=?', 'genres' => 'EXISTS (SELECT 1 FROM PaintingGenres j WHERE j.PaintingID=p.PaintingID AND j.GenreID=?)', 'subjects' => 'EXISTS (SELECT 1 FROM PaintingSubjects j WHERE j.PaintingID=p.PaintingID AND j.SubjectID=?)'];
     if (!isset($conditions[$type])) return [];
     return rows('SELECT p.*, a.FirstName, a.LastName FROM Paintings p LEFT JOIN Artists a ON a.ArtistID=p.ArtistID WHERE ' . $conditions[$type] . ' ORDER BY p.YearOfWork, p.PaintingID', [$id])->fetchAll();
 }

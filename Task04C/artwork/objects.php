@@ -24,7 +24,7 @@ page_start($title);
 <div class="breadcrumbs"><a href="<?= $manage ? 'manage.php' : 'browse.php' ?>"><?= $manage ? 'Manage library' : 'Browse' ?></a><span>/</span><a href="objects.php?<?= e(http_build_query(['type' => $type, 'manage' => (int)$manage])) ?>"><?= e($object['label']) ?></a></div>
 <section class="page-heading"><div><p class="eyebrow"><?= $manage ? 'Library management' : 'Explore the collection' ?></p><h1><?= e($title) ?></h1>
 <?php if (!$selected): ?><p><?= !empty($object['relationship']) ? 'Explore the connections between artworks and their classifications.' : 'Discover the people, places, and ideas behind the art.' ?></p><?php endif; ?></div>
-<?php if (!isset($object['gate'])): ?><a class="button primary" href="object-add.php?type=<?= e($type) ?>"><?= !empty($object['relationship']) ? 'Assign genre' : 'Add ' . e($object['one']) ?></a><?php endif; ?></section>
+<?php if (!isset($object['gate'])): ?><a class="button primary" href="object-add.php?type=<?= e($type) ?>"><?= !empty($object['relationship']) ? 'Assign ' . ($type === 'painting-subjects' ? 'subject' : 'genre') : 'Add ' . e($object['one']) ?></a><?php endif; ?></section>
 <?php notices(); if (isset($object['gate'])): ?><p class="notice" role="status"><?= e($object['gate']) ?></p><?php endif; ?>
 <?php if ($selected): if (!$record): ?>
 <div class="empty"><h2>Record not found</h2><p>The link is stale, the selection is ambiguous, or the record has been removed.</p><a href="objects.php?type=<?= e($type) ?>">Return to <?= e(strtolower($object['label'])) ?></a></div>
@@ -35,12 +35,13 @@ page_start($title);
 <div><dt><?= e($definition[0]) ?></dt><dd>
 <?php if ($field === 'PaintingID'): ?><a href="painting.php?id=<?= (int)$record[$field] ?>"><?= e($record['Title'] ?? 'Missing artwork') ?> · #<?= (int)$record[$field] ?></a>
 <?php elseif ($field === 'GenreID'): ?><a href="objects.php?type=genres&amp;id=<?= (int)$record[$field] ?>"><?= e($record['GenreName'] ?? 'Missing genre') ?> · #<?= (int)$record[$field] ?></a>
+<?php elseif ($field === 'SubjectID'): ?><a href="objects.php?type=subjects&amp;id=<?= (int)$record[$field] ?>"><?= e($record['SubjectName'] ?? 'Missing subject') ?> · #<?= (int)$record[$field] ?></a>
 <?php elseif (($definition[2] ?? '') === 'url' && safe_link($record[$field] ?? '')): ?><a href="<?= e($record[$field]) ?>" rel="noreferrer">Visit reference ↗</a>
 <?php else: ?><?= e($record[$field] ?? 'Not recorded') ?><?php endif; ?></dd></div>
 <?php endforeach; ?></dl>
 <?php foreach (['Details', 'Description'] as $field): if (!empty($record[$field])): ?><div class="prose"><h2><?= $field === 'Details' ? 'About the artist' : 'About this genre' ?></h2><p><?= nl2br(e(strip_tags($record[$field]))) ?></p></div><?php endif; endforeach; ?>
 <?php if ($object['key']): ?><a class="button danger" href="object-delete.php?type=<?= e($type) ?>&amp;id=<?= (int)$record[$object['key']] ?>"><?= !empty($object['relationship']) ? 'Remove assignment' : 'Delete ' . e($object['one']) ?></a><?php endif; ?></section>
-<?php if (in_array($type, ['artists', 'galleries', 'genres'], true)): $works = related_paintings($type, (int)$record[$object['key']]); ?>
+<?php if (in_array($type, ['artists', 'galleries', 'genres', 'subjects'], true)): $works = related_paintings($type, (int)$record[$object['key']]); ?>
 <section class="related"><div class="section-heading"><h2>Artworks</h2><span><?= count($works) ?> in the collection</span></div><?php artwork_cards($works); ?></section>
 <?php endif; endif; else:
 $count = (int)rows('SELECT COUNT(*) FROM ' . $object['table'])->fetchColumn();
