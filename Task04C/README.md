@@ -49,16 +49,17 @@ when an order refers to the painting; permitted deletion removes its related
 classifications and reviews together, while keeping the image file.
 The image credits are in `artwork/images/SOURCES.txt`.
 
-The supplied schema has no immutable Era key or SubjectID mapping. Era and
-Subject writes and new subject assignments are unavailable until those
-identities are established. Existing IDs and unresolved references are kept.
+The supplied schema has no immutable Era key. Subject records use the
+explicit authoritative `SubjectID` mapping, including distinct duplicate
+legacy names, and existing painting assignments retain their numeric IDs.
 
 ## Optional existing XAMPP installation
 
 Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL
 and mysqli. After backing up any existing databases, import `artwork/sql/`
-files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`, then
-`04-xampp-grants.sql`. The starter SQL replaces the `art` database. Open
+files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
+`04-xampp-grants.sql`, then `05-subject-identities.sql`. The starter SQL
+replaces the `art` database. Open
 http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
 SQL and protected helper files remain inaccessible through the web.

@@ -62,9 +62,8 @@ $hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . 
     </div>
     <div>
         <div class="section-heading"><h2>Subjects</h2><a href="objects.php?type=painting-subjects">All assignments</a></div>
-        <p class="hint">Names await the authoritative SubjectID mapping.</p>
-        <ul class="classification-list"><?php foreach (rows('SELECT * FROM PaintingSubjects WHERE PaintingID=? ORDER BY PaintingSubjectID', [$id])->fetchAll() as $s): ?><li>
-            <span>Subject ID <?= e($s['SubjectID']) ?> · unresolved</span>
+        <ul class="classification-list"><?php foreach (rows('SELECT j.*, s.SubjectName FROM PaintingSubjects j LEFT JOIN Subjects s ON s.SubjectID=j.SubjectID WHERE j.PaintingID=? ORDER BY j.PaintingSubjectID', [$id])->fetchAll() as $s): ?><li>
+            <span><?= e($s['SubjectName'] ?? 'Missing subject') ?> · #<?= e($s['SubjectID']) ?></span>
             <a href="objects.php?type=painting-subjects&amp;id=<?= (int)$s['PaintingSubjectID'] ?>">Assignment #<?= (int)$s['PaintingSubjectID'] ?></a>
             <a href="object-delete.php?type=painting-subjects&amp;id=<?= (int)$s['PaintingSubjectID'] ?>">Remove<span class="visually-hidden"> subject assignment #<?= (int)$s['PaintingSubjectID'] ?></span></a>
         </li><?php endforeach; ?></ul>

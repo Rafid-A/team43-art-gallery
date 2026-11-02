@@ -4380,7 +4380,9 @@ INSERT INTO `Shapes` (`ShapeName`) VALUES ('Slim');
 DROP TABLE IF EXISTS `Subjects`;
 
 CREATE TABLE `Subjects` (
-  `SubjectName` VARCHAR(255)
+  `SubjectID` INTEGER NOT NULL,
+  `SubjectName` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`SubjectID`)
 ) ENGINE=innodb DEFAULT CHARSET=utf8;
 
 SET autocommit=1;
@@ -4389,27 +4391,31 @@ SET autocommit=1;
 # Dumping data for table 'Subjects'
 #
 
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Animals');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Landscape');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Music');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Sports');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Abstract');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Transportation');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Architecture');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Religion');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Still Life');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('People');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Botanical');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Cuisine');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('History');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Love');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Family');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Performing Arts');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Allegory');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Mythological');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Power');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Military');
-INSERT INTO `Subjects` (`SubjectName`) VALUES ('Abstract');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (1, 'Animals');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (2, 'Landscape');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (3, 'Music');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (4, 'Sports');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (5, 'Abstract');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (6, 'Transportation');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (7, 'Architecture');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (8, 'Religion');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (9, 'Still Life');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (10, 'People');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (11, 'Botanical');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (12, 'Cuisine');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (13, 'History');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (14, 'Love');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (15, 'Family');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (16, 'Performing Arts');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (17, 'Allegory');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (18, 'Mythological');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (19, 'Power');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (20, 'Military');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (21, 'Abstract');
+
+ALTER TABLE `PaintingSubjects`
+  ADD CONSTRAINT `fk_painting_subjects_subject`
+  FOREIGN KEY (`SubjectID`) REFERENCES `Subjects` (`SubjectID`);
 # 21 records
 
 #

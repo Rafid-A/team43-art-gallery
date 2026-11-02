@@ -17,14 +17,14 @@ function library_objects()
         'eras' => ['table' => 'Eras', 'key' => null, 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName',
             'fields' => ['EraName' => ['Era name', 255], 'EraYears' => ['Years', 255]],
             'gate' => 'Era records can be explored. Adding and deleting require an approved immutable era identity; the supplied schema has no primary key.'],
-        'subjects' => ['table' => 'Subjects', 'key' => null, 'label' => 'Subjects', 'one' => 'subject', 'name' => 'SubjectName',
-            'fields' => ['SubjectName' => ['Subject name', 255]],
-            'gate' => 'Subject names can be explored. Adding, deleting, and assigning require the authoritative SubjectID mapping, which is absent from the supplied schema.'],
+        'subjects' => ['table' => 'Subjects', 'key' => 'SubjectID', 'label' => 'Subjects', 'one' => 'subject', 'name' => 'SubjectName',
+            'fields' => ['SubjectName' => ['Subject name', 255, 'required']],
+            'dependency' => ['PaintingSubjects', 'SubjectID'],
+            'gate' => 'Subject identities come from the authoritative mapping and cannot be added or deleted here.'],
         'painting-genres' => ['table' => 'PaintingGenres', 'key' => 'PaintingGenreID', 'label' => 'Artwork genres', 'one' => 'genre assignment', 'name' => 'PaintingGenreID',
             'fields' => ['PaintingID' => ['Artwork', 0, 'painting'], 'GenreID' => ['Genre', 0, 'genre']], 'relationship' => true],
         'painting-subjects' => ['table' => 'PaintingSubjects', 'key' => 'PaintingSubjectID', 'label' => 'Artwork subjects', 'one' => 'subject assignment', 'name' => 'PaintingSubjectID',
-            'fields' => ['PaintingID' => ['Artwork', 0, 'painting'], 'SubjectID' => ['Unresolved subject ID', 0]], 'relationship' => true,
-            'gate' => 'Existing assignments retain their numeric SubjectID. Subject names are not guessed. New assignments require the authoritative subject mapping. Individual assignments can be removed safely.'],
+            'fields' => ['PaintingID' => ['Artwork', 0, 'painting'], 'SubjectID' => ['Subject', 0, 'subject']], 'relationship' => true],
     ];
 }
 
@@ -72,7 +72,7 @@ function object_title($type, $record)
     if (in_array($type, ['painting-genres', 'painting-subjects'], true)) {
         $classification = $type === 'painting-genres'
             ? ($record['GenreName'] ?? 'Unresolved genre ID ' . ($record['GenreID'] ?? ''))
-            : 'Subject ID ' . ($record['SubjectID'] ?? '');
+            : ($record['SubjectName'] ?? 'Missing subject') . ' · #' . ($record['SubjectID'] ?? '');
         return ($record['Title'] ?? 'Missing artwork') . ' · ' . $classification;
     }
     return $record[library_objects()[$type]['name']] ?? 'Unnamed record';
@@ -97,7 +97,7 @@ function object_select($type)
     if ($type === 'galleries') return 'SELECT o.*, (SELECT COUNT(*) FROM Paintings p WHERE p.GalleryID=o.GalleryID) AS WorkCount FROM Galleries o';
     if ($type === 'genres') return 'SELECT o.*, (SELECT COUNT(DISTINCT PaintingID) FROM PaintingGenres j WHERE j.GenreID=o.GenreID) AS WorkCount FROM Genres o';
     if ($type === 'painting-genres') return 'SELECT o.*, p.Title, g.GenreName FROM PaintingGenres o LEFT JOIN Paintings p ON p.PaintingID=o.PaintingID LEFT JOIN Genres g ON g.GenreID=o.GenreID';
-    if ($type === 'painting-subjects') return 'SELECT o.*, p.Title FROM PaintingSubjects o LEFT JOIN Paintings p ON p.PaintingID=o.PaintingID';
+    if ($type === 'painting-subjects') return 'SELECT o.*, p.Title, s.SubjectName FROM PaintingSubjects o LEFT JOIN Paintings p ON p.PaintingID=o.PaintingID LEFT JOIN Subjects s ON s.SubjectID=o.SubjectID';
     return 'SELECT o.* FROM ' . library_objects()[$type]['table'] . ' o';
 }
 
@@ -117,7 +117,7 @@ function field_values($object)
             $limit = $kind === 'latitude' ? 90 : 180;
             if (!is_numeric($value) || !is_finite((float)$value) || abs((float)$value) > $limit) $errors[$name] = $label . ' must be between -' . $limit . ' and ' . $limit . '.';
         }
-        if (in_array($kind, ['painting', 'genre'], true)) {
+        if (in_array($kind, ['painting', 'genre', 'subject'], true)) {
             $values[$name] = positive_id($value);
             if (!$values[$name]) $errors[$name] = 'Choose an existing ' . $label . '.';
         }
@@ -143,10 +143,15 @@ function add_object($type, $values)
     $pdo = db();
     try {
         $pdo->beginTransaction();
-        if ($type === 'painting-genres') {
+        if (in_array($type, ['painting-genres', 'painting-subjects'], true)) {
             lock_parent('Paintings', 'PaintingID', $values['PaintingID']);
-            lock_parent('Genres', 'GenreID', $values['GenreID']);
-            if (rows('SELECT PaintingGenreID FROM PaintingGenres WHERE PaintingID=? AND GenreID=? FOR UPDATE', [$values['PaintingID'], $values['GenreID']])->fetch()) throw new DomainException('This artwork already has that genre.');
+            $classification = $type === 'painting-genres' ? ['Genres', 'GenreID', $values['GenreID'], 'genre'] : ['Subjects', 'SubjectID', $values['SubjectID'], 'subject'];
+            [$table, $key, $classificationId, $label] = $classification;
+            lock_parent($table, $key, $classificationId);
+            $assignmentTable = $type === 'painting-genres' ? 'PaintingGenres' : 'PaintingSubjects';
+            $assignmentKey = $type === 'painting-genres' ? 'GenreID' : 'SubjectID';
+            $assignmentId = $type === 'painting-genres' ? $values['GenreID'] : $values['SubjectID'];
+            if (rows("SELECT {$assignmentKey} FROM {$assignmentTable} WHERE PaintingID=? AND {$assignmentKey}=? FOR UPDATE", [$values['PaintingID'], $assignmentId])->fetch()) throw new DomainException('This artwork already has that ' . $label . '.');
         }
         $columns = implode(', ', array_keys($object['fields']));
         $placeholders = implode(', ', array_fill(0, count($values), '?'));
@@ -163,7 +168,7 @@ function add_object($type, $values)
 function delete_object($type, $id)
 {
     $object = library_objects()[$type];
-    if (!$object['key']) throw new DomainException($object['gate']);
+    if (!$object['key'] || isset($object['gate'])) throw new DomainException($object['gate'] ?? 'This record type cannot be deleted.');
     $pdo = db();
     try {
         $pdo->beginTransaction();
