@@ -1,6 +1,7 @@
 <?php
 // Check HTTP, PHP, application credentials and initialized tables together.
 require __DIR__ . '/artwork/config.php';
+require __DIR__ . '/artwork/subject-schema.php';
 header('Content-Type: text/plain; charset=utf-8');
 try {
     $pdo = new PDO(
@@ -11,6 +12,7 @@ try {
     );
     $pdo->query('SELECT PaintingID FROM Paintings LIMIT 1');
     $pdo->query('SELECT username FROM art_users LIMIT 1');
+    if (!subject_schema_ready($pdo)) throw new RuntimeException('Subject schema upgrade required.');
     echo "ready\n";
 } catch (Throwable $error) {
     http_response_code(503);

@@ -1,5 +1,17 @@
 <?php
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/subject-schema.php';
+
+// Existing Docker volumes do not rerun initialization SQL. Pause before any
+// SubjectID query until the explicit upgrade completes; retain login redirects.
+if (!empty($_SESSION['user']) && !subject_schema_ready(db())) {
+    http_response_code(503);
+    header('Retry-After: 60');
+    page_start('Database upgrade required');
+    echo '<h1>Database upgrade required</h1><p>The gallery is paused until its database upgrade is completed. Ask the person running this local gallery to follow the existing-database upgrade steps in the runtime guide. Existing data has not been reset.</p>';
+    page_end();
+    exit;
+}
 
 // SQL identifiers come only from this registry; request data is always bound.
 function library_objects()

@@ -1,4 +1,4 @@
 Options -Indexes
-<FilesMatch "^(config|functions|library)\.php$">
+<FilesMatch "^(config|functions|library|subject-schema)\.php$">
     Require all denied
 </FilesMatch>
