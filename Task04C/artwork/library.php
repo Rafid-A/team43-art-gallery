@@ -16,9 +16,14 @@ if (!empty($_SESSION['user']) && !subject_schema_ready(db())) {
 
 function era_identity_ready()
 {
-    static $ready = null;
-    if ($ready === null) $ready = era_schema_ready(db());
-    return $ready;
+    return era_identity_status() === 'ready';
+}
+
+function era_identity_status()
+{
+    static $status = null;
+    if ($status === null) $status = era_schema_status(db());
+    return $status;
 }
 
 // SQL identifiers come only from this registry; request data is always bound.
@@ -34,14 +39,15 @@ function library_objects()
         'genres' => ['table' => 'Genres', 'key' => 'GenreID', 'label' => 'Genres', 'one' => 'genre', 'name' => 'GenreName',
             'fields' => ['GenreName' => ['Genre name', 50, 'required'], 'Description' => ['Description', 20000, 'textarea'], 'Link' => ['Reference URL', 255, 'url']],
             'dependency' => ['PaintingGenres', 'GenreID']],
-        // Eras gain EraID through 06-era-identities.sql; until then they stay view-only.
-        'eras' => era_identity_ready()
+        // Unsupported schemas or conflicting identities stay view-only.
+        'eras' => era_identity_status() !== 'unsupported'
             ? ['table' => 'Eras', 'key' => 'EraID', 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName', 'order' => 'o.EraID',
                 'fields' => ['EraName' => ['Era name', 255, 'required'], 'EraYears' => ['Years (text, for example 1400-1550)', 255]],
-                'unique' => ['EraName', 'EraYears']]
+                'unique' => ['EraName', 'EraYears']] + (era_identity_ready() ? [] : [
+                    'gate' => 'The reserved Era identities conflict with the approved mapping. Eras remain view-only; ask an administrator to inspect the records before any migration. Existing data must be preserved.'])
             : ['table' => 'Eras', 'key' => null, 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName',
                 'fields' => ['EraName' => ['Era name', 255], 'EraYears' => ['Years', 255]],
-                'gate' => 'Era records can be explored. Adding and deleting need the era identity upgrade (artwork/sql/06-era-identities.sql); this database has no Era primary key yet.'],
+                'gate' => 'An Era identity upgrade is required before adding or deleting records. Ask an administrator to inspect the schema and follow the existing-database upgrade guide. Existing data must be preserved.'],
         'subjects' => ['table' => 'Subjects', 'key' => 'SubjectID', 'label' => 'Subjects', 'one' => 'subject', 'name' => 'SubjectName',
             'fields' => ['SubjectName' => ['Subject name', 255, 'required']],
             'dependency' => ['PaintingSubjects', 'SubjectID']],

@@ -4,7 +4,7 @@ require_login();
 $type = get_text('type');
 $object = library_objects()[$type] ?? null;
 $id = positive_id(get_text('id'));
-if (!$object || !$object['key']) { http_response_code(409); page_start('Action unavailable'); echo '<h1>Action unavailable</h1><p>An approved stable record identity is required.</p><a href="manage.php">Manage library</a>'; page_end(); exit; }
+if (!$object || !$object['key'] || isset($object['gate'])) { http_response_code(409); page_start('Action unavailable'); echo '<h1>Action unavailable</h1><p>' . e($object['gate'] ?? 'An approved stable record identity is required.') . '</p><a href="manage.php">Manage library</a>'; page_end(); exit; }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_post();
     try { delete_object($type, $id); flash('Removed ' . $object['one'] . '.'); }
