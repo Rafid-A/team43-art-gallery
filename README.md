@@ -111,10 +111,13 @@ list/detail/add/delete operations with application integrity checks.
 Ordered paintings cannot be deleted. Permitted painting deletion removes
 its classifications and reviews together while preserving the image file.
 
-Eras and Subjects can be viewed, but their add/delete operations remain
-unavailable because the supplied schema lacks the required stable
-identities and SubjectID mapping. Existing painting-subject assignments
-can be viewed and removed; new assignments remain unavailable.
+Subjects support list/detail/add/delete, and a subject that artworks
+still use cannot be deleted. Artwork subjects can be assigned from an
+artwork's page or from Manage, and removed one assignment at a time;
+duplicate pairs are rejected.
+
+Eras can be viewed, but their add/delete operations remain unavailable
+because the supplied schema has no stable Era identity.
 
 ## Additional setup information
 
