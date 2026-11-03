@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/subject-schema.php';
+require_once __DIR__ . '/era-schema.php';
 
 // Existing Docker volumes do not rerun initialization SQL. Pause before any
 // SubjectID query until the explicit upgrade completes; retain login redirects.
@@ -11,6 +12,13 @@ if (!empty($_SESSION['user']) && !subject_schema_ready(db())) {
     echo '<h1>Database upgrade required</h1><p>The gallery is paused until its database upgrade is completed. Ask the person running this local gallery to follow the existing-database upgrade steps in the runtime guide. Existing data has not been reset.</p>';
     page_end();
     exit;
+}
+
+function era_identity_ready()
+{
+    static $ready = null;
+    if ($ready === null) $ready = era_schema_ready(db());
+    return $ready;
 }
 
 // SQL identifiers come only from this registry; request data is always bound.
@@ -26,9 +34,14 @@ function library_objects()
         'genres' => ['table' => 'Genres', 'key' => 'GenreID', 'label' => 'Genres', 'one' => 'genre', 'name' => 'GenreName',
             'fields' => ['GenreName' => ['Genre name', 50, 'required'], 'Description' => ['Description', 20000, 'textarea'], 'Link' => ['Reference URL', 255, 'url']],
             'dependency' => ['PaintingGenres', 'GenreID']],
-        'eras' => ['table' => 'Eras', 'key' => null, 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName',
-            'fields' => ['EraName' => ['Era name', 255], 'EraYears' => ['Years', 255]],
-            'gate' => 'Era records can be explored. Adding and deleting require an approved immutable era identity; the supplied schema has no primary key.'],
+        // Eras gain EraID through 06-era-identities.sql; until then they stay view-only.
+        'eras' => era_identity_ready()
+            ? ['table' => 'Eras', 'key' => 'EraID', 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName', 'order' => 'o.EraID',
+                'fields' => ['EraName' => ['Era name', 255, 'required'], 'EraYears' => ['Years (text, for example 1400-1550)', 255]],
+                'unique' => ['EraName', 'EraYears']]
+            : ['table' => 'Eras', 'key' => null, 'label' => 'Eras', 'one' => 'era', 'name' => 'EraName',
+                'fields' => ['EraName' => ['Era name', 255], 'EraYears' => ['Years', 255]],
+                'gate' => 'Era records can be explored. Adding and deleting need the era identity upgrade (artwork/sql/06-era-identities.sql); this database has no Era primary key yet.'],
         'subjects' => ['table' => 'Subjects', 'key' => 'SubjectID', 'label' => 'Subjects', 'one' => 'subject', 'name' => 'SubjectName',
             'fields' => ['SubjectName' => ['Subject name', 255, 'required']],
             'dependency' => ['PaintingSubjects', 'SubjectID']],
@@ -167,6 +180,12 @@ function add_object($type, $values)
             $assignmentKey = $type === 'painting-genres' ? 'GenreID' : 'SubjectID';
             $assignmentId = $type === 'painting-genres' ? $values['GenreID'] : $values['SubjectID'];
             if (rows("SELECT {$assignmentKey} FROM {$assignmentTable} WHERE PaintingID=? AND {$assignmentKey}=? FOR UPDATE", [$values['PaintingID'], $assignmentId])->fetch()) throw new DomainException('This artwork already has that ' . $label . '.');
+        }
+        if (isset($object['unique'])) {
+            // Locking read over the table, so two identical submissions cannot both pass.
+            $where = implode(' AND ', array_map(fn($column) => "COALESCE($column, '') = ?", $object['unique']));
+            if (rows('SELECT ' . $object['key'] . ' FROM ' . $object['table'] . " WHERE $where FOR UPDATE", array_map(fn($column) => (string)($values[$column] ?? ''), $object['unique']))->fetch())
+                throw new DomainException('That ' . $object['one'] . ' already exists with the same name and years; no record was added.');
         }
         $columns = implode(', ', array_keys($object['fields']));
         $placeholders = implode(', ', array_fill(0, count($values), '?'));

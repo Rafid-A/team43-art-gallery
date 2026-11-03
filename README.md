@@ -116,8 +116,11 @@ still use cannot be deleted. Artwork subjects can be assigned from an
 artwork's page or from Manage, and removed one assignment at a time;
 duplicate pairs are rejected.
 
-Eras can be viewed, but their add/delete operations remain unavailable
-because the supplied schema has no stable Era identity.
+Eras support list/detail/add/delete using a stable `EraID`. The six
+supplied eras keep IDs 1 to 6 in date order, years stay free text, and an
+exact duplicate (same name and years) is rejected. An existing database
+needs the era upgrade in the runtime guide; until then Eras stay view-only
+and the rest of the gallery keeps working.
 
 ## Additional setup information
 

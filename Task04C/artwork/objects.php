@@ -47,7 +47,8 @@ page_start($title);
 $count = (int)rows('SELECT COUNT(*) FROM ' . $object['table'])->fetchColumn();
 $pages = max(1, (int)ceil($count / 30));
 $page = min($pages, max(1, positive_id(get_text('page'))));
-$records = rows(object_select($type) . ' ORDER BY o.' . $object['name'] . ($object['key'] && $object['name'] !== $object['key'] ? ', o.' . $object['key'] : '') . ' LIMIT ? OFFSET ?', [30, ($page - 1) * 30])->fetchAll();
+$order = $object['order'] ?? 'o.' . $object['name'] . ($object['key'] && $object['name'] !== $object['key'] ? ', o.' . $object['key'] : '');
+$records = rows(object_select($type) . ' ORDER BY ' . $order . ' LIMIT ? OFFSET ?', [30, ($page - 1) * 30])->fetchAll();
 ?>
 <p class="result-count"><?= $count ?> <?= e(strtolower($object['label'])) ?> · Page <?= $page ?> of <?= $pages ?></p>
 <div class="directory">
