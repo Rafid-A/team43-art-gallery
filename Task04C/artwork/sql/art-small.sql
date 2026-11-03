@@ -277,8 +277,10 @@ INSERT INTO `Customers` (`CustomerID`, `FirstName`, `LastName`, `Address`, `City
 DROP TABLE IF EXISTS `Eras`;
 
 CREATE TABLE `Eras` (
-  `EraName` VARCHAR(255), 
-  `EraYears` VARCHAR(255)
+  `EraID` INTEGER NOT NULL AUTO_INCREMENT,
+  `EraName` VARCHAR(255) NOT NULL,
+  `EraYears` VARCHAR(255),
+  PRIMARY KEY (`EraID`)
 ) ENGINE=innodb DEFAULT CHARSET=utf8;
 
 SET autocommit=1;
@@ -287,12 +289,12 @@ SET autocommit=1;
 # Dumping data for table 'Eras'
 #
 
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Medieval', 'Before 1400');
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Renaissance', '1400-1550');
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Post Renaissance', '1550-1700');
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Early Modern', '1700-1875');
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Modern', '1875-1945');
-INSERT INTO `Eras` (`EraName`, `EraYears`) VALUES ('Contemporary', 'After 1945');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (1, 'Medieval', 'Before 1400');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (2, 'Renaissance', '1400-1550');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (3, 'Post Renaissance', '1550-1700');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (4, 'Early Modern', '1700-1875');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (5, 'Modern', '1875-1945');
+INSERT INTO `Eras` (`EraID`, `EraName`, `EraYears`) VALUES (6, 'Contemporary', 'After 1945');
 # 6 records
 
 #

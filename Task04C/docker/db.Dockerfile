@@ -5,3 +5,4 @@ COPY artwork/sql/02-art-users.sql /docker-entrypoint-initdb.d/02-art-users.sql
 COPY artwork/sql/03-samples.sql /docker-entrypoint-initdb.d/03-samples.sql
 COPY docker-grants.sql /docker-entrypoint-initdb.d/04-grants.sql
 COPY artwork/sql/05-subject-identities.sql /docker-entrypoint-initdb.d/05-subject-identities.sql
+COPY artwork/sql/06-era-identities.sql /docker-entrypoint-initdb.d/06-era-identities.sql

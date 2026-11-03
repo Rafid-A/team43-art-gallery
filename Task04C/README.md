@@ -54,8 +54,18 @@ docker compose stop web phpmyadmin
 docker compose build db web
 docker compose up -d --no-deps db
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/05-subject-identities.sql'
+docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/06-era-identities.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
+
+The era upgrade (`06-era-identities.sql`) follows the same rules as the
+subject upgrade: it accepts only the original two-column `Eras` table with
+exactly the six supplied eras, gives them `EraID` 1 to 6 by name and years
+(never by row order), keeps the original table as `Eras_legacy`, and does
+nothing on a database that already has the identity. Any other shape, an
+extra or edited era, or an existing `Eras_migrated`/`Eras_legacy` table
+stops it before any change. Until it runs, Eras are view-only; the gallery
+and its health check do not depend on it.
 
 Stop if the migration command fails; correct the reported prerequisite and
 rerun that command before starting the gallery. A failed batch may leave its
@@ -75,7 +85,8 @@ and legitimate deletions; this migration does not reseed it.
 Until the supported identity schema is present, HTTP health reports not ready
 and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
-`artwork/sql/05-subject-identities.sql` with a database migration administrator.
+`artwork/sql/05-subject-identities.sql` and then
+`artwork/sql/06-era-identities.sql` with a database migration administrator.
 
 ## Collection behavior
 
@@ -84,7 +95,9 @@ when an order refers to the painting; permitted deletion removes its related
 classifications and reviews together, while keeping the image file.
 The image credits are in `artwork/images/SOURCES.txt`.
 
-The supplied schema has no immutable Era key. Subject records retain the
+Eras use a stable `EraID`: the six supplied eras keep IDs 1 to 6 in date
+order and new eras take the next ID. Nothing references Eras, so deleting
+one changes no other record. Subject records retain the
 explicit ID/name mapping introduced in `f846d9c`, including both Abstract
 records. Its external course provenance still needs confirmation. This
 upgrade does not invent a replacement mapping or change painting assignments.
@@ -94,7 +107,8 @@ upgrade does not invent a replacement mapping or change painting assignments.
 Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL
 and mysqli. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
-`04-xampp-grants.sql`, then `05-subject-identities.sql`. The starter SQL
+`04-xampp-grants.sql`, `05-subject-identities.sql`, then
+`06-era-identities.sql`. The starter SQL
 replaces the `art` database. Open
 http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
