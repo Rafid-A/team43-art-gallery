@@ -143,9 +143,9 @@ function safe_link($url)
     return filter_var($url, FILTER_VALIDATE_URL) && in_array(strtolower(parse_url($url, PHP_URL_SCHEME) ?? ''), ['http', 'https'], true);
 }
 
-function lock_parent($table, $key, $id)
+function lock_parent($table, $key, $id, $label)
 {
-    if (!rows("SELECT $key FROM $table WHERE $key = ? FOR UPDATE", [$id])->fetch()) throw new DomainException('The selected ' . strtolower($table) . ' record no longer exists. Refresh and choose again.');
+    if (!rows("SELECT $key FROM $table WHERE $key = ? FOR UPDATE", [$id])->fetch()) throw new DomainException('The selected ' . $label . ' no longer exists. Refresh and choose again; no assignment was added.');
 }
 
 function add_object($type, $values)
@@ -156,10 +156,13 @@ function add_object($type, $values)
     try {
         $pdo->beginTransaction();
         if (in_array($type, ['painting-genres', 'painting-subjects'], true)) {
-            lock_parent('Paintings', 'PaintingID', $values['PaintingID']);
+            // Each parent is validated on its own. Locking the artwork row first also
+            // serializes concurrent assignments to it, so the duplicate check below
+            // cannot be raced into two identical pairs.
+            lock_parent('Paintings', 'PaintingID', $values['PaintingID'], 'artwork');
             $classification = $type === 'painting-genres' ? ['Genres', 'GenreID', $values['GenreID'], 'genre'] : ['Subjects', 'SubjectID', $values['SubjectID'], 'subject'];
             [$table, $key, $classificationId, $label] = $classification;
-            lock_parent($table, $key, $classificationId);
+            lock_parent($table, $key, $classificationId, $label);
             $assignmentTable = $type === 'painting-genres' ? 'PaintingGenres' : 'PaintingSubjects';
             $assignmentKey = $type === 'painting-genres' ? 'GenreID' : 'SubjectID';
             $assignmentId = $type === 'painting-genres' ? $values['GenreID'] : $values['SubjectID'];
