@@ -26,20 +26,25 @@ BEGIN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Subject upgrade is already running. Retry after it finishes.';
   END IF;
   -- Retain f846d9c's explicit ID/name contract, including both Abstract rows.
-  -- This file does not establish its external course provenance. Never derive
-  -- IDs from legacy row order or update PaintingSubjects associations.
+  -- 07-subject-name-corrections.sql corrects these names, so CorrectedName lets
+  -- this file rerun safely afterward. Never derive IDs from legacy row order or
+  -- update PaintingSubjects associations.
   CREATE TEMPORARY TABLE `_SubjectIdentityMap` (
     `SubjectID` INTEGER NOT NULL PRIMARY KEY,
-    `SubjectName` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+    `SubjectName` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+    `CorrectedName` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
   );
   SET map_created = TRUE;
-  INSERT INTO `_SubjectIdentityMap` (`SubjectID`, `SubjectName`) VALUES
-    (1, 'Animals'), (2, 'Landscape'), (3, 'Music'), (4, 'Sports'),
-    (5, 'Abstract'), (6, 'Transportation'), (7, 'Architecture'),
-    (8, 'Religion'), (9, 'Still Life'), (10, 'People'), (11, 'Botanical'),
-    (12, 'Cuisine'), (13, 'History'), (14, 'Love'), (15, 'Family'),
-    (16, 'Performing Arts'), (17, 'Allegory'), (18, 'Mythological'),
-    (19, 'Power'), (20, 'Military'), (21, 'Abstract');
+  INSERT INTO `_SubjectIdentityMap` (`SubjectID`, `SubjectName`, `CorrectedName`) VALUES
+    (1, 'Animals', 'Animals'), (2, 'Landscape', 'Landscape'), (3, 'Music', 'Music'),
+    (4, 'Sports', 'Sports'), (5, 'Abstract', 'Abstract'),
+    (6, 'Transportation', 'Transportation'), (7, 'Architecture', 'Architecture'),
+    (8, 'Religion', 'Abstract'), (9, 'Still Life', 'Religion'),
+    (10, 'People', 'Still Life'), (11, 'Botanical', 'People'),
+    (12, 'Cuisine', 'Botanical'), (13, 'History', 'Cuisine'), (14, 'Love', 'History'),
+    (15, 'Family', 'Love'), (16, 'Performing Arts', 'Family'),
+    (17, 'Allegory', 'Performing Arts'), (18, 'Mythological', 'Allegory'),
+    (19, 'Power', 'Mythological'), (20, 'Military', 'Power'), (21, 'Abstract', 'Military');
 
   SELECT COUNT(*) INTO invalid_count FROM information_schema.tables
     WHERE table_schema = DATABASE() AND table_name IN ('Subjects', 'PaintingSubjects')
@@ -79,9 +84,10 @@ BEGIN
     END IF;
     SELECT COUNT(*) INTO invalid_count FROM `Subjects` s
       JOIN `_SubjectIdentityMap` m ON m.SubjectID = s.SubjectID
-      WHERE BINARY s.SubjectName <> BINARY m.SubjectName;
+      WHERE BINARY s.SubjectName <> BINARY m.SubjectName
+        AND BINARY s.SubjectName <> BINARY m.CorrectedName;
     IF invalid_count <> 0 THEN
-      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing reserved SubjectID/name values conflict with the established mapping; no IDs are changed.';
+      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing reserved SubjectID/name values conflict with the established mapping and its correction; no IDs are changed.';
     END IF;
     -- Legitimate CRUD can delete unreferenced seed rows or add custom IDs and
     -- duplicate names. Validate survivors/references, never reseed or count 21.
