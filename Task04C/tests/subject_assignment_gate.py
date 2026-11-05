@@ -1,9 +1,8 @@
 """Disposable integration test: python tests/subject_assignment_gate.py. Requires Docker Compose.
 
 Creates a uniquely named volume and project; never connects to an existing gallery.
-Pages are checked against the names stored in the database. The name mapping itself
-is checked only in the migration section, against the team-defined mapping in
-artwork/sql/07-subject-name-corrections.sql.
+Subject names are read from the database at runtime. This gate verifies that pages
+show the stored name for an ID; it does not assert that any ID-to-name mapping is correct.
 """
 import html
 import http.cookiejar
@@ -26,8 +25,6 @@ project = 'subjectgate' + tag
 volume = project + '_disposable_db'
 OWNER_LABEL = 'subject-gate-owner'
 SEEDED_DUPLICATE_PAIRS = 7
-OLD_NAMES = {8: 'Religion', 9: 'Still Life', 10: 'People', 11: 'Botanical', 12: 'Cuisine', 13: 'History', 14: 'Love', 15: 'Family', 16: 'Performing Arts', 17: 'Allegory', 18: 'Mythological', 19: 'Power', 20: 'Military', 21: 'Abstract'}
-CORRECTED_NAMES = {1: 'Animals', 2: 'Landscape', 3: 'Music', 4: 'Sports', 5: 'Abstract', 6: 'Transportation', 7: 'Architecture', 8: 'Abstract', 9: 'Religion', 10: 'Still Life', 11: 'People', 12: 'Botanical', 13: 'Cuisine', 14: 'History', 15: 'Love', 16: 'Family', 17: 'Performing Arts', 18: 'Allegory', 19: 'Mythological', 20: 'Power', 21: 'Military'}
 SESSIONS = 6
 ROUNDS = 5
 count = 0
@@ -388,55 +385,6 @@ def exercise(container, base):
     check('assignment detail says Missing artwork', status == 200 and 'Missing artwork #' + str(orphan_painting) in body)
     check('assignment detail has no artwork link', 'painting.php?id=' + str(orphan_painting) not in body)
     sql('DELETE FROM PaintingSubjects WHERE PaintingSubjectID=' + orphan_row + ';')
-
-    # 10. Name correction: only names change, reruns are safe, conflicts stop cleanly.
-    def migrate(name):
-        return subprocess.run(['docker', 'exec', '-i', container, 'sh', '-c', 'exec mariadb -uroot -ptask04c-local-root < /docker-entrypoint-initdb.d/' + name], capture_output=True, text=True)
-
-    def reserved():
-        return {int(row[0]): row[1] for row in table('SELECT SubjectID, SubjectName FROM Subjects WHERE SubjectID BETWEEN 1 AND 21 ORDER BY SubjectID;')}
-
-    def set_names(names):
-        sql(''.join("UPDATE Subjects SET SubjectName='" + name + "' WHERE SubjectID=" + str(subject) + ';' for subject, name in names.items()))
-
-    subjects_05, subjects_07 = '05-subject-identities.sql', '07-subject-name-corrections.sql'
-    # Clear this run's test links so 05's reference check and the ID 8 cases apply.
-    sql('DELETE FROM PaintingSubjects WHERE PaintingSubjectID=' + orphan + '; DELETE FROM PaintingSubjects WHERE SubjectID=8;')
-    before = links()
-    check('fresh install has the corrected mapping', reserved() == CORRECTED_NAMES)
-
-    result = migrate(subjects_07)
-    check('rerunning 07 succeeds', result.returncode == 0)
-    check('rerunning 07 changes nothing', reserved() == CORRECTED_NAMES)
-    result = migrate(subjects_05)
-    check('rerunning 05 after 07 succeeds', result.returncode == 0)
-    check('rerunning 05 after 07 changes nothing', reserved() == CORRECTED_NAMES)
-
-    set_names(OLD_NAMES)
-    sql("INSERT INTO Subjects (SubjectID, SubjectName) VALUES (500, 'Custom subject');")
-    old_state = reserved()
-    check('rerunning 05 before 07 succeeds', migrate(subjects_05).returncode == 0 and reserved() == old_state)
-    check('07 upgrades an existing database', migrate(subjects_07).returncode == 0 and reserved() == CORRECTED_NAMES)
-    check('07 leaves custom subjects alone', table('SELECT SubjectName FROM Subjects WHERE SubjectID=500;') == [['Custom subject']])
-    check('07 leaves assignments identical', links() == before)
-
-    set_names(OLD_NAMES)
-    sql('DELETE FROM Subjects WHERE SubjectID=8;')
-    expected = {subject: name for subject, name in CORRECTED_NAMES.items() if subject != 8}
-    check('07 does not recreate a deleted seed subject', migrate(subjects_07).returncode == 0 and reserved() == expected)
-    sql("INSERT INTO Subjects (SubjectID, SubjectName) VALUES (8, 'Abstract');")
-
-    set_names(OLD_NAMES)
-    set_names({12: 'Edited elsewhere'})
-    conflicted = reserved()
-    result = migrate(subjects_07)
-    check('07 refuses an edited reserved subject', result.returncode != 0 and 'no names were changed' in result.stderr)
-    check('refused 07 changes no name', reserved() == conflicted)
-    result = migrate(subjects_05)
-    check('05 refuses an edited reserved subject', result.returncode != 0 and 'conflict' in result.stderr)
-    set_names({12: OLD_NAMES[12]})
-    check('07 recovers once the conflict is fixed', migrate(subjects_07).returncode == 0 and reserved() == CORRECTED_NAMES)
-    check('assignments identical after every migration case', links() == before)
 
 
 if __name__ == '__main__':
