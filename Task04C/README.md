@@ -55,15 +55,8 @@ docker compose build db web
 docker compose up -d --no-deps db
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/05-subject-identities.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/06-era-identities.sql'
-docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/07-subject-name-corrections.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
-
-The subject name correction (`07-subject-name-corrections.sql`) changes only
-the names of reserved `SubjectID`s 8 to 21. It never changes IDs or artwork
-assignments, recreates deleted seed subjects, or touches custom subjects, and
-rerunning it changes nothing. If a reserved subject has a name other than its
-old or corrected value, it stops without changing any name.
 
 The era upgrade (`06-era-identities.sql`) follows the same rules as the
 subject upgrade: it accepts only the original two-column `Eras` table with
@@ -92,10 +85,8 @@ and legitimate deletions; this migration does not reseed it.
 Until the supported identity schema is present, HTTP health reports not ready
 and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
-`artwork/sql/05-subject-identities.sql`,
-`artwork/sql/06-era-identities.sql` and then
-`artwork/sql/07-subject-name-corrections.sql` with a database migration
-administrator.
+`artwork/sql/05-subject-identities.sql` and then
+`artwork/sql/06-era-identities.sql` with a database migration administrator.
 
 ## Collection behavior
 
@@ -106,23 +97,18 @@ The image credits are in `artwork/images/SOURCES.txt`.
 
 Eras use a stable `EraID`: the six supplied eras keep IDs 1 to 6 in date
 order and new eras take the next ID. Nothing references Eras, so deleting
-one changes no other record.
-
-Subject names follow a team-defined mapping. The course files list the names
-without IDs, and no original list was found. The numbering from `f846d9c`
-followed file order, but the painting assignments show that is wrong from ID 8
-upward, so `07-subject-name-corrections.sql` corrects it. IDs 1 to 7 are
-unchanged, IDs 9 to 21 take the name one row earlier in the file, and the second
-Abstract is placed at ID 8 by choice, since no artwork shows its real ID. Painting
-assignments are not changed.
+one changes no other record. Subject records retain the
+explicit ID/name mapping introduced in `f846d9c`, including both Abstract
+records. Its external course provenance still needs confirmation. This
+upgrade does not invent a replacement mapping or change painting assignments.
 
 ## Optional existing XAMPP installation
 
 Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL
 and mysqli. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
-`04-xampp-grants.sql`, `05-subject-identities.sql`, `06-era-identities.sql`,
-then `07-subject-name-corrections.sql`. The starter SQL
+`04-xampp-grants.sql`, `05-subject-identities.sql`, then
+`06-era-identities.sql`. The starter SQL
 replaces the `art` database. Open
 http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so

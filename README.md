@@ -114,10 +114,7 @@ its classifications and reviews together while preserving the image file.
 Subjects support list/detail/add/delete, and a subject that artworks
 still use cannot be deleted. Artwork subjects can be assigned from an
 artwork's page or from Manage, and removed one assignment at a time;
-duplicate pairs are rejected. Subject names follow a team-defined mapping
-inferred from the painting assignments, because the course files list names
-without IDs. An existing database needs the name correction in the runtime
-guide; until then it keeps showing the old names.
+duplicate pairs are rejected.
 
 Eras support list/detail/add/delete using a stable `EraID`. The six
 supplied eras keep IDs 1 to 6 in date order, years stay free text, and an
