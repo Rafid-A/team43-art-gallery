@@ -4400,20 +4400,20 @@ INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (4, 'Sports');
 INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (5, 'Abstract');
 INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (6, 'Transportation');
 INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (7, 'Architecture');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (8, 'Religion');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (9, 'Still Life');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (10, 'People');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (11, 'Botanical');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (12, 'Cuisine');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (13, 'History');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (14, 'Love');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (15, 'Family');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (16, 'Performing Arts');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (17, 'Allegory');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (18, 'Mythological');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (19, 'Power');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (20, 'Military');
-INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (21, 'Abstract');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (9, 'Religion');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (10, 'Still Life');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (11, 'People');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (12, 'Botanical');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (13, 'Cuisine');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (14, 'History');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (15, 'Love');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (16, 'Family');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (17, 'Performing Arts');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (18, 'Allegory');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (19, 'Mythological');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (20, 'Power');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (21, 'Military');
+INSERT INTO `Subjects` (`SubjectID`, `SubjectName`) VALUES (22, 'Abstract');
 
 ALTER TABLE `PaintingSubjects`
   ADD CONSTRAINT `fk_painting_subjects_subject`

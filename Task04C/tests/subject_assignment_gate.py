@@ -1,10 +1,12 @@
 """Disposable integration test: python tests/subject_assignment_gate.py. Requires Docker Compose.
 
 Creates a uniquely named volume and project; never connects to an existing gallery.
-Subject names are read from the database at runtime. This gate verifies that pages
-show the stored name for an ID; it does not assert that any ID-to-name mapping is correct.
+Fresh subject IDs and names are checked against the authors' versioned mapping.
+Page checks compare each assignment row with its own stored values. Migration
+checks cover existing IDs, custom data, reruns, conflicts, and guarded rollback.
 """
 import html
+from html.parser import HTMLParser
 import http.cookiejar
 import json
 import os
@@ -56,6 +58,47 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def esc(value):
     return html.escape(value, quote=True).replace('&#x27;', '&#039;')
+
+
+class AssignmentRows(HTMLParser):
+    """Collect each assignment directory link and its own heading."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.rows = []
+        self.current = None
+        self.in_heading = False
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'a' and 'directory-row' in attrs.get('class', '').split():
+            query = urllib.parse.parse_qs(urllib.parse.urlsplit(attrs.get('href', '')).query)
+            if query.get('type') == ['painting-subjects'] and len(query.get('id', [])) == 1:
+                self.current = [query['id'][0], []]
+        elif tag == 'h2' and self.current is not None:
+            self.in_heading = True
+
+    def handle_data(self, data):
+        if self.in_heading and self.current is not None:
+            self.current[1].append(data)
+
+    def handle_endtag(self, tag):
+        if tag == 'h2':
+            self.in_heading = False
+        elif tag == 'a' and self.current is not None:
+            self.rows.append((self.current[0], ''.join(self.current[1])))
+            self.current = None
+
+
+def assignment_rows(body):
+    parser = AssignmentRows()
+    parser.feed(body)
+    parser.close()
+    return parser.rows
+
+
+def assignment_row_matches(rows, assignment, expected_heading):
+    return [heading for row_id, heading in rows if row_id == assignment] == [expected_heading]
 
 
 def token(body):
@@ -192,6 +235,12 @@ def exercise(container, base):
     # 1. Views show the stored name for each ID.
     subjects = table('SELECT SubjectID, SubjectName FROM Subjects ORDER BY SubjectID;')
     check('subjects are present', len(subjects) > 0)
+    check('fresh subject IDs and names match the author source', subjects == [
+        ['1', 'Animals'], ['2', 'Landscape'], ['3', 'Music'], ['4', 'Sports'], ['5', 'Abstract'],
+        ['6', 'Transportation'], ['7', 'Architecture'], ['9', 'Religion'], ['10', 'Still Life'],
+        ['11', 'People'], ['12', 'Botanical'], ['13', 'Cuisine'], ['14', 'History'], ['15', 'Love'],
+        ['16', 'Family'], ['17', 'Performing Arts'], ['18', 'Allegory'], ['19', 'Mythological'],
+        ['20', 'Power'], ['21', 'Military'], ['22', 'Abstract']])
     status, body, _ = browser.req('artwork/object-add.php?type=painting-subjects')
     check('selector page loads', status == 200 and 'name="SubjectID"' in body)
     check('selector lists every subject with its ID', all(re.search('<option value="' + sid + r'"\s*(selected)?\s*>' + re.escape(esc(name)) + ' · #' + sid + '</option>', body) for sid, name in subjects))
@@ -205,10 +254,18 @@ def exercise(container, base):
     check('assignment detail shows stored subject name', status == 200 and esc(name) + ' · #' + subject in body)
     check('assignment detail links to the subject record', subject_link in body)
     status, body, _ = browser.req('artwork/objects.php?type=painting-subjects')
-    listed = re.findall(r'type=painting-subjects&amp;id=(\d+)', body)
+    listed = assignment_rows(body)
     check('assignment list has rows', status == 200 and len(listed) > 0)
-    listed_subject = table('SELECT SubjectID FROM PaintingSubjects WHERE PaintingSubjectID=' + listed[0] + ';')[0][0]
-    check('assignment list shows stored subject name', esc(subject_name(listed_subject)) + ' · #' + listed_subject in body)
+    expected = {row[0]: bytes.fromhex(row[1]).decode('utf-8') + ' · ' + bytes.fromhex(row[2]).decode('utf-8') + ' · #' + row[3] for row in table(
+        'SELECT j.PaintingSubjectID, HEX(p.Title), HEX(s.SubjectName), s.SubjectID FROM PaintingSubjects j '
+        'JOIN Paintings p ON p.PaintingID=j.PaintingID JOIN Subjects s ON s.SubjectID=j.SubjectID;')}
+    check('each listed assignment row shows its own stored subject name',
+          all(row_id in expected and assignment_row_matches(listed, row_id, expected[row_id]) for row_id, _ in listed))
+    swapped = assignment_rows('<a class="directory-row" href="objects.php?type=painting-subjects&amp;id=1"><h2>Work · Wrong · #2</h2></a>'
+                              '<a class="directory-row" href="objects.php?type=painting-subjects&amp;id=2"><h2>Work · Right &amp; sound · #1</h2></a>')
+    check('a subject name in another assignment row cannot satisfy the check',
+          not assignment_row_matches(swapped, '1', 'Work · Right & sound · #1')
+          and assignment_row_matches(swapped, '2', 'Work · Right & sound · #1'))
     status, body, _ = browser.req('artwork/object-add.php?type=painting-subjects&painting=' + painting)
     check('artwork link preselects the artwork', status == 200 and re.search('<option value="' + painting + r'"\s*selected', body) is not None)
 
@@ -385,6 +442,69 @@ def exercise(container, base):
     check('assignment detail says Missing artwork', status == 200 and 'Missing artwork #' + str(orphan_painting) in body)
     check('assignment detail has no artwork link', 'painting.php?id=' + str(orphan_painting) not in body)
     sql('DELETE FROM PaintingSubjects WHERE PaintingSubjectID=' + orphan_row + ';')
+
+    # 10. Simulate an older identified volume, custom ID 22, and a deletion.
+    up = (ROOT / 'artwork/sql/07-subject-names.sql').read_text(encoding='utf-8')
+    down = (ROOT / 'artwork/sql/07-subject-names-down.sql').read_text(encoding='utf-8')
+    def migrate(script):
+        return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-ptask04c-local-root', 'art'],
+                              input=script, capture_output=True, text=True)
+    def subjects_snapshot():
+        return sql('SELECT SubjectID, HEX(SubjectName) FROM Subjects ORDER BY SubjectID;')
+    def journal():
+        return sql('SELECT SubjectID, HEX(OldName), HEX(NewName) FROM `_SubjectNameCorrection07` ORDER BY SubjectID;')
+    check('fresh initialization records completion', '0\t' in journal())
+    fresh_links = links()
+    sql("UPDATE Subjects SET SubjectName='People' WHERE SubjectID=10;")
+    edited = subjects_snapshot()
+    check('completed fresh rerun preserves legacy-valued edit and links',
+          migrate(up).returncode == 0 and subjects_snapshot() == edited and links() == fresh_links)
+    sql("UPDATE Subjects SET SubjectName='Still Life' WHERE SubjectID=10;")
+    check('fresh down clears completion', migrate(down).returncode == 0 and journal() == '')
+    check('fresh reapply records completion', migrate(up).returncode == 0 and '0\t' in journal())
+    check('fresh second down clears completion', migrate(down).returncode == 0 and journal() == '')
+    sql('DELETE FROM PaintingSubjects WHERE PaintingSubjectID=' + orphan + ';'
+        "DELETE FROM PaintingSubjects WHERE SubjectID IN (20,21);"
+        "INSERT INTO Subjects (SubjectID, SubjectName) VALUES (8, 'Religion');"
+        "UPDATE Subjects SET SubjectName='Custom 22' WHERE SubjectID=22;"
+        "SET FOREIGN_KEY_CHECKS=0; DELETE FROM Subjects WHERE SubjectID=21; SET FOREIGN_KEY_CHECKS=1;"
+        "UPDATE Subjects SET SubjectName=CASE SubjectID "
+        "WHEN 9 THEN 'Still Life' WHEN 10 THEN 'People' WHEN 11 THEN 'Botanical' WHEN 12 THEN 'Cuisine' "
+        "WHEN 13 THEN 'History' WHEN 14 THEN 'Love' WHEN 15 THEN 'Family' WHEN 16 THEN 'Performing Arts' "
+        "WHEN 17 THEN 'Allegory' WHEN 18 THEN 'Mythological' WHEN 19 THEN 'Power' WHEN 20 THEN 'Military' "
+        "ELSE SubjectName END;")
+    old_names, old_links = subjects_snapshot(), links()
+    identity = (ROOT / 'artwork/sql/05-subject-identities.sql').read_text(encoding='utf-8')
+    check('identity migration accepts existing custom IDs and deletions',
+          migrate(identity).returncode == 0 and subjects_snapshot() == old_names and links() == old_links)
+    result = migrate(up)
+    check('old identified volume upgrades', result.returncode == 0)
+    corrected = subjects_snapshot()
+    check('upgrade preserves links, legacy ID 8, custom ID 22, and deletion', links() == old_links and
+          table('SELECT SubjectID, SubjectName FROM Subjects WHERE SubjectID IN (8,21,22) ORDER BY SubjectID;') == [['8', 'Religion'], ['22', 'Custom 22']])
+    check('upgrade corrects surviving canonical IDs', table('SELECT SubjectID, SubjectName FROM Subjects WHERE SubjectID BETWEEN 9 AND 20 ORDER BY SubjectID;') == [
+        ['9', 'Religion'], ['10', 'Still Life'], ['11', 'People'], ['12', 'Botanical'], ['13', 'Cuisine'], ['14', 'History'],
+        ['15', 'Love'], ['16', 'Family'], ['17', 'Performing Arts'], ['18', 'Allegory'], ['19', 'Mythological'], ['20', 'Power']])
+    check('upgrade rerun leaves data unchanged', migrate(up).returncode == 0 and subjects_snapshot() == corrected and links() == old_links)
+    sql("UPDATE Subjects SET SubjectName='Modified after upgrade' WHERE SubjectID=10;")
+    changed, marked = subjects_snapshot(), journal()
+    check('rollback rejects subsequent edits without partial changes', migrate(down).returncode != 0 and subjects_snapshot() == changed and journal() == marked and links() == old_links)
+    sql("UPDATE Subjects SET SubjectName='Still Life' WHERE SubjectID=10;")
+    check('rollback restores exactly the original names and clears state', migrate(down).returncode == 0 and subjects_snapshot() == old_names and journal() == '' and links() == old_links)
+    sql("UPDATE Subjects SET SubjectName='Custom conflicting name' WHERE SubjectID=10;")
+    conflict = subjects_snapshot()
+    check('upgrade rejects conflicts without partial changes', migrate(up).returncode != 0 and subjects_snapshot() == conflict and journal() == '' and links() == old_links)
+    sql("UPDATE Subjects SET SubjectName='People' WHERE SubjectID=10;")
+    check('legacy reapply records completion', migrate(up).returncode == 0 and subjects_snapshot() == corrected and '0\t' in journal())
+    sql("INSERT INTO Subjects (SubjectID, SubjectName) VALUES (21, 'Abstract');")
+    readded, marked = subjects_snapshot(), journal()
+    check('completed rerun preserves readded legacy-valued ID', migrate(up).returncode == 0 and subjects_snapshot() == readded and journal() == marked and links() == old_links)
+    sql('DELETE FROM Subjects WHERE SubjectID=21;')
+    sql('DELETE FROM Subjects WHERE SubjectID=20;')
+    deleted, marked = subjects_snapshot(), journal()
+    check('rerun preserves a subject deleted after upgrade', migrate(up).returncode == 0 and subjects_snapshot() == deleted and journal() == marked and links() == old_links)
+    check('rollback rejects a subsequent deletion without partial changes', migrate(down).returncode != 0 and subjects_snapshot() == deleted and journal() == marked and links() == old_links)
+
 
 
 if __name__ == '__main__':
