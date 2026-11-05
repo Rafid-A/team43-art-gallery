@@ -177,7 +177,10 @@ function add_object($type, $values)
         if (in_array($type, ['painting-genres', 'painting-subjects'], true)) {
             // Each parent is validated on its own. Locking the artwork row first also
             // serializes concurrent assignments to it, so the duplicate check below
-            // cannot be raced into two identical pairs.
+            // cannot be raced into two identical pairs. That check is a plain read on
+            // purpose: FOR UPDATE there takes gap locks that deadlock inserts for other
+            // artworks, and its snapshot starts after these locks, so it sees any
+            // assignment committed by the previous lock holder.
             lock_parent('Paintings', 'PaintingID', $values['PaintingID'], 'artwork');
             $classification = $type === 'painting-genres' ? ['Genres', 'GenreID', $values['GenreID'], 'genre'] : ['Subjects', 'SubjectID', $values['SubjectID'], 'subject'];
             [$table, $key, $classificationId, $label] = $classification;
@@ -185,7 +188,7 @@ function add_object($type, $values)
             $assignmentTable = $type === 'painting-genres' ? 'PaintingGenres' : 'PaintingSubjects';
             $assignmentKey = $type === 'painting-genres' ? 'GenreID' : 'SubjectID';
             $assignmentId = $type === 'painting-genres' ? $values['GenreID'] : $values['SubjectID'];
-            if (rows("SELECT {$assignmentKey} FROM {$assignmentTable} WHERE PaintingID=? AND {$assignmentKey}=? FOR UPDATE", [$values['PaintingID'], $assignmentId])->fetch()) throw new DomainException('This artwork already has that ' . $label . '.');
+            if (rows("SELECT {$assignmentKey} FROM {$assignmentTable} WHERE PaintingID=? AND {$assignmentKey}=?", [$values['PaintingID'], $assignmentId])->fetch()) throw new DomainException('This artwork already has that ' . $label . '.');
         }
         if (isset($object['unique'])) {
             // Locking read over the table, so two identical submissions cannot both pass.

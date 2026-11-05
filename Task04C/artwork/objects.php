@@ -33,9 +33,9 @@ page_start($title);
 <?php if ($object['key']): ?><div><dt>Record ID</dt><dd><?= e($record[$object['key']]) ?></dd></div><?php endif; ?>
 <?php foreach ($object['fields'] as $field => $definition): if (in_array($field, ['Details', 'Description'], true)) continue; ?>
 <div><dt><?= e($definition[0]) ?></dt><dd>
-<?php if ($field === 'PaintingID'): ?><a href="painting.php?id=<?= (int)$record[$field] ?>"><?= e($record['Title'] ?? 'Missing artwork') ?> · #<?= (int)$record[$field] ?></a>
+<?php if ($field === 'PaintingID'): if ($record['Title'] !== null): ?><a href="painting.php?id=<?= (int)$record[$field] ?>"><?= e($record['Title']) ?> · #<?= (int)$record[$field] ?></a><?php else: ?><span>Missing artwork #<?= e($record[$field]) ?></span><?php endif; ?>
 <?php elseif ($field === 'GenreID'): ?><a href="objects.php?type=genres&amp;id=<?= (int)$record[$field] ?>"><?= e($record['GenreName'] ?? 'Missing genre') ?> · #<?= (int)$record[$field] ?></a>
-<?php elseif ($field === 'SubjectID'): ?><a href="objects.php?type=subjects&amp;id=<?= (int)$record[$field] ?>"><?= e($record['SubjectName'] ?? 'Missing subject') ?> · #<?= (int)$record[$field] ?></a>
+<?php elseif ($field === 'SubjectID'): if ($record['SubjectName'] !== null): ?><a href="objects.php?type=subjects&amp;id=<?= (int)$record[$field] ?>"><?= e($record['SubjectName']) ?> · #<?= (int)$record[$field] ?></a><?php else: ?><span>Missing subject #<?= e($record[$field]) ?></span><?php endif; ?>
 <?php elseif (($definition[2] ?? '') === 'url' && safe_link($record[$field] ?? '')): ?><a href="<?= e($record[$field]) ?>" rel="noreferrer">Visit reference ↗</a>
 <?php else: ?><?= e($record[$field] ?? 'Not recorded') ?><?php endif; ?></dd></div>
 <?php endforeach; ?></dl>
