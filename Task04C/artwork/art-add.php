@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         try {
             $pdo->beginTransaction();
-            lock_parent('Artists', 'ArtistID', (int)$v['artist_id']);
-            lock_parent('Galleries', 'GalleryID', (int)$v['gallery_id']);
+            lock_parent('Artists', 'ArtistID', (int)$v['artist_id'], 'artist');
+            lock_parent('Galleries', 'GalleryID', (int)$v['gallery_id'], 'gallery');
             $stmt = $pdo->prepare('INSERT INTO Paintings
                 (ArtistID, GalleryID, ImageFileName, Title,
                  YearOfWork, Medium, Excerpt)
