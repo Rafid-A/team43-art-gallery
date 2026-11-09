@@ -4,7 +4,8 @@ Project Task 01 is a PHP/Apache/MariaDB art gallery with artwork browsing,
 title and artist filtering, artwork details, and collection management.
 
 The `project-task-02` branch continues Project Task 01. Its application files
-are in `Source`; the planned Task 2 features are not yet implemented.
+are in `Source`. Responsive gallery viewing and image motion are included;
+the other Task 2 features are still planned.
 
 ## Requirements
 

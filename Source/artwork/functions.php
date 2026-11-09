@@ -119,8 +119,9 @@ function page_start($title, $artworksUrl = 'art-main.php')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | The Art Library</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/motion.css">
+    <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
+    <link rel="stylesheet" href="assets/style.css?v=2">
+    <link rel="stylesheet" href="assets/motion.css?v=2">
     <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
     <script src="assets/motion.js"></script>
     <script src="assets/app.js" defer></script>
@@ -148,7 +149,7 @@ function page_start($title, $artworksUrl = 'art-main.php')
         </nav>
         <?php endif; ?>
     </header>
-    <main id="main">
+    <main id="main" tabindex="-1">
 <?php
 }
 

@@ -149,6 +149,18 @@ with a database migration administrator. The corresponding down script is
 
 ## Collection behavior
 
+### Responsive viewing and motion
+
+The gallery supports narrow phone, tablet, and desktop layouts. On an
+artwork page, select **View larger** to open the image viewer; short screens
+keep space for the image and allow scrolling when the title is long.
+Press **Escape** or select **Close** to return to the artwork.
+
+With a mouse, hovering over a collection image gives a subtle zoom, and
+opening the viewer has a short transition. Keyboard actions stay immediate.
+The viewer respects the device's reduced-motion preference; without
+JavaScript, the image link opens the original local image directly.
+
 Artworks can be filtered by title and artist. Artwork deletion is blocked
 when an order refers to the painting; permitted deletion removes its related
 classifications and reviews together, while keeping the image file.
