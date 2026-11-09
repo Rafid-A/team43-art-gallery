@@ -1,4 +1,4 @@
-name: team43-task04c
+name: team43-gallery
 services:
   db:
     labels:
@@ -7,9 +7,9 @@ services:
       context: .
       dockerfile: docker/db.Dockerfile
     environment:
-      MARIADB_ROOT_PASSWORD: task04c-local-root
+      MARIADB_ROOT_PASSWORD: ${GALLERY_ROOT_PASSWORD:-gallery-local-root}
     volumes:
-      - task04c-db:/var/lib/mysql
+      - gallery-db:/var/lib/mysql
     healthcheck:
       test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
       interval: 5s
@@ -57,4 +57,4 @@ services:
       timeout: 5s
       retries: 12
 volumes:
-  task04c-db:
+  gallery-db:

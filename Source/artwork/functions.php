@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 
-session_name('task04c_gallery');
+session_name('team43_gallery');
 session_start([
     'cookie_httponly' => true,
     'cookie_samesite' => 'Lax',

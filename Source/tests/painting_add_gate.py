@@ -29,7 +29,7 @@ class Options(HTMLParser):
 def exercise(container, base):
     def sql(query):
         return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot',
-                               '-ptask04c-local-root', '--default-character-set=utf8mb4', '--batch', '--skip-column-names', 'art'],
+                               '-pgallery-local-root', '--default-character-set=utf8mb4', '--batch', '--skip-column-names', 'art'],
                               input=query, capture_output=True, encoding='utf-8', check=True).stdout
 
     def paintings():

@@ -5,4 +5,5 @@ Thumbs.db
 !.env.example
 *.log
 **/backups/
+Source/existing-volume.yaml
 

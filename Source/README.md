@@ -6,7 +6,7 @@ customer accounts and linked sample exercises.
 ## Requirements and startup
 
 Install Docker Desktop, or Docker Engine with Compose v2.20 or newer. Use
-Linux containers on Windows. From this `Task04C` directory, run:
+Linux containers on Windows. From this `Source` directory, run:
 
 ```sh
 docker compose up -d --build --wait --wait-timeout 180
@@ -42,12 +42,52 @@ in its named volume; do not add `-v` unless intentionally erasing it.
 Initialization runs only for a new volume. A different Compose project name
 selects a separate database, so use the same `-p` name for start and stop.
 
+## Reuse an existing Docker database
+
+By default this project uses `team43-gallery_gallery-db`, a separate volume
+from the former `team43-task04c_task04c-db`. Verify the actual old volume
+name with `docker volume ls` and `docker volume inspect`; a custom project
+name may have produced a different name. Back up the database and stop the
+old installation and all other writers before attaching its volume. Never
+attach the same database volume to two running MariaDB containers.
+
+To reuse it deliberately, create a local, untracked override file such as
+`existing-volume.yaml`, replacing the example name with the verified name:
+
+```yaml
+volumes:
+  gallery-db:
+    external: true
+    name: team43-task04c_task04c-db
+```
+
+Set `GALLERY_ROOT_PASSWORD` in `.env` to the existing database root password
+(the former default was `task04c-local-root`). Changing this environment
+variable does not change an existing MariaDB password. Use the actual password,
+including for the upgrade commands below. Keep `.env` private. Then use the
+same explicit files for every Compose command, including stop and upgrade:
+
+```sh
+docker compose -f compose.yaml -f existing-volume.yaml up -d --build --wait --wait-timeout 180
+docker compose -f compose.yaml -f existing-volume.yaml down
+```
+
+The launchers use only the default configuration and do not apply this
+override. `external: true` requires an existing volume and prevents Compose
+from creating it. Initialization scripts run only on an empty data directory;
+do not point the override at an empty volume when expecting existing data.
+Verify the schema and follow the upgrade instructions if needed. To keep the
+old installation independent, instead use a verified backup/export and import
+it into a separate database with the help of a database administrator; never
+run the starter seed against the existing database.
+
 ## Upgrade an existing database
 
 Back up the existing database first and pause all other database writers.
 Do not import `art-small.sql`, rerun account initialization, or remove the
 database volume to upgrade. From this directory, using the same Compose
-project name as the existing installation:
+project and files as the existing installation (include `-f compose.yaml -f
+existing-volume.yaml` in each command when using the override above):
 
 ```sh
 docker compose stop web phpmyadmin

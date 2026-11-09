@@ -157,11 +157,11 @@ def main():
     with socket.socket() as s:
         s.bind(('127.0.0.1', 0))
         port = s.getsockname()[1]
-    env = dict(os.environ, GALLERY_PORT=str(port))
+    env = dict(os.environ, GALLERY_PORT=str(port), GALLERY_ROOT_PASSWORD='gallery-local-root')
     print('Loopback gallery port:', port, flush=True)
     with tempfile.TemporaryDirectory(prefix=project) as temp:
         override = Path(temp) / 'override.yaml'
-        override.write_text('volumes:\n  task04c-db:\n    external: true\n    name: ' + volume + '\n')
+        override.write_text('volumes:\n  gallery-db:\n    external: true\n    name: ' + volume + '\n')
         compose = ['docker', 'compose', '-p', project, '-f', str(ROOT / 'compose.yaml'), '-f', str(override)]
         existing = run(['docker', 'volume', 'ls', '-q'], capture_output=True).stdout.splitlines()
         if volume in existing:
@@ -191,7 +191,7 @@ def main():
 
 def exercise(container, base):
     def sql(statement):
-        return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-ptask04c-local-root', '--batch', '--skip-column-names', 'art'], input=statement, capture_output=True, text=True, check=True).stdout
+        return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-pgallery-local-root', '--batch', '--skip-column-names', 'art'], input=statement, capture_output=True, text=True, check=True).stdout
 
     def table(statement):
         return [line.split('\t') for line in sql(statement).splitlines()]
@@ -447,7 +447,7 @@ def exercise(container, base):
     up = (ROOT / 'artwork/sql/07-subject-names.sql').read_text(encoding='utf-8')
     down = (ROOT / 'artwork/sql/07-subject-names-down.sql').read_text(encoding='utf-8')
     def migrate(script):
-        return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-ptask04c-local-root', 'art'],
+        return subprocess.run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-pgallery-local-root', 'art'],
                               input=script, capture_output=True, text=True)
     def subjects_snapshot():
         return sql('SELECT SubjectID, HEX(SubjectName) FROM Subjects ORDER BY SubjectID;')
