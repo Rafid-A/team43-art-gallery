@@ -1,0 +1,4 @@
+CREATE USER IF NOT EXISTS 'testuser'@'%' IDENTIFIED BY 'mypassword';
+GRANT SELECT, INSERT, DELETE ON art.* TO 'testuser'@'%';
+CREATE USER IF NOT EXISTS 'min'@'%' IDENTIFIED BY 'min';
+GRANT SELECT, INSERT, DELETE, CREATE ON min.* TO 'min'@'%';

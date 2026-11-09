@@ -1,0 +1,60 @@
+name: team43-task04c
+services:
+  db:
+    labels:
+      ao.session: "${AO_SESSION_ID:-local}"
+    build:
+      context: .
+      dockerfile: docker/db.Dockerfile
+    environment:
+      MARIADB_ROOT_PASSWORD: task04c-local-root
+    volumes:
+      - task04c-db:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  web:
+    labels:
+      ao.session: "${AO_SESSION_ID:-local}"
+    build: .
+    ports:
+      - "127.0.0.1:${GALLERY_PORT:-8084}:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: art
+      DB_USER: testuser
+      DB_PASS: mypassword
+      SAMPLE_DB_HOST: db
+    healthcheck:
+      test: [CMD, php, -r, "exit(@file_get_contents('http://127.0.0.1/health.php') === \"ready\\n\" ? 0 : 1);"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+  phpmyadmin:
+    labels:
+      ao.session: "${AO_SESSION_ID:-local}"
+    image: phpmyadmin:5.2.3-apache@sha256:fb0cb638f7d1c2529407921d86679b2b2faf5bb8542314821e9f16e7e3d2954f
+    ports:
+      - "127.0.0.1:${PHPMYADMIN_PORT:-8085}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: testuser
+      PMA_PASSWORD: mypassword
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, php, -d, allow_url_fopen=1, -r, "exit(@file_get_contents('http://127.0.0.1/index.php') === false ? 1 : 0);"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+volumes:
+  task04c-db:

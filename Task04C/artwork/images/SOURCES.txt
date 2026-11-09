@@ -1,0 +1,10 @@
+Artwork image sources
+
+318 painting images use the larger versions from Fundamentals of Web Development, 2nd Edition, Chapter 19 Project 2. Original filenames are retained.
+https://github.com/funwebdev-2nd-ed/ch19-project2-start/tree/master/images/art/works/medium
+
+041020.jpg: Giacomo Balla, Abstract Speed + Sound, 1913-14. Peggy Guggenheim Collection, Venice. Image credit: Giacomo Balla, SIAE.
+https://www.guggenheim-venice.it/en/art/works/abstract-speed-sound/
+
+001020-copy.jpg is a duplicate of 001020.jpg for the add artwork demonstration.
+Genre images remain from the supplied Lab 14 files.
