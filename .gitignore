@@ -6,4 +6,5 @@ Thumbs.db
 *.log
 **/backups/
 Source/existing-volume.yaml
+Source/tests/node_modules/
 

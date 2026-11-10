@@ -1,0 +1,8 @@
+{
+  "name": "team43-gallery-browser-tests",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "test": "node run_browsing_tests.cjs" },
+  "devDependencies": { "playwright-core": "1.65.0" },
+  "engines": { "node": ">=20" }
+}

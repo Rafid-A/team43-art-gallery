@@ -77,7 +77,7 @@ function notices()
     }
 }
 
-function db()
+function db($throwOnFailure = false)
 {
     static $pdo;
 
@@ -91,6 +91,7 @@ function db()
             ]);
         } catch (PDOException $ex) {
             error_log($ex->getMessage());
+            if ($throwOnFailure) throw $ex;
             http_response_code(503);
             exit('The database is unavailable. Please try again later.');
         }
@@ -120,11 +121,11 @@ function page_start($title, $artworksUrl = 'art-main.php')
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | The Art Library</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
-    <link rel="stylesheet" href="assets/style.css?v=2">
+    <link rel="stylesheet" href="assets/style.css?v=3">
     <link rel="stylesheet" href="assets/motion.css?v=2">
     <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
     <script src="assets/motion.js"></script>
-    <script src="assets/app.js" defer></script>
+    <script src="assets/app.js?v=3" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>

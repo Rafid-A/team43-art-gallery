@@ -177,6 +177,36 @@ and has Abstract at IDs 5 and 22. Existing ID 8 is preserved as an earlier
 team-created record; its name is not verified by that source. Existing
 assignments are never moved or reseeded.
 
+### Sorting and suggestions
+
+Choose a sort field and ascending or descending order, then select **View
+artworks** or **Apply**. New filter/sort submissions start at page one;
+page links, details and add/remove return paths retain the selected view.
+Related artwork links also retain the collection view and a return link to
+the most recent directory, including its page, management mode and sort.
+The management page reports totals for all eight object tables.
+
+Typing a title prefix offers local artwork suggestions. **Find an artist
+page by last name** offers artist profiles. Use the arrow keys and Enter,
+click or tap a result, or press Escape to dismiss the list. Selecting a
+suggestion preserves a return link to the current collection. Without
+JavaScript, the submitted title search, artist dropdown and sort controls
+remain usable.
+
+The authenticated read-only endpoint is
+`GET suggestions.php?type=title|artist&prefix=...`. It returns
+`{"results":[{"id":123,"label":"Title or artist name","url":"local detail URL"}]}`,
+with at most ten results ordered by matching field and ID. An empty prefix
+returns an empty result list. Prefixes match literally under the database
+collation, including `%`, `_`, and `!`; the limit is 255 Unicode characters.
+Errors use `{"error":{"code":"...","message":"..."}}`: 400 for invalid
+input, 401 for an expired/missing login, 405 for another HTTP method, and
+503 for unavailable database/readiness. Searches never change records.
+
+Client/admin role separation remains a separate Task 2 feature. These pages
+retain the current login requirement. Optional repeatable browser/database
+checks are documented in [tests/README.md](tests/README.md).
+
 ## Optional existing XAMPP installation
 
 Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL

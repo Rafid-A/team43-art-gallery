@@ -88,12 +88,140 @@ function artwork_context(array $source)
         'artist' => positive_id($source['artist'] ?? ''),
         'q' => $q,
         'page' => max(1, positive_id($source['page'] ?? '')),
-    ];
+        'sort' => in_array($source['sort'] ?? null, ['title', 'artist'], true) ? $source['sort'] : 'title',
+        'dir' => in_array($source['dir'] ?? null, ['asc', 'desc'], true) ? $source['dir'] : 'asc',
+    ] + directory_return_context($source);
 }
 
 function artwork_collection_url(array $context)
 {
     return 'art-main.php?' . http_build_query(artwork_context($context));
+}
+
+// An allowlisted origin keeps collection and directory sort fields separate.
+// No caller-supplied URL is accepted as a return destination.
+function browsing_origin_query(array $context, $paintingId = 0)
+{
+    $query = ['origin' => $paintingId ? 'painting' : 'collection'];
+    if ($paintingId) $query['origin_id'] = positive_id($paintingId);
+    foreach (artwork_context($context) as $key => $value) $query['origin_' . $key] = $value;
+    return $query;
+}
+
+function browsing_origin(array $source)
+{
+    $kind = $source['origin'] ?? null;
+    if (!in_array($kind, ['collection', 'painting'], true)) return [];
+    $paintingId = positive_id($source['origin_id'] ?? '');
+    if ($kind === 'painting' && !$paintingId) return [];
+    $context = [];
+    foreach (['artist', 'q', 'page', 'sort', 'dir', 'directory_type', 'directory_manage', 'directory_page', 'directory_sort', 'directory_dir'] as $key) $context[$key] = $source['origin_' . $key] ?? '';
+    return browsing_origin_query($context, $kind === 'painting' ? $paintingId : 0);
+}
+
+function origin_artwork_context(array $origin)
+{
+    $context = [];
+    foreach (['artist', 'q', 'page', 'sort', 'dir', 'directory_type', 'directory_manage', 'directory_page', 'directory_sort', 'directory_dir'] as $key) $context[$key] = $origin['origin_' . $key] ?? '';
+    return artwork_context($context);
+}
+
+function browsing_origin_url(array $source)
+{
+    $origin = browsing_origin($source);
+    if (!$origin) return null;
+    $context = origin_artwork_context($origin);
+    return $origin['origin'] === 'painting'
+        ? 'painting.php?' . http_build_query(['id' => $origin['origin_id']] + $context)
+        : artwork_collection_url($context);
+}
+
+function painting_action_context(array $source)
+{
+    $origin = browsing_origin($source);
+    if (($origin['origin'] ?? '') === 'painting') return [$origin['origin_id'], origin_artwork_context($origin)];
+    return [positive_id($source['painting'] ?? ''), artwork_context($source)];
+}
+
+// Request keys select only these fixed SQL expressions.
+function directory_sorts($type)
+{
+    $sorts = [
+        'artists' => ['name' => ['Name', 'o.LastName, o.FirstName'], 'nationality' => ['Nationality', 'o.Nationality']],
+        'galleries' => ['name' => ['Name', 'o.GalleryName'], 'city' => ['City', 'o.GalleryCity']],
+        'eras' => ['name' => ['Name', 'o.EraName'], 'years' => ['Years', 'o.EraYears']],
+        'genres' => ['name' => ['Name', 'o.GenreName'], 'id' => ['Record ID', 'o.GenreID']],
+        'subjects' => ['name' => ['Name', 'o.SubjectName'], 'id' => ['Record ID', 'o.SubjectID']],
+        'painting-genres' => ['artwork' => ['Artwork title', 'p.Title'], 'classification' => ['Genre', 'g.GenreName']],
+        'painting-subjects' => ['artwork' => ['Artwork title', 'p.Title'], 'classification' => ['Subject', 's.SubjectName']],
+    ];
+    return $sorts[$type] ?? [];
+}
+
+function directory_view_context($type, array $source)
+{
+    $sorts = directory_sorts($type);
+    $sort = $source['sort'] ?? null;
+    return [
+        'type' => $type,
+        'manage' => in_array($source['manage'] ?? null, ['1', 1], true) ? 1 : 0,
+        'page' => max(1, positive_id($source['page'] ?? '')),
+        'sort' => is_string($sort) && isset($sorts[$sort]) ? $sort : array_key_first($sorts),
+        'dir' => in_array($source['dir'] ?? null, ['asc', 'desc'], true) ? $source['dir'] : 'asc',
+    ];
+}
+
+function directory_context($type, array $source)
+{
+    return directory_view_context($type, $source) + browsing_origin($source) + directory_return_context($source);
+}
+
+// A fixed, allowlisted directory return view travels alongside collection state.
+// It contains no arbitrary URL or recursively nested navigation history.
+function directory_return_context(array $source)
+{
+    $type = $source['directory_type'] ?? null;
+    if (!is_string($type) || !directory_sorts($type)) return [];
+    $view = [];
+    foreach (['manage', 'page', 'sort', 'dir'] as $key) $view[$key] = $source['directory_' . $key] ?? '';
+    return directory_return_query(directory_view_context($type, $view));
+}
+
+function directory_return_query(array $context)
+{
+    $query = [];
+    foreach (directory_view_context($context['type'], $context) as $key => $value) $query['directory_' . $key] = $value;
+    return $query;
+}
+
+function directory_return_url(array $source)
+{
+    $query = directory_return_context($source);
+    if (!$query) return null;
+    $view = [];
+    foreach ($query as $key => $value) $view[substr($key, strlen('directory_'))] = $value;
+    $origin = browsing_origin($source);
+    if (!$origin && array_key_exists('artist', $source)) {
+        $origin = browsing_origin_query(array_intersect_key($source, array_flip(['artist', 'q', 'page', 'sort', 'dir'])));
+    }
+    return directory_url($view + $origin);
+}
+
+function directory_order($type, array $context)
+{
+    $object = library_objects()[$type];
+    $parts = explode(', ', directory_sorts($type)[$context['sort']][1]);
+    $direction = $context['dir'] === 'desc' ? ' DESC' : ' ASC';
+    $order = implode(', ', array_map(fn($part) => $part . $direction, $parts));
+    $tie = $object['key'] ? 'o.' . $object['key'] : 'o.EraYears';
+    if (!in_array($tie, $parts, true)) $order .= ', ' . $tie . ' ASC';
+    if (!$object['key'] && !in_array('o.EraName', $parts, true)) $order .= ', o.EraName ASC';
+    return $order;
+}
+
+function directory_url(array $context)
+{
+    return 'objects.php?' . http_build_query($context);
 }
 
 function object_title($type, $record)
@@ -108,10 +236,10 @@ function object_title($type, $record)
     return $record[library_objects()[$type]['name']] ?? 'Unnamed record';
 }
 
-function object_url($type, $record, $manage = false)
+function object_url($type, $record, $manage = false, array $context = [])
 {
     $object = library_objects()[$type];
-    $query = ['type' => $type];
+    $query = $context ? directory_context($type, $context) : ['type' => $type];
     if ($object['key']) $query['id'] = $record[$object['key']];
     else {
         $query['name'] = $record[$object['name']] ?? '';
