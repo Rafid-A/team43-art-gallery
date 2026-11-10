@@ -62,6 +62,19 @@ if (addForm) {
 const imageSelect = document.querySelector('select[data-image-base]');
 const imagePreview = document.querySelector('#image-preview');
 
+const artistForm = document.querySelector('#artist-form');
+if (artistForm) {
+  const birth = artistForm.querySelector('#YearOfBirth');
+  const death = artistForm.querySelector('#YearOfDeath');
+  const checkChronology = () => {
+    const invalid = birth.value !== '' && death.value !== '' && Number(death.value) < Number(birth.value);
+    death.setCustomValidity(invalid ? 'Year of death must not precede year of birth.' : '');
+  };
+  birth.addEventListener('input', checkChronology);
+  death.addEventListener('input', checkChronology);
+  checkChronology();
+}
+
 if (imageSelect && imagePreview) {
   const image = imagePreview.querySelector('img');
   const caption = imagePreview.querySelector('figcaption');

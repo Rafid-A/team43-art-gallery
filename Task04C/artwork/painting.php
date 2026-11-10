@@ -36,6 +36,7 @@ $hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . 
             <?php if ($p['Width'] && $p['Height']): ?><div><dt>Dimensions</dt><dd><?= e($p['Width']) ?> × <?= e($p['Height']) ?> cm</dd></div><?php endif; ?>
         </dl>
         <div class="prose"><h2>About the artwork</h2><p><?= nl2br(e(strip_tags($p['Description'] ?: $p['Excerpt'] ?: 'A description has not been recorded for this artwork.'))) ?></p></div>
+        <a class="button primary" href="painting-edit.php?<?= e(http_build_query(['id' => $id] + $context)) ?>">Edit artwork</a>
         <a class="button danger" href="painting-delete.php?<?= e(http_build_query(['id' => $id] + $context)) ?>">Delete artwork</a>
     </div>
 </article>

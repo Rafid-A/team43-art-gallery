@@ -153,8 +153,27 @@ function field_values($object)
             if (!$values[$name]) $errors[$name] = 'Choose an existing ' . $label . '.';
         }
     }
-    if (isset($values['YearOfBirth'], $values['YearOfDeath']) && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
+    if ($values['YearOfBirth'] !== null && $values['YearOfDeath'] !== null && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
     return [$values, $errors];
+}
+
+function artist_edit_fields()
+{
+    $fields = library_objects()['artists']['fields'];
+    return array_intersect_key($fields, array_flip(['FirstName', 'LastName', 'Nationality', 'YearOfBirth', 'YearOfDeath']));
+}
+
+function painting_field_errors($values, $artistIds, $galleryIds)
+{
+    $errors = [];
+    if ($values['title'] === '' || text_length($values['title']) > 255) $errors['title'] = 'Enter a title of 1 to 255 characters.';
+    if (!in_array($values['artist_id'], $artistIds, true)) $errors['artist_id'] = 'Choose an artist.';
+    if (!in_array($values['gallery_id'], $galleryIds, true)) $errors['gallery_id'] = 'Choose a gallery.';
+    $year = filter_var($values['year'], FILTER_VALIDATE_INT);
+    if ($year === false || $year < 1 || $year > 2100) $errors['year'] = 'Enter a year from 1 to 2100.';
+    if ($values['medium'] === '' || text_length($values['medium']) > 255) $errors['medium'] = 'Enter a medium of 1 to 255 characters.';
+    if (text_length($values['excerpt'] ?? '') > 2000) $errors['excerpt'] = 'Keep the description under 2001 characters.';
+    return $errors;
 }
 
 function safe_link($url)

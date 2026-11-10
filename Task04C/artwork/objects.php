@@ -40,7 +40,7 @@ page_start($title);
 <?php else: ?><?= e($record[$field] ?? 'Not recorded') ?><?php endif; ?></dd></div>
 <?php endforeach; ?></dl>
 <?php foreach (['Details', 'Description'] as $field): if (!empty($record[$field])): ?><div class="prose"><h2><?= $field === 'Details' ? 'About the artist' : 'About this genre' ?></h2><p><?= nl2br(e(strip_tags($record[$field]))) ?></p></div><?php endif; endforeach; ?>
-<?php if ($object['key'] && !isset($object['gate'])): ?><a class="button danger" href="object-delete.php?type=<?= e($type) ?>&amp;id=<?= (int)$record[$object['key']] ?>"><?= !empty($object['relationship']) ? 'Remove assignment' : 'Delete ' . e($object['one']) ?></a><?php endif; ?></section>
+<?php if ($type === 'artists'): ?><a class="button primary" href="artist-edit.php?id=<?= (int)$record['ArtistID'] ?>">Edit artist</a> <?php endif; ?><?php if ($object['key'] && !isset($object['gate'])): ?><a class="button danger" href="object-delete.php?type=<?= e($type) ?>&amp;id=<?= (int)$record[$object['key']] ?>"><?= !empty($object['relationship']) ? 'Remove assignment' : 'Delete ' . e($object['one']) ?></a><?php endif; ?></section>
 <?php if (in_array($type, ['artists', 'galleries', 'genres', 'subjects'], true)): $works = related_paintings($type, (int)$record[$object['key']]); ?>
 <section class="related"><div class="section-heading"><h2>Artworks</h2><span><?= count($works) ?> in the collection</span></div><?php artwork_cards($works); ?></section>
 <?php endif; endif; else:

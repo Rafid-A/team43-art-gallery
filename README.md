@@ -108,6 +108,13 @@ the default project name.
 Artists, Paintings, Galleries, Genres, and PaintingGenres support
 list/detail/add/delete operations with application integrity checks.
 
+Issue 12 adds authenticated artist and painting editors. Artist edits allow
+FirstName, LastName, Nationality, YearOfBirth, and YearOfDeath. Painting edits
+allow Title, ArtistID, GalleryID, YearOfWork, and Medium. Primary keys,
+painting images, classifications, and all other columns remain immutable from
+these forms. Artist years are stored as whole years from -10000 to 2100;
+equal birth and death years are accepted, while death before birth is rejected.
+
 Ordered paintings cannot be deleted. Permitted painting deletion removes
 its classifications and reviews together while preserving the image file.
 
