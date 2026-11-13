@@ -189,7 +189,7 @@ function page_start($title, $artworksUrl = 'art-main.php')
     $current = basename($_SERVER['SCRIPT_NAME']);
     $objectType = is_string($_GET['type'] ?? null) ? $_GET['type'] : 'artists';
     $section = match ($current) {
-        'art-main.php', 'artwork.php', 'painting.php', 'art-add.php', 'painting-delete.php' => 'Artworks',
+        'art-main.php', 'artwork.php', 'painting.php', 'art-add.php', 'painting-edit.php', 'painting-delete.php' => 'Artworks',
         'objects.php' => ($_GET['manage'] ?? '') === '1' ? 'Manage' : match ($objectType) {
             'artists' => 'Artists', 'galleries' => 'Galleries',
             'eras', 'genres', 'subjects' => 'Browse', default => 'Manage'
@@ -210,7 +210,7 @@ function page_start($title, $artworksUrl = 'art-main.php')
     <link rel="stylesheet" href="assets/motion.css?v=2">
     <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
     <script src="assets/motion.js"></script>
-    <script src="assets/app.js?v=4" defer></script>
+    <script src="assets/app.js?v=5" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>

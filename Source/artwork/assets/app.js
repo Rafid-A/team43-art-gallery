@@ -138,6 +138,19 @@ if (addForm) {
   });
   addForm.querySelector('[aria-invalid="true"]')?.focus();
 }
+
+const artistForm = document.querySelector('#artist-form');
+if (artistForm) {
+  const birth = artistForm.querySelector('#YearOfBirth');
+  const death = artistForm.querySelector('#YearOfDeath');
+  const checkChronology = () => {
+    const invalid = birth.value !== '' && death.value !== '' && Number(birth.value) !== 0 && Number(death.value) !== 0 && Number(death.value) < Number(birth.value);
+    death.setCustomValidity(invalid ? 'Year of death must not precede year of birth.' : '');
+  };
+  birth.addEventListener('input', checkChronology);
+  death.addEventListener('input', checkChronology);
+  checkChronology();
+}
 document.querySelectorAll('[data-suggestions]').forEach((input) => {
   const wrap = input.closest('.suggestion-wrap');
   const list = wrap.querySelector('[role="listbox"]');

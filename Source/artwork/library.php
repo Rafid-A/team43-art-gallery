@@ -266,8 +266,17 @@ function field_values($object)
     foreach ($object['fields'] as $name => $field) {
         [$label, $length] = $field;
         $kind = $field[2] ?? 'text';
+        if (array_key_exists($name, $_POST) && !is_string($_POST[$name])) {
+            $values[$name] = '';
+            $errors[$name] = $label . ' must be a single text value.';
+            continue;
+        }
         $value = input($name);
         $values[$name] = $value === '' ? null : $value;
+        if (text_length($value) === false) {
+            $errors[$name] = $label . ' must contain valid UTF-8 text.';
+            continue;
+        }
         if ($kind === 'required' && $value === '') $errors[$name] = $label . ' is required.';
         if ($length && text_length($value) > $length) $errors[$name] = $label . ' must be at most ' . $length . ' characters.';
         if ($value !== '' && $kind === 'url' && !safe_link($value)) $errors[$name] = 'Enter a valid http or https URL.';
@@ -281,8 +290,36 @@ function field_values($object)
             if (!$values[$name]) $errors[$name] = 'Choose an existing ' . $label . '.';
         }
     }
-    if (isset($values['YearOfBirth'], $values['YearOfDeath']) && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
+    // Blank and 0 both represent unknown; compare only known, valid whole years.
+    if (isset($values['YearOfBirth'], $values['YearOfDeath']) && !isset($errors['YearOfBirth']) && !isset($errors['YearOfDeath'])
+        && (int)$values['YearOfBirth'] !== 0 && (int)$values['YearOfDeath'] !== 0
+        && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
     return [$values, $errors];
+}
+
+function artist_edit_fields()
+{
+    $fields = library_objects()['artists']['fields'];
+    return array_intersect_key($fields, array_flip(['FirstName', 'LastName', 'Nationality', 'YearOfBirth', 'YearOfDeath']));
+}
+
+function painting_field_errors($values, $artistIds, $galleryIds)
+{
+    $errors = [];
+    foreach (['title', 'artist_id', 'gallery_id', 'year', 'medium', 'excerpt'] as $field) {
+        $value = $values[$field] ?? '';
+        if (!is_string($value)) $errors[$field] = 'Enter a single text value.';
+        elseif (text_length($value) === false) $errors[$field] = 'Enter valid UTF-8 text.';
+    }
+    if ($errors) return $errors;
+    if ($values['title'] === '' || text_length($values['title']) > 255) $errors['title'] = 'Enter a title of 1 to 255 characters.';
+    if (!in_array($values['artist_id'], $artistIds, true)) $errors['artist_id'] = 'Choose an artist.';
+    if (!in_array($values['gallery_id'], $galleryIds, true)) $errors['gallery_id'] = 'Choose a gallery.';
+    $year = filter_var($values['year'], FILTER_VALIDATE_INT);
+    if ($year === false || $year < 1 || $year > 2100) $errors['year'] = 'Enter a year from 1 to 2100.';
+    if ($values['medium'] === '' || text_length($values['medium']) > 255) $errors['medium'] = 'Enter a medium of 1 to 255 characters.';
+    if (text_length($values['excerpt'] ?? '') > 2000) $errors['excerpt'] = 'Keep the description under 2001 characters.';
+    return $errors;
 }
 
 function safe_link($url)

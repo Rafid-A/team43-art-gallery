@@ -43,6 +43,30 @@ exclusive to the test run; do not attach any other writer.
 Stop only the disposable project after testing. Inspect its ownership before
 removing its fresh test volume; never remove an existing gallery's volume.
 
+## Editor regressions
+
+With the same exclusive labelled fixture, classroom accounts, optional
+Playwright installation, `BROWSING_BROWSER` when using installed Edge, and
+`BROWSING_ALLOW_FIXTURE_WRITES=yes`, run `node editors_regression.cjs`.
+It never starts, stops or removes containers/volumes. It checks both database
+and upload volume ownership before mutations, and applies `09-editor-grants.sql`
+as root only in that fixture to exercise a retained-database upgrade and rerun.
+It verifies exact column privileges for existing supported testuser hosts,
+unchanged unrelated grants, account authentication, and data checksums. It
+does not create missing database users. A separate fresh Docker initialization
+and actual XAMPP/MySQL installation remain operator checks; the suite checks
+that the Dockerfile includes 09, rather than claiming to rebuild the fixture.
+
+Coverage includes admin edit/reopen/no-op, full-row preservation with forged
+IDs/extra fields, client/anonymous GET/POST denial, CSRF, typed arrays,
+malformed UTF-8, lengths, required fields, whole-year boundaries, equal/unknown
+artist years, chronology and retained values, browser custom validity and
+JavaScript-disabled/direct POST, deleted rows, exact-row forced UPDATE failures,
+directory/painting/collection return contexts and a nonartist add redirect.
+Only uniquely labelled fixture rows and exact-ID UPDATE triggers are created;
+cleanup verifies all eight gallery table and account checksums. No baseline
+rows, IDs or upload files are reset. Do not run another writer concurrently.
+
 ## Account regressions
 
 With the same labelled, exclusive disposable fixture, classroom accounts,

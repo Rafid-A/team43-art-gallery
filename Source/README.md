@@ -103,8 +103,17 @@ docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_R
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/06-era-identities.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/07-subject-names.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/08-account-roles.sql'
+docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/09-editor-grants.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
+
+The editor upgrade (`09-editor-grants.sql`) grants UPDATE only on the five
+selected artist and five painting columns to existing `testuser` accounts at
+`%`, `localhost`, and `127.0.0.1`. Missing hosts are skipped; no accounts,
+passwords, records or unrelated privileges are changed. It is safe to repeat.
+Fresh Docker databases run it automatically. Existing installations must run
+it explicitly after rebuilding the database image; rebuilding alone does not
+rerun initialization scripts on a retained volume.
 
 The account upgrade (`08-account-roles.sql`) adds `role` (`client` or
 `admin`, default `client`) and `status` (`active` or `disabled`, default
@@ -167,9 +176,9 @@ Until the supported identity schema is present, HTTP health reports not ready
 and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
 `artwork/sql/05-subject-identities.sql` and then
-`artwork/sql/06-era-identities.sql`, then `artwork/sql/07-subject-names.sql`
-and `artwork/sql/08-account-roles.sql` with a database migration
-administrator. The corresponding down script is
+`artwork/sql/06-era-identities.sql`, `artwork/sql/07-subject-names.sql`,
+`artwork/sql/08-account-roles.sql` and `artwork/sql/09-editor-grants.sql` with
+a database migration administrator. The corresponding down script is
 `artwork/sql/07-subject-names-down.sql`.
 
 ## Collection behavior
@@ -321,9 +330,9 @@ for those formats), `upload_max_filesize` of at least 6M, and an
 artwork offers only images already on the server. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
-`06-era-identities.sql`, `07-subject-names.sql` and
-`08-account-roles.sql`. Do not import the down script during
-initialization. The starter SQL replaces the `art` database. Open
+`06-era-identities.sql`, `07-subject-names.sql`, `08-account-roles.sql`, then
+`09-editor-grants.sql`. Do not import the down script during initialization.
+The starter SQL replaces the `art` database. Open
 http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
 SQL and protected helper files remain inaccessible through the web.

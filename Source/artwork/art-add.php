@@ -34,16 +34,11 @@ if (upload_request_too_large()) {
     foreach ($fields as $field)
         $v[$field] = input($field);
 
-    if ($v['title'] === '' || text_length($v['title']) > 255)
-        $errors['title'] = 'Enter a title of 1 to 255 characters.';
-
-    if (!in_array($v['artist_id'],
-        array_map('strval', array_column($artists, 'ArtistID')), true))
-        $errors['artist_id'] = 'Choose an artist.';
-
-    if (!in_array($v['gallery_id'],
-        array_map('strval', array_column($galleries, 'GalleryID')), true))
-        $errors['gallery_id'] = 'Choose a gallery.';
+    $errors = painting_field_errors(
+        $v,
+        array_map('strval', array_column($artists, 'ArtistID')),
+        array_map('strval', array_column($galleries, 'GalleryID'))
+    );
 
     if ($v['image_source'] === 'existing') {
         if (!in_array($v['image'], $available, true))
@@ -64,14 +59,6 @@ if (upload_request_too_large()) {
         $errors['image_source'] = 'Choose whether to upload an image or use one already on the server.';
 
     $year = filter_var($v['year'], FILTER_VALIDATE_INT);
-    if ($year === false || $year < 1 || $year > 2100)
-        $errors['year'] = 'Enter a year from 1 to 2100.';
-
-    if ($v['medium'] === '' || text_length($v['medium']) > 255)
-        $errors['medium'] = 'Enter a medium of 1 to 255 characters.';
-
-    if (text_length($v['excerpt']) > 2000)
-        $errors['excerpt'] = 'Keep the description under 2001 characters.';
 
     // A browser cannot keep a chosen file after an error, so ask for it again.
     if ($errors && $upload)
