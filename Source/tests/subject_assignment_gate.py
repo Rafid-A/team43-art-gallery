@@ -123,7 +123,7 @@ class Session:
     def login(self):
         _, body, _ = self.req('artwork/art-login.php')
         status, _, headers = self.req('artwork/authenticate.php', {'csrf': token(body), 'userid': 'user1', 'password': 'pass1'})
-        if status != 303 or headers.get('Location') != 'art-main.php':
+        if status != 303 or headers.get('Location') != 'admin.php':
             raise AssertionError('login failed with status ' + str(status))
         self.csrf = token(self.req('artwork/object-add.php?type=painting-subjects')[1])
         return self

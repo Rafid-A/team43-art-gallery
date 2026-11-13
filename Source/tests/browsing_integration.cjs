@@ -22,7 +22,8 @@ async function login(page) {
   await page.goto(base + 'art-login.php');
   await page.locator('#userid').fill('user1');
   await page.locator('#password').fill('pass1');
-  await Promise.all([page.waitForURL('**/art-main.php'), page.locator('form button').click()]);
+  await Promise.all([page.waitForURL('**/admin.php'), page.locator('form button').click()]);
+  await page.goto(base + 'art-main.php');
 }
 
 (async () => {
