@@ -8,3 +8,4 @@ results/
 !.env.example
 *.log
 backups/
+tests/node_modules/

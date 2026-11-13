@@ -43,11 +43,11 @@ def main():
     with socket.socket() as s:
         s.bind(('127.0.0.1', 0))
         port = s.getsockname()[1]
-    env = dict(os.environ, GALLERY_PORT=str(port))
+    env = dict(os.environ, GALLERY_PORT=str(port), GALLERY_ROOT_PASSWORD='gallery-local-root')
     print('Loopback gallery port:', port, flush=True)
     with tempfile.TemporaryDirectory(prefix=project) as temp:
         override = Path(temp) / 'override.yaml'
-        override.write_text('volumes:\n  task04c-db:\n    external: true\n    name: ' + volume + '\n')
+        override.write_text('volumes:\n  gallery-db:\n    external: true\n    name: ' + volume + '\n')
         compose = ['docker', 'compose', '-p', project, '-f', str(ROOT / 'compose.yaml'), '-f', str(override)]
         existing = run(['docker', 'volume', 'ls', '-q'], capture_output=True).stdout.splitlines()
         if volume in existing:
@@ -63,7 +63,7 @@ def main():
             run(compose + ['up', '-d', '--build', '--wait', 'db', 'web'], cwd=ROOT, env=env)
             container = project + '-db-1'
             def sql(statement):
-                return run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-ptask04c-local-root', '--batch', '--skip-column-names', 'art'], input=statement, capture_output=True).stdout
+                return run(['docker', 'exec', '-i', container, 'mariadb', '-uroot', '-pgallery-local-root', '--batch', '--skip-column-names', 'art'], input=statement, capture_output=True).stdout
             def rows():
                 return sql('SELECT EraID, HEX(EraName), IFNULL(HEX(EraYears), "NULL") FROM Eras ORDER BY EraID;')
             base = 'http://127.0.0.1:' + str(port) + '/'

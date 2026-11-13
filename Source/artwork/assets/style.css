@@ -28,7 +28,7 @@ button, .button { cursor: pointer; }
 .brand { text-decoration: none; font: 27px/1.2 Georgia, serif; letter-spacing: -1px; white-space: nowrap; }
 .brand span { display: block; margin-top: 8px; font: 10px/1.5 system-ui, sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
 .topbar nav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 24px; font-size: 14px; }
-.topbar nav > a { text-decoration: none; padding-block: 8px; border-bottom: 2px solid transparent; }
+.topbar nav > a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; text-decoration: none; padding-block: 8px; border-bottom: 2px solid transparent; }
 .topbar nav > a[aria-current] { border-color: var(--accent); }
 .topbar nav > a:hover { color: var(--accent); border-color: var(--line); }
 .topbar form { margin: 0; }
@@ -153,3 +153,14 @@ footer strong { font: 20px Georgia, serif; color: var(--ink); }
     .pagination .button { padding-inline: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* Suggestion popovers stay within their field and scroll when results are long. */
+.suggestion-wrap { position: relative; min-width: 0; }
+.suggestion-wrap input { width: 100%; }
+.suggestion-list { position: absolute; z-index: 5; inset-inline: 0; top: 100%; max-height: 16rem; overflow-y: auto; margin: 2px 0 0; padding: 4px; list-style: none; background: var(--paper, #fff); color: #222; border: 1px solid #777; box-shadow: 0 6px 16px #0002; }
+.suggestion-list[hidden] { display: none; }
+.suggestion-list li { padding: 12px; min-height: 44px; cursor: pointer; overflow-wrap: anywhere; }
+.suggestion-list li[aria-selected="true"], .suggestion-list li:hover { background: #e8e2d9; }
+.suggestion-status { display: block; font-size: .875rem; }
+.artist-lookup { max-width: 24rem; margin-bottom: 24px; }
+.artist-lookup[hidden] { display: none; }

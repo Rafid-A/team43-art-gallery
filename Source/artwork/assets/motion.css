@@ -69,7 +69,7 @@ html { scrollbar-gutter: stable; }
 .viewer-close { flex-shrink: 0; border-color: var(--muted); color: var(--paper); }
 .viewer-close:hover { background: var(--paper); color: var(--ink); }
 .viewer-close:focus-visible { outline-color: var(--paper); }
-.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; }
+.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 96px; }
 .viewer-stage img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
 .viewer-caption { font-size: 12px; color: var(--viewer-muted); margin: 0; overflow-wrap: anywhere; }
 
@@ -106,4 +106,12 @@ html { scrollbar-gutter: stable; }
     .viewer-toolbar { gap: 16px; }
     .viewer-toolbar h2 { font-size: 18px; }
     .viewer-close { padding-inline: 12px; }
+}
+/* Give the artwork more room in short landscape viewports. Long titles can
+   still make the dialog scroll rather than reducing the image to nothing. */
+@media (max-height: 480px) {
+    .artwork-viewer { padding: 16px; }
+    .artwork-viewer[open] { gap: 8px; }
+    .viewer-toolbar { gap: 16px; }
+    .viewer-toolbar h2 { font-size: 18px; }
 }

@@ -1,0 +1,15 @@
+# Use with Source/compose.yaml and a NEW project name and unused loopback ports.
+services:
+  db:
+    labels:
+      t3.fixture: issue13-browsing-review
+      t3.issue: "13"
+  web:
+    labels:
+      t3.fixture: issue13-browsing-review
+      t3.issue: "13"
+volumes:
+  gallery-db:
+    labels:
+      t3.fixture: issue13-browsing-review
+      t3.issue: "13"

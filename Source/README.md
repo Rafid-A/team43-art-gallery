@@ -6,7 +6,7 @@ customer accounts and linked sample exercises.
 ## Requirements and startup
 
 Install Docker Desktop, or Docker Engine with Compose v2.20 or newer. Use
-Linux containers on Windows. From this `Task04C` directory, run:
+Linux containers on Windows. From this `Source` directory, run:
 
 ```sh
 docker compose up -d --build --wait --wait-timeout 180
@@ -42,12 +42,52 @@ in its named volume; do not add `-v` unless intentionally erasing it.
 Initialization runs only for a new volume. A different Compose project name
 selects a separate database, so use the same `-p` name for start and stop.
 
+## Reuse an existing Docker database
+
+By default this project uses `team43-gallery_gallery-db`, a separate volume
+from the former `team43-task04c_task04c-db`. Verify the actual old volume
+name with `docker volume ls` and `docker volume inspect`; a custom project
+name may have produced a different name. Back up the database and stop the
+old installation and all other writers before attaching its volume. Never
+attach the same database volume to two running MariaDB containers.
+
+To reuse it deliberately, create a local, untracked override file such as
+`existing-volume.yaml`, replacing the example name with the verified name:
+
+```yaml
+volumes:
+  gallery-db:
+    external: true
+    name: team43-task04c_task04c-db
+```
+
+Set `GALLERY_ROOT_PASSWORD` in `.env` to the existing database root password
+(the former default was `task04c-local-root`). Changing this environment
+variable does not change an existing MariaDB password. Use the actual password,
+including for the upgrade commands below. Keep `.env` private. Then use the
+same explicit files for every Compose command, including stop and upgrade:
+
+```sh
+docker compose -f compose.yaml -f existing-volume.yaml up -d --build --wait --wait-timeout 180
+docker compose -f compose.yaml -f existing-volume.yaml down
+```
+
+The launchers use only the default configuration and do not apply this
+override. `external: true` requires an existing volume and prevents Compose
+from creating it. Initialization scripts run only on an empty data directory;
+do not point the override at an empty volume when expecting existing data.
+Verify the schema and follow the upgrade instructions if needed. To keep the
+old installation independent, instead use a verified backup/export and import
+it into a separate database with the help of a database administrator; never
+run the starter seed against the existing database.
+
 ## Upgrade an existing database
 
 Back up the existing database first and pause all other database writers.
 Do not import `art-small.sql`, rerun account initialization, or remove the
 database volume to upgrade. From this directory, using the same Compose
-project name as the existing installation:
+project and files as the existing installation (include `-f compose.yaml -f
+existing-volume.yaml` in each command when using the override above):
 
 ```sh
 docker compose stop web phpmyadmin
@@ -109,6 +149,18 @@ with a database migration administrator. The corresponding down script is
 
 ## Collection behavior
 
+### Responsive viewing and motion
+
+The gallery supports narrow phone, tablet, and desktop layouts. On an
+artwork page, select **View larger** to open the image viewer; short screens
+keep space for the image and allow scrolling when the title is long.
+Press **Escape** or select **Close** to return to the artwork.
+
+With a mouse, hovering over a collection image gives a subtle zoom, and
+opening the viewer has a short transition. Keyboard actions stay immediate.
+The viewer respects the device's reduced-motion preference; without
+JavaScript, the image link opens the original local image directly.
+
 Artworks can be filtered by title and artist. Artwork deletion is blocked
 when an order refers to the painting; permitted deletion removes its related
 classifications and reviews together, while keeping the image file.
@@ -124,6 +176,36 @@ project's supplied seed exactly, including duplicates. The source has no ID 8
 and has Abstract at IDs 5 and 22. Existing ID 8 is preserved as an earlier
 team-created record; its name is not verified by that source. Existing
 assignments are never moved or reseeded.
+
+### Sorting and suggestions
+
+Choose a sort field and ascending or descending order, then select **View
+artworks** or **Apply**. New filter/sort submissions start at page one;
+page links, details and add/remove return paths retain the selected view.
+Related artwork links also retain the collection view and a return link to
+the most recent directory, including its page, management mode and sort.
+The management page reports totals for all eight object tables.
+
+Typing a title prefix offers local artwork suggestions. **Find an artist
+page by last name** offers artist profiles. Use the arrow keys and Enter,
+click or tap a result, or press Escape to dismiss the list. Selecting a
+suggestion preserves a return link to the current collection. Without
+JavaScript, the submitted title search, artist dropdown and sort controls
+remain usable.
+
+The authenticated read-only endpoint is
+`GET suggestions.php?type=title|artist&prefix=...`. It returns
+`{"results":[{"id":123,"label":"Title or artist name","url":"local detail URL"}]}`,
+with at most ten results ordered by matching field and ID. An empty prefix
+returns an empty result list. Prefixes match literally under the database
+collation, including `%`, `_`, and `!`; the limit is 255 Unicode characters.
+Errors use `{"error":{"code":"...","message":"..."}}`: 400 for invalid
+input, 401 for an expired/missing login, 405 for another HTTP method, and
+503 for unavailable database/readiness. Searches never change records.
+
+Client/admin role separation remains a separate Task 2 feature. These pages
+retain the current login requirement. Optional repeatable browser/database
+checks are documented in [tests/README.md](tests/README.md).
 
 ## Optional existing XAMPP installation
 
