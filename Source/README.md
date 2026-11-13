@@ -22,7 +22,9 @@ PDO MySQL, mysqli, MariaDB 10.11 and phpMyAdmin; no host PHP is required.
 | Course examples | http://localhost:8084/artwork/examples/ |
 
 The gallery has four classroom accounts: `user1` / `pass1` through
-`user4` / `pass4`. phpMyAdmin uses the separate local database account
+`user4` / `pass4`. `user1` is the initial administrator and `user2` to
+`user4` are clients. Anyone can create a client account from the login
+page. phpMyAdmin uses the separate local database account
 `testuser` / `mypassword`. The www13 examples use `bsmith` / `bsmith` and
 `pjones` / `pjones`. These shared credentials and loopback-only ports are
 for a local classroom demo.
@@ -96,8 +98,23 @@ docker compose up -d --no-deps db
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/05-subject-identities.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/06-era-identities.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/07-subject-names.sql'
+docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/08-account-roles.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
+
+The account upgrade (`08-account-roles.sql`) adds `role` (`client` or
+`admin`, default `client`) and `status` (`active` or `disabled`, default
+`active`) to `art_users` in one change. Usernames, names, password hashes
+and every other table are kept. Only when no administrator exists yet, it
+makes `user1` the administrator if that account exists; every other account
+becomes a client. It also gives the gallery's `testuser` account UPDATE on
+`art_users` only, for the Accounts page. Rerunning it changes nothing, and
+it never resets a role or status chosen later. A table that already has
+only one of the columns, or a different definition, stops it before any
+change. To make another account the administrator by hand, run as root:
+`UPDATE art.art_users SET role = 'admin' WHERE username = 'name';`.
+Until 08 runs, nobody can log in: the login page returns an
+upgrade-required response and the health check reports not ready.
 
 The era upgrade (`06-era-identities.sql`) follows the same rules as the
 subject upgrade: it accepts only the original two-column `Eras` table with
@@ -144,7 +161,8 @@ and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
 `artwork/sql/05-subject-identities.sql` and then
 `artwork/sql/06-era-identities.sql`, then `artwork/sql/07-subject-names.sql`
-with a database migration administrator. The corresponding down script is
+and `artwork/sql/08-account-roles.sql` with a database migration
+administrator. The corresponding down script is
 `artwork/sql/07-subject-names-down.sql`.
 
 ## Collection behavior
@@ -203,9 +221,34 @@ Errors use `{"error":{"code":"...","message":"..."}}`: 400 for invalid
 input, 401 for an expired/missing login, 405 for another HTTP method, and
 503 for unavailable database/readiness. Searches never change records.
 
-Client/admin role separation remains a separate Task 2 feature. These pages
-retain the current login requirement. Optional repeatable browser/database
-checks are documented in [tests/README.md](tests/README.md).
+Optional repeatable browser/database checks are documented in
+[tests/README.md](tests/README.md).
+
+### Accounts and roles
+
+Select **Create a client account** on the login page. A user ID is 3 to 32
+letters, numbers, dots, dashes or underscores, and must be unique (`User1`
+and `user1` are the same ID). Passwords are 8 to 72 characters and are
+stored as bcrypt hashes. Registration always creates an active client;
+no form field can choose the role.
+
+| | Client | Administrator |
+| --- | --- | --- |
+| After login | Artworks | Administration main page |
+| Browse artworks, artists, galleries, eras, genres, subjects | Yes | Yes |
+| Own profile (Account) | Yes | Yes |
+| Add, delete or assign records; Manage library; integrity report | No | Yes |
+| Accounts page: change type, disable, enable, delete | No | Yes |
+
+The server checks the role on every administration page and every form
+that changes data, so a client who submits one of those requests directly
+gets 403 and nothing changes. Every request reads the signed-in account
+again: a role change applies on the next request with a new session ID and
+form token, and a disabled or deleted account is signed out on its next
+request. Disabled accounts cannot log in. An administrator cannot change
+or delete their own account, and the last active administrator cannot be
+removed. Future administration features (uploads, editing, imports) call
+the same `require_admin()` check.
 
 ## Optional existing XAMPP installation
 
@@ -213,9 +256,9 @@ Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL
 and mysqli. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
-`06-era-identities.sql`, and `07-subject-names.sql`. Do not import the down
-script during initialization. The starter SQL
-replaces the `art` database. Open
+`06-era-identities.sql`, `07-subject-names.sql` and
+`08-account-roles.sql`. Do not import the down script during
+initialization. The starter SQL replaces the `art` database. Open
 http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
 SQL and protected helper files remain inaccessible through the web.

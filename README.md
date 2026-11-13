@@ -44,12 +44,15 @@ The first build requires internet access.
 
 ### Gallery accounts
 
-| Username | Password |
-| --- | --- |
-| user1 | pass1 |
-| user2 | pass2 |
-| user3 | pass3 |
-| user4 | pass4 |
+| Username | Password | Role |
+| --- | --- | --- |
+| user1 | pass1 | Administrator |
+| user2 | pass2 | Client |
+| user3 | pass3 | Client |
+| user4 | pass4 | Client |
+
+New visitors can create their own client account from the login page.
+Administrators manage accounts on the **Users** page.
 
 phpMyAdmin uses `testuser` / `mypassword`.
 

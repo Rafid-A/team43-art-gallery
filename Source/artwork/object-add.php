@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 $type = get_text('type');
 $object = library_objects()[$type] ?? null;
 if (!$object) { http_response_code(404); exit('Collection not found.'); }

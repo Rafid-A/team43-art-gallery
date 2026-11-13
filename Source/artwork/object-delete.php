@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 $type = get_text('type');
 $object = library_objects()[$type] ?? null;
 $id = positive_id(get_text('id'));
