@@ -1,5 +1,38 @@
 # Browsing regression checks
 
+## Gallery, viewer, and form polish
+
+After preparing the exclusive labelled fixture described below, run these suites
+sequentially from this directory with the same browser and fixture environment:
+
+```powershell
+node gallery_polish_regression.cjs
+node forms_polish_regression.cjs
+node viewer_media_regression.cjs
+```
+
+The gallery and form suites read existing records and exercise mobile disclosures,
+featured artwork, canonical filtering/sorting, removable chips, gallery density,
+exact-view scroll restoration, artist/discovery images, unavailable storage,
+password visibility/autocomplete, sticky actions, and native JavaScript-disabled
+fallbacks. Password visibility buttons have explicit button semantics; login
+checks target the named Log in action rather than the first button in a form.
+
+The viewer/media suite requires `BROWSING_ALLOW_FIXTURE_WRITES=yes` and installed
+Edge (`BROWSING_BROWSER`). It creates uniquely marked artists/paintings and
+generated image files only in the verified fixture, then removes exact owned rows
+and hash-verified files. It compares existing gallery/image baselines afterward.
+Coverage includes tied/NULL/descending neighbors, page boundaries, literal
+filters, directory context, finite image sizes/content versions, malformed
+requests and JPEGs, bounded memory, raw fallback without GD, pixel-capped zoom,
+keyboard/pointer/pinch controls, reduced motion, Escape/focus/scroll recovery,
+and native image/navigation links. No suite starts or removes containers.
+
+The artist lookup now shares the collection's secondary filters; browser checks
+at narrow widths must first open **Filters & sort** to interact with it.
+
+## Fixture setup
+
 These optional developer tests use Node 20+, Docker, and a pinned Playwright
 test dependency. The gallery itself needs no Node installation. From this
 directory, run `npm ci --ignore-scripts`, then

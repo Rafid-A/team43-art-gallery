@@ -22,7 +22,7 @@ async function login(page) {
   await page.goto(base + 'art-login.php');
   await page.locator('#userid').fill('user1');
   await page.locator('#password').fill('pass1');
-  await Promise.all([page.waitForURL('**/admin.php'), page.locator('form button').click()]);
+  await Promise.all([page.waitForURL('**/admin.php'), page.getByRole('button', { name: 'Log in', exact: true }).click()]);
   await page.goto(base + 'art-main.php');
 }
 
@@ -169,6 +169,8 @@ async function login(page) {
     await touchPage.locator('#q-suggestions [role=option]').first().tap();
     await touchPage.waitForURL('**/painting.php?*');
     await touchPage.goto(base + 'art-main.php');
+    const touchFilters = touchPage.locator('.collection-filters');
+    if (!(await touchFilters.evaluate(node => node.open))) await touchFilters.locator('summary').click();
     await touchPage.locator('#artist-lookup').fill('Man');
     await touchPage.locator('#artist-lookup-suggestions [role=option]').first().tap();
     await touchPage.waitForURL('**/objects.php?*');

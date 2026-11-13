@@ -1,3 +1,123 @@
+// Native disclosures remain usable without JavaScript. Desktop shows the full
+// navigation/toolbar; mobile starts compact without duplicating any controls.
+document.querySelectorAll('[data-mobile-disclosure]').forEach((details) => {
+  const summary = details.querySelector(':scope > summary');
+  const mobile = matchMedia(details.classList.contains('site-menu') ? '(max-width: 1024px)' : '(max-width: 768px)');
+  const reflect = () => summary.setAttribute('aria-expanded', String(details.open));
+  const resize = () => {
+    if (mobile.matches && details.contains(document.activeElement)) summary.focus();
+    details.open = !mobile.matches;
+    reflect();
+  };
+  details.addEventListener('toggle', reflect);
+  details.addEventListener('keydown', (event) => {
+    // A suggestion popover consumes its own first Escape.
+    if (event.key === 'Escape' && mobile.matches && details.open) {
+      event.preventDefault();
+      details.open = false;
+      reflect();
+      summary.focus();
+    }
+  });
+  mobile.addEventListener('change', resize);
+  resize();
+  details.dataset.enhanced = 'true';
+});
+
+document.querySelectorAll('[data-combined-sort]').forEach((select) => {
+  const form = select.closest('form');
+  const sort = form.querySelector('[name="sort"]');
+  const direction = form.querySelector('[name="dir"]');
+  if (!sort || !direction) return;
+  const reflect = () => { select.value = `${sort.value}:${direction.value}`; };
+  reflect();
+  select.addEventListener('change', () => {
+    const [field, dir] = select.value.split(':');
+    sort.value = field;
+    direction.value = dir;
+  });
+  sort.addEventListener('change', reflect);
+  direction.addEventListener('change', reflect);
+  form.querySelectorAll('[data-native-sort]').forEach(field => { field.hidden = true; });
+  select.closest('.filter-field').hidden = false;
+});
+
+const collectionView = document.querySelector('[data-collection-view]');
+if (collectionView) {
+  const controls = document.querySelector('[data-density-controls]');
+  const setDensity = (value) => {
+    const density = value === 'compact' ? 'compact' : 'comfortable';
+    collectionView.dataset.density = density;
+    controls?.querySelectorAll('[data-density]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.density === density));
+    });
+  };
+  let storedDensity;
+  try { storedDensity = sessionStorage.getItem('library-gallery-density'); } catch { /* Optional preference. */ }
+  setDensity(storedDensity);
+  if (controls) {
+    controls.hidden = false;
+    controls.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-density]');
+      if (!button) return;
+      setDensity(button.dataset.density);
+      try { sessionStorage.setItem('library-gallery-density', collectionView.dataset.density); } catch { /* Works for this page. */ }
+    });
+  }
+
+  // Return URLs are built by the server's existing artwork context helpers.
+  // Keep the literal collection URL as well, so Back restores its exact view.
+  const storageKey = 'library-collection-positions';
+  const viewKey = location.pathname + location.search;
+  let positions = {};
+  try { positions = JSON.parse(sessionStorage.getItem(storageKey) || '{}') || {}; } catch { /* Storage may be denied. */ }
+  if (typeof positions !== 'object' || Array.isArray(positions)) positions = {};
+  const save = (keys, returning = false) => {
+    const entry = { y: window.scrollY, returning };
+    keys.forEach(key => { delete positions[key]; positions[key] = entry; });
+    positions = Object.fromEntries(Object.entries(positions).slice(-20));
+    try { sessionStorage.setItem(storageKey, JSON.stringify(positions)); } catch { /* Browser Back still works. */ }
+  };
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || (link.target && link.target !== '_self')) return;
+    const target = new URL(link.href);
+    if (target.origin !== location.origin || !/\/(painting|objects)\.php$/.test(target.pathname)) return;
+    const canonical = new URL(collectionView.dataset.collectionView, location.href);
+    save([viewKey, canonical.pathname + canonical.search], true);
+  });
+  window.addEventListener('pagehide', () => {
+    // Don't overwrite a pending breadcrumb return recorded by the link handler.
+    if (!positions[viewKey]?.returning) save([viewKey]);
+  });
+  window.addEventListener('pageshow', (event) => {
+    const entry = positions[viewKey];
+    const back = performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
+    if (!entry || !Number.isFinite(entry.y) || entry.y < 0 || location.hash || (!entry.returning && !back)) return;
+    if (!event.persisted) requestAnimationFrame(() => window.scrollTo({ top: entry.y, behavior: 'instant' }));
+    entry.returning = false;
+    try { sessionStorage.setItem(storageKey, JSON.stringify(positions)); } catch { /* Optional restoration. */ }
+  });
+}
+
+document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+  const input = document.getElementById(button.dataset.passwordToggle);
+  if (!input || !['password', 'text'].includes(input.type)) return;
+  button.type = 'button';
+  button.hidden = false;
+  button.setAttribute('aria-controls', input.id);
+  const reflect = () => {
+    const visible = input.type === 'text';
+    button.setAttribute('aria-pressed', String(visible));
+    button.textContent = visible ? 'Hide password' : 'Show password';
+  };
+  reflect();
+  button.addEventListener('click', () => {
+    input.type = input.type === 'password' ? 'text' : 'password';
+    reflect();
+  });
+});
+
 document.querySelectorAll('form[data-confirm]').forEach((form) => {
   form.addEventListener('submit', (event) => {
     if (pendingForms.has(form) || !window.confirm(form.dataset.confirm)) {
@@ -238,7 +358,13 @@ document.querySelectorAll('[data-suggestions]').forEach((input) => {
     }, 200);
   });
   input.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); dismiss(); return; }
+    if (event.key === 'Escape') {
+      const showingSuggestions = !list.hidden || status.textContent !== '';
+      dismiss();
+      event.preventDefault();
+      if (showingSuggestions) event.stopPropagation();
+      return;
+    }
     if (event.key === 'Tab') { dismiss(); return; }
     if (event.key === 'ArrowDown' && results.length) { event.preventDefault(); highlight((active + 1) % results.length); }
     else if (event.key === 'ArrowUp' && results.length) { event.preventDefault(); highlight(active <= 0 ? results.length - 1 : active - 1); }

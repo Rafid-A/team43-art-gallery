@@ -85,16 +85,24 @@ page_start('Create an account');
             <?php endforeach; ?>
 
             <label for="password">Password *</label>
+            <div class="password-field">
             <input id="password" name="password" type="password" minlength="8" maxlength="72"
                    autocomplete="new-password" required aria-describedby="password-hint password-error"
                    <?= isset($errors['password']) ? 'aria-invalid="true"' : '' ?>>
+            <button type="button" class="quiet password-toggle" data-password-toggle="password"
+                    aria-controls="password" aria-pressed="false" hidden>Show password</button>
+            </div>
             <p class="hint" id="password-hint">8 to 72 characters.</p>
             <p class="field-error" id="password-error"><?= e($errors['password'] ?? '') ?></p>
 
             <label for="confirm">Confirm password *</label>
+            <div class="password-field">
             <input id="confirm" name="confirm" type="password" minlength="8" maxlength="72"
                    autocomplete="new-password" required aria-describedby="confirm-error"
                    <?= isset($errors['confirm']) ? 'aria-invalid="true"' : '' ?>>
+            <button type="button" class="quiet password-toggle" data-password-toggle="confirm"
+                    aria-controls="confirm" aria-pressed="false" hidden>Show password</button>
+            </div>
             <p class="field-error" id="confirm-error"><?= e($errors['confirm'] ?? '') ?></p>
 
             <button class="primary full">Create account</button>

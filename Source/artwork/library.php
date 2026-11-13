@@ -2,6 +2,7 @@
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/subject-schema.php';
 require_once __DIR__ . '/era-schema.php';
+require_once __DIR__ . '/artwork-media.php';
 
 // Existing Docker volumes do not rerun initialization SQL. Pause before any
 // SubjectID query until the explicit upgrade completes; retain login redirects.
@@ -409,14 +410,20 @@ function artwork_cards($paintings, array $context = [])
     echo '</div>';
 }
 
-function artwork_image($painting, $eager = false)
+function artwork_image($painting, $eager = false, $usage = 'thumbnail')
 {
     $file = artwork_image_file($painting['ImageFileName'] ?? '');
     if (!$file) {
         echo '<span class="image-missing">Image unavailable<br><small>' . e($painting['Title']) . '</small></span>'; return;
     }
     [$width, $height] = artwork_image_size($painting['ImageFileName']);
-    echo '<img src="' . e($file['url']) . '" alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
+    $source = artwork_media_source($painting['ImageFileName'] ?? '');
+    $responsive = '';
+    if ($source && $usage !== 'viewer') {
+        $sizes = $usage === 'detail' ? '(max-width: 768px) 90vw, 48vw' : '(max-width: 480px) 90vw, (max-width: 768px) 45vw, 30vw';
+        $responsive = ' srcset="' . e(artwork_media_srcset($source)) . '" sizes="' . e($sizes) . '"';
+    }
+    echo '<img src="' . e($file['url']) . '"' . $responsive . ' alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
 }
 
 function related_paintings($type, $id)

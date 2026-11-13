@@ -82,7 +82,7 @@ page_start('Accounts');
 <?php notices(); ?>
 <div class="directory">
 <?php foreach ($accounts as $a): $self = $a['username'] === $me['username']; ?>
-<div class="directory-row"><div><h2><?= e($a['username']) ?><?= $self ? ' <small>(you)</small>' : '' ?></h2><p><?= e($a['forename'] . ' ' . $a['surname']) ?> · <?= e(role_label($a['role'])) ?><?= $a['status'] === 'disabled' ? ' · Disabled' : '' ?></p></div>
+<div class="directory-row"><div><h2><?= e($a['username']) ?><?= $self ? ' <small>(you)</small>' : '' ?></h2><p><?= e($a['forename'] . ' ' . $a['surname']) ?> · <?= e(role_label($a['role'])) ?> <span class="account-badge<?= $a['status'] === 'disabled' ? ' is-disabled' : '' ?>"><?= $a['status'] === 'disabled' ? 'Disabled' : 'Active' ?></span></p></div>
 <?php if (!$self): ?><span class="account-actions">
 <form action="users.php" method="post"><input type="hidden" name="csrf" value="<?= e(token()) ?>"><input type="hidden" name="username" value="<?= e($a['username']) ?>"><input type="hidden" name="action" value="role"><input type="hidden" name="value" value="<?= $a['role'] === 'admin' ? 'client' : 'admin' ?>"><button class="quiet"><?= $a['role'] === 'admin' ? 'Make client' : 'Make administrator' ?><span class="visually-hidden"> <?= e($a['username']) ?></span></button></form>
 <form action="users.php" method="post"><input type="hidden" name="csrf" value="<?= e(token()) ?>"><input type="hidden" name="username" value="<?= e($a['username']) ?>"><input type="hidden" name="action" value="status"><input type="hidden" name="value" value="<?= $a['status'] === 'active' ? 'disabled' : 'active' ?>"><button class="quiet"><?= $a['status'] === 'active' ? 'Disable' : 'Enable' ?><span class="visually-hidden"> <?= e($a['username']) ?></span></button></form>

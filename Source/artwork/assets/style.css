@@ -171,3 +171,151 @@ footer strong { font: 20px Georgia, serif; color: var(--ink); }
 .image-source .choice { display: flex; gap: 10px; align-items: center; font-weight: 500; cursor: pointer; }
 .image-source .choice input { flex: 0 0 auto; width: 18px; height: 18px; min-height: 0; margin: 0; padding: 0; accent-color: var(--accent); }
 .image-source .choice-detail { padding-left: 28px; display: grid; gap: 6px; }
+
+/* Collection polish: the artwork leads; tools stay together and out of its way. */
+.topbar { position: relative; }
+.site-menu { flex: 1; min-width: 0; }
+.site-menu > summary { display: flex; align-items: center; justify-content: center; width: fit-content; margin-left: auto; min-width: 88px; padding: 8px 12px; border: 1px solid var(--line); }
+.site-menu[data-enhanced] > summary { display: none; }
+.topbar nav { gap: 16px; }
+summary { cursor: pointer; min-height: 44px; padding-block: 10px; font-size: 14px; }
+summary:focus-visible { outline-offset: 2px; }
+.collection-heading { padding: 0; margin-block: 0 24px; gap: 16px; }
+.collection-heading h1 { font-size: clamp(32px, 3.3vw, 44px); margin: 0 0 8px; letter-spacing: -.75px; }
+.collection-heading p { margin: 0; font-size: 14px; }
+.collection-heading > .button { flex-shrink: 0; }
+.collection-feature { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; gap: 32px; margin-bottom: 24px; }
+.featured-image { display: flex; align-items: center; justify-content: center; min-width: 0; height: 280px; padding: 16px; background: var(--surface); }
+.featured-image img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.featured-copy { min-width: 0; max-width: 52ch; }
+.feature-label { font-size: 13px; color: var(--accent); margin-bottom: 8px; }
+.featured-copy h2 { font-size: clamp(26px, 2.8vw, 36px); margin-bottom: 12px; }
+.featured-copy h2 a { text-decoration: none; }
+.featured-copy > p:not(.feature-label) { margin-bottom: 12px; font-size: 14px; }
+.featured-copy > a { font-size: 14px; }
+.featured-year { color: var(--muted); }
+.collection-toolbar { display: block; padding-block: 16px 8px; margin-bottom: 16px; }
+.collection-search { display: flex; align-items: flex-end; gap: 12px; }
+.collection-search .filter-field { flex: 1; }
+.collection-search button { min-height: 46px; flex-shrink: 0; }
+.collection-toolbar label { margin-bottom: 6px; }
+.collection-toolbar input, .collection-toolbar select { font-size: 16px; }
+.collection-filter-fields { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding-block: 8px; }
+.collection-filter-fields > .filter-field { flex: 1 1 200px; }
+.collection-filter-fields .artist-lookup { margin: 0; max-width: none; }
+.collection-filter-fields .directory-shortcut { align-self: center; font-size: 13px; min-height: 44px; display: inline-flex; align-items: center; }
+.collection-filters > summary { color: var(--accent); }
+.mobile-filter-apply { display: none; }
+.active-filters { display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; margin-block: 12px 16px; font-size: 13px; }
+.filter-chip { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; max-width: 100%; padding: 6px 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+.filter-chip span { font-size: 20px; }
+.filter-chip:hover { border-color: var(--accent); }
+.active-filters > a:last-child { display: inline-flex; align-items: center; min-height: 44px; }
+.collection-results-heading { gap: 12px; margin-block: 20px; align-items: center; }
+.collection-results-heading h2 { font-size: 25px; margin-bottom: 6px; }
+.density-controls { display: inline-flex; align-items: center; gap: 0; }
+.density-controls button { min-height: 44px; font-size: 12px; padding: 8px 12px; border-color: var(--line); }
+.density-controls button + button { border-left: 0; }
+.density-controls button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+[data-collection-view] .collection { gap: 32px 24px; }
+[data-collection-view] .art-image { height: 288px; padding: 12px; }
+[data-collection-view] .art-copy { padding-top: 12px; }
+[data-collection-view] .art-copy h2 { font-size: 22px; line-height: 1.25; }
+[data-collection-view] .art-meta { margin-top: 4px; font-size: 13px; }
+[data-density="compact"] .collection { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 16px; }
+[data-density="compact"] .art-image { height: 208px; padding: 8px; }
+[data-density="compact"] .art-copy h2 { font-size: 19px; }
+.collection-empty > a { display: inline-flex; align-items: center; min-height: 44px; margin: 8px; }
+#collection-results { scroll-margin-top: 16px; }
+.pagination { flex-wrap: wrap; row-gap: 12px; }
+.pagination > span { font-variant-numeric: tabular-nums; }
+.artist-directory .directory-row { gap: 24px; padding-block: 16px; align-items: center; }
+.artist-thumbnail { display: flex; align-items: center; justify-content: center; flex: 0 0 112px; height: 100px; padding: 8px; background: var(--surface); }
+.artist-thumbnail img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.artist-thumbnail > span { font-size: 12px; color: var(--muted); }
+.artist-directory .directory-copy { flex: 1; }
+.artist-directory .artist-years { margin-top: 4px; }
+.artist-profile { max-width: none; }
+.artist-profile-intro { display: flex; align-items: flex-start; gap: 40px; }
+.artist-profile-work { flex: 1; min-width: 0; margin: 0; }
+.artist-profile-work > a { display: flex; align-items: center; justify-content: center; height: 360px; padding: 20px; background: var(--surface); }
+.artist-profile-work img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.artist-profile-work figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); }
+.artist-story { flex: 1; min-width: 0; max-width: 72ch; }
+.artist-story .prose { margin-block: 16px; }
+.artist-life { color: var(--muted); font-size: 14px; }
+.artist-facts { margin-block: 24px; border-block: 1px solid var(--line); }
+.artist-facts > summary { font-weight: 600; }
+.discovery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
+.discovery-card { display: block; min-width: 0; text-decoration: none; }
+.discovery-image { display: flex; align-items: center; justify-content: center; height: 224px; background: var(--surface); padding: 16px; }
+.discovery-image img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.discovery-copy { padding-top: 12px; }
+.discovery-copy p, .discovery-copy > span { margin: 0; font-size: 13px; color: var(--muted); }
+.discovery-copy h3 { font-size: 24px; margin: 4px 0 8px; }
+.discovery-card:hover h3 { text-decoration: underline; text-underline-offset: 4px; }
+.discovery { margin-bottom: 40px; }
+.browse-tile { min-height: 200px; padding: 24px; }
+.browse-tile h3 { margin: 0 0 16px; font-size: 26px; }
+@media (max-width: 1024px) {
+    .topbar { flex-direction: row; align-items: center; padding-block: 16px; gap: 16px; }
+    .brand { font-size: 25px; }
+    .brand span { display: none; }
+    .site-menu { flex: 0 0 auto; }
+    .site-menu > summary, .site-menu[data-enhanced] > summary { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 88px; padding: 8px 12px; border: 1px solid var(--line); list-style: none; }
+    .site-menu > summary::-webkit-details-marker { display: none; }
+    .site-menu > summary::after { content: '+'; font-size: 20px; line-height: 1; }
+    .site-menu[open] > summary::after { content: '−'; }
+    .site-menu nav { position: absolute; z-index: 10; top: 100%; left: var(--gutter); right: var(--gutter); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 4px 16px; padding: 16px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 8px 16px #282c2714; }
+    .site-menu nav > a { padding-inline: 8px; font-size: 14px; }
+    .site-menu .account { display: block; grid-column: 1 / -1; padding: 4px 8px 12px; overflow-wrap: anywhere; font-size: 13px; }
+    .site-menu .account small { display: block; color: var(--muted); }
+    .site-menu nav form { grid-column: 1 / -1; padding-top: 8px; }
+    [data-density="compact"] .collection { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 769px) {
+    .collection-filters > summary { display: none; }
+}
+@media (max-width: 768px) {
+    .collection-heading { flex-direction: row; align-items: center; margin-block: 0 20px; }
+    .collection-feature { grid-template-columns: 1fr; gap: 12px; }
+    .featured-image { height: 240px; padding: 12px; }
+    .featured-copy h2 { font-size: 26px; margin-bottom: 8px; }
+    .featured-copy > p:not(.feature-label) { margin-bottom: 8px; }
+    .feature-label { margin-bottom: 4px; }
+    .collection-filter-fields { flex-direction: column; align-items: stretch; gap: 12px; padding-top: 4px; }
+    .collection-filter-fields > .filter-field { flex: 0 0 auto; }
+    .collection-filter-fields .directory-shortcut { align-self: flex-start; }
+    .mobile-filter-apply { display: inline-flex; align-self: flex-start; }
+    .collection-search { align-items: flex-start; }
+    .collection-search button { margin-top: 27px; padding-inline: 12px; }
+    [data-collection-view] .art-image { height: 272px; }
+    [data-density="compact"] .collection { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    [data-density="compact"] .art-image { height: 196px; }
+    .artist-profile-intro { flex-direction: column; gap: 24px; }
+    .artist-profile-work { width: 100%; }
+    .artist-profile-work > a { height: 300px; }
+    .artist-directory .directory-row { gap: 16px; }
+    .artist-thumbnail { flex-basis: 88px; height: 88px; }
+    .discovery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+    .discovery-image { height: 192px; padding: 8px; }
+}
+@media (max-width: 480px) {
+    .collection-heading h1 { font-size: 30px; }
+    .collection-heading > .button { padding-inline: 10px; font-size: 12px; }
+    .collection-heading > div { min-width: 0; }
+    .collection-heading p { font-size: 13px; }
+    .collection-search button { font-size: 12px; }
+    .collection-search { gap: 8px; }
+    .collection-results-heading { align-items: flex-start; }
+    [data-collection-view] .art-image { height: 320px; }
+    [data-density="compact"] .art-image { height: 176px; }
+    [data-density="compact"] .art-copy h2 { font-size: 18px; }
+    [data-density="compact"] .artist-name { font-size: 13px; }
+    .artist-directory .directory-row { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 12px; }
+    .artist-thumbnail { width: 72px; height: 88px; grid-row: span 2; }
+    .artist-directory .directory-row h2 { font-size: 21px; }
+    .artist-directory .directory-row > span { grid-column: 2; max-width: none; }
+    .discovery-image { height: 160px; }
+    .discovery-copy h3 { font-size: 21px; }
+}

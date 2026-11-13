@@ -261,6 +261,39 @@ docker compose exec -T web chown -R www-data:www-data /var/www/html/artwork/imag
 
 ### Sorting and suggestions
 
+The initial collection view features an existing artwork. On phones, **Menu**
+opens navigation and **Filters & sort** opens secondary controls while title
+search remains visible. Active title/artist filters can be removed individually.
+The combined order control submits the same `sort`/`dir` URL fields as before;
+native sorting controls remain available without JavaScript. Comfortable and
+compact gallery layouts are optional session preferences, and returning from an
+artwork restores the exact collection view's scroll position when session storage
+is available.
+
+Artist listings use representative paintings, recorded life years and existing
+biographies. Browse provides visual discovery links drawn from current artists,
+genres and subjects. These features do not add or alter collection records.
+
+The artwork viewer supports fit/reset, actual pixels, zoom and bounded pan with
+keyboard, mouse and touch controls. Zoom stops at the original image's pixels.
+Previous/next artwork links follow the active title/artist filters and ordering,
+including transitions between collection pages, and retain directory return links.
+The original image and ordinary navigation links remain usable without scripts.
+
+Thumbnail and detail images use finite responsive widths derived from the actual
+JPEG source. `artwork-media.php` accepts only validated basenames, allowlisted
+widths and a SHA-256 content version; it serves public image bytes consistently
+with the existing public image folders. Originals and upload volumes are not
+rewritten. Derivatives are cached in the container's ephemeral PHP temporary
+directory and can be regenerated after recreation. Sources are never enlarged;
+missing GD or insufficient resizing memory keeps the original image candidate.
+The viewer always uses the full existing source. No higher-resolution artwork is
+invented when the supplied image is small.
+
+Login and registration support password managers and optional password visibility.
+Editing forms group fields and keep Save/Cancel accessible while scrolling;
+existing validation, permissions and unsaved-change warnings still apply.
+
 Choose a sort field and ascending or descending order, then select **View
 artworks** or **Apply**. New filter/sort submissions start at page one;
 page links, details and add/remove return paths retain the selected view.
@@ -311,8 +344,8 @@ again: a role change applies on the next request with a new session ID and
 form token, and a disabled or deleted account is signed out on its next
 request. Disabled accounts cannot log in. An administrator cannot change
 or delete their own account, and the last active administrator cannot be
-removed. Future administration features (uploads, editing, imports) call
-the same `require_admin()` check.
+removed. Uploads and editing use the same `require_admin()` check; future imports
+must enforce it as well.
 
 Sessions are bound on successful login to a server-only fingerprint of the
 stored salted password hash. Deleting and registering the same user ID cannot

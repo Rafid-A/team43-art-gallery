@@ -1,6 +1,70 @@
 <?php
 require_once __DIR__ . '/library.php';
 require_login();
+
+// Lexicographic SQL neighbors match art-main.php, including NULL ordering and
+// its ascending PaintingID tie even when the primary sort is descending.
+function painting_relative_predicate(array $painting, array $context, $before)
+{
+    $keys = $context['sort'] === 'artist' ? ['a.LastName' => 'LastName', 'a.FirstName' => 'FirstName'] : ['p.Title' => 'Title'];
+    $keys['p.PaintingID'] = 'PaintingID';
+    $equal = $equalValues = $branches = $values = [];
+    foreach ($keys as $column => $key) {
+        $value = $painting[$key];
+        $ascending = $key === 'PaintingID' || $context['dir'] !== 'desc';
+        $less = $before === $ascending;
+        $partValues = [];
+        if ($value === null) $comparison = $less ? '0=1' : "$column IS NOT NULL";
+        else {
+            $comparison = $less ? "($column IS NULL OR $column < ?)" : "$column > ?";
+            $partValues[] = $key === 'PaintingID' ? (int)$value : $value;
+        }
+        $branches[] = '(' . implode(' AND ', array_merge($equal, [$comparison])) . ')';
+        $values = array_merge($values, $equalValues, $partValues);
+        $equal[] = "$column <=> ?";
+        $equalValues[] = $key === 'PaintingID' ? (int)$value : $value;
+    }
+    return ['(' . implode(' OR ', $branches) . ')', $values];
+}
+
+function painting_neighbors(array $painting, array $context)
+{
+    $conditions = ['1=1']; $values = [];
+    if ($context['artist']) { $conditions[] = 'p.ArtistID=?'; $values[] = $context['artist']; }
+    if ($context['q'] !== '') {
+        $conditions[] = "p.Title LIKE ? ESCAPE '!'";
+        $values[] = '%' . strtr($context['q'], ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+    }
+    $from = ' FROM Paintings p LEFT JOIN Artists a ON a.ArtistID=p.ArtistID WHERE ' . implode(' AND ', $conditions);
+    if (!rows('SELECT 1' . $from . ' AND p.PaintingID=?', array_merge($values, [(int)$painting['PaintingID']]))->fetchColumn()) return [];
+    [$before, $beforeValues] = painting_relative_predicate($painting, $context, true);
+    $rank = 1 + (int)rows('SELECT COUNT(*)' . $from . ' AND ' . $before, array_merge($values, $beforeValues))->fetchColumn();
+    $neighbors = [];
+    foreach (['prev' => true, 'next' => false] as $rel => $previous) {
+        [$predicate, $bound] = painting_relative_predicate($painting, $context, $previous);
+        $ascending = $context['dir'] === 'asc';
+        $direction = $ascending !== $previous ? 'ASC' : 'DESC';
+        $order = $context['sort'] === 'artist' ? "a.LastName $direction, a.FirstName $direction" : "p.Title $direction";
+        $order .= ', p.PaintingID ' . ($previous ? 'DESC' : 'ASC');
+        $neighbor = rows('SELECT p.PaintingID, p.Title' . $from . ' AND ' . $predicate . ' ORDER BY ' . $order . ' LIMIT 1', array_merge($values, $bound))->fetch();
+        if ($neighbor) {
+            $neighborContext = array_replace($context, ['page' => intdiv($rank + ($previous ? -2 : 0), 24) + 1]);
+            $neighbors[$rel] = ['title' => $neighbor['Title'], 'url' => 'painting.php?' . http_build_query(['id' => (int)$neighbor['PaintingID']] + $neighborContext)];
+        }
+    }
+    return $neighbors;
+}
+
+function painting_neighbor_links(array $neighbors, $viewer = false)
+{
+    echo '<nav class="painting-neighbors' . ($viewer ? ' viewer-neighbors' : '') . '" aria-label="' . ($viewer ? 'Viewer collection navigation' : 'Collection navigation') . '">';
+    foreach (['prev' => 'Previous artwork', 'next' => 'Next artwork'] as $rel => $label) {
+        if (isset($neighbors[$rel])) echo '<a rel="' . $rel . '" href="' . e($neighbors[$rel]['url']) . '" aria-label="' . e($label . ': ' . $neighbors[$rel]['title']) . '">' . $label . '<span aria-hidden="true"> ' . ($rel === 'prev' ? '←' : '→') . '</span></a>';
+        else echo '<span class="neighbor-unavailable">' . $label . ' unavailable</span>';
+    }
+    echo '</nav>';
+}
+
 $context = artwork_context($_GET);
 $collectionUrl = artwork_collection_url($context);
 $directoryUrl = directory_return_url($context);
@@ -16,14 +80,16 @@ $admin = is_admin();
 page_start($p['Title'], $collectionUrl);
 $imageFile = artwork_image_file($p['ImageFileName'] ?? '');
 $hasImage = (bool)$imageFile;
+$neighbors = painting_neighbors($p, $context);
 ?>
 <div class="breadcrumbs"><a href="<?= e($collectionUrl) ?>">Artworks</a><span>/</span><?php if ($directoryUrl): ?><a href="<?= e($directoryUrl) ?>"><?= e(library_objects()[$context['directory_type']]['label']) ?></a><span>/</span><?php endif; ?><?= e($p['Title']) ?></div>
 <?php notices(); ?>
+<?php painting_neighbor_links($neighbors); ?>
 <article class="painting-detail">
     <figure class="painting-image">
         <?php if ($hasImage): ?>
         <a class="viewer-trigger" data-artwork-viewer href="<?= e($imageFile['url']) ?>" aria-label="View larger image of <?= e($p['Title']) ?>">
-            <?php artwork_image($p, true); ?>
+            <?php artwork_image($p, true, 'detail'); ?>
             <span class="viewer-hint" aria-hidden="true">View larger ↗</span>
         </a>
         <?php else: artwork_image($p, true); endif; ?>
@@ -51,8 +117,17 @@ $hasImage = (bool)$imageFile;
         <h2 id="viewer-title"><?= e($p['Title']) ?></h2>
         <button class="viewer-close" type="button" data-viewer-close autofocus>Close <span aria-hidden="true">×</span></button>
     </div>
-    <div class="viewer-stage"><?php artwork_image($p, true); ?></div>
-    <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?> · <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>. Press Escape to close.</p>
+    <div class="viewer-controls" role="group" aria-label="Image zoom">
+        <button type="button" data-viewer-zoom="out" aria-label="Zoom out">−</button>
+        <button type="button" data-viewer-zoom="in" aria-label="Zoom in">+</button>
+        <button type="button" data-viewer-fit>Reset / fit</button>
+        <button type="button" data-viewer-actual>Actual pixels</button>
+        <output data-viewer-status role="status" aria-live="polite" aria-atomic="true">Loading image</output>
+    </div>
+    <div class="viewer-stage" tabindex="0" role="region" aria-label="Artwork image" aria-describedby="viewer-help"><?php artwork_image($p, true, 'viewer'); ?></div>
+    <?php painting_neighbor_links($neighbors, true); ?>
+    <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?> · <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>.</p>
+    <p class="viewer-caption" id="viewer-help">Use + / − to zoom, 0 to reset, and arrow keys to pan the focused image. Drag or pinch to explore; double-click to toggle fit and actual pixels. Zoom stops at the source's actual pixels. Press Escape to close.</p>
 </dialog>
 <?php endif; ?>
 <section class="classifications">

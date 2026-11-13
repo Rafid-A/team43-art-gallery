@@ -23,12 +23,16 @@ page_start('Log in');
 
             <label for="userid">User ID</label>
             <input id="userid" name="userid" maxlength="32"
-                   autocomplete="off" autocapitalize="none"
+                   autocomplete="username" autocapitalize="none"
                    spellcheck="false" required>
 
             <label for="password">Password</label>
-            <input id="password" name="password" type="password"
-                   maxlength="255" autocomplete="off" required>
+            <div class="password-field">
+                <input id="password" name="password" type="password"
+                       maxlength="255" autocomplete="current-password" required>
+                <button type="button" class="quiet password-toggle" data-password-toggle="password"
+                        aria-controls="password" aria-pressed="false" hidden>Show password</button>
+            </div>
 
             <button class="primary full">Log in</button>
         </form>

@@ -206,11 +206,12 @@ function page_start($title, $artworksUrl = 'art-main.php')
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | The Art Library</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
-    <link rel="stylesheet" href="assets/style.css?v=6">
-    <link rel="stylesheet" href="assets/motion.css?v=2">
+    <link rel="stylesheet" href="assets/style.css?v=7">
+    <link rel="stylesheet" href="assets/forms.css?v=1">
+    <link rel="stylesheet" href="assets/motion.css?v=3">
     <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
-    <script src="assets/motion.js"></script>
-    <script src="assets/app.js?v=5" defer></script>
+    <script src="assets/motion.js?v=3"></script>
+    <script src="assets/app.js?v=6" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -222,7 +223,9 @@ function page_start($title, $artworksUrl = 'art-main.php')
             $links = [$artworksUrl => 'Artworks', 'objects.php?type=artists' => 'Artists', 'objects.php?type=galleries' => 'Galleries', 'browse.php' => 'Browse'];
             if ($u['role'] === 'admin') $links += ['admin.php' => 'Admin', 'manage.php' => 'Manage', 'users.php' => 'Users'];
             $links['account.php'] = 'Account'; ?>
-        <nav aria-label="Main navigation">
+        <details class="site-menu" data-mobile-disclosure>
+        <summary aria-controls="main-navigation">Menu</summary>
+        <nav id="main-navigation" aria-label="Main navigation">
             <span class="account">
                 <span class="account-name"><?= e($u['forename'] . ' ' . $u['surname']) ?></span>
                 <small>(<?= e($u['username']) ?> · <?= e(role_label($u['role'])) ?>)</small>
@@ -235,6 +238,7 @@ function page_start($title, $artworksUrl = 'art-main.php')
                 <button class="quiet">Log out</button>
             </form>
         </nav>
+        </details>
         <?php endif; ?>
     </header>
     <main id="main" tabindex="-1">

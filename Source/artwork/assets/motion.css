@@ -65,12 +65,25 @@ html { scrollbar-gutter: stable; }
     .artwork-viewer[open]::backdrop { opacity: 0; }
 }
 .viewer-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-.viewer-toolbar h2 { font-size: 24px; margin: 0; min-width: 0; align-self: center; }
+.viewer-toolbar h2 { font-size: 24px; margin: 0; min-width: 0; align-self: center; overflow-wrap: anywhere; }
 .viewer-close { flex-shrink: 0; border-color: var(--muted); color: var(--paper); }
 .viewer-close:hover { background: var(--paper); color: var(--ink); }
 .viewer-close:focus-visible { outline-color: var(--paper); }
-.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 96px; }
-.viewer-stage img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.viewer-stage { flex: 1 0 128px; position: relative; overflow: hidden; min-width: 0; min-height: 128px; touch-action: none; user-select: none; }
+.viewer-stage img { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: none; max-height: none; transform: translate(-50%, -50%); transform-origin: center; }
+.viewer-stage.is-zoomed { cursor: grab; }
+.viewer-stage.is-dragging { cursor: grabbing; }
+.viewer-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.viewer-controls button { min-width: 44px; padding-inline: 12px; }
+.viewer-controls button, .viewer-neighbors a { color: var(--paper); border-color: var(--viewer-muted); }
+.viewer-controls button:hover { background: var(--paper); color: var(--ink); }
+.viewer-controls button:focus-visible, .viewer-stage:focus-visible, .viewer-neighbors a:focus-visible { outline-color: var(--paper); outline-offset: -4px; }
+.viewer-controls output { font-size: 12px; color: var(--viewer-muted); }
+.painting-neighbors { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-block: 16px; font-size: 14px; }
+.painting-neighbors a { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; }
+.neighbor-unavailable { color: var(--muted); align-self: center; }
+.viewer-neighbors { margin: 0; }
+.viewer-neighbors .neighbor-unavailable { color: var(--viewer-muted); }
 .viewer-caption { font-size: 12px; color: var(--viewer-muted); margin: 0; overflow-wrap: anywhere; }
 
 /* Frequent interactions stay nearly imperceptible; keyboard actions stay instant. */

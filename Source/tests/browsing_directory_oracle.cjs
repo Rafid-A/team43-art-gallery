@@ -19,7 +19,7 @@ const cases = {
 };
 const keys = {artists:['name','nationality'],galleries:['name','city'],eras:['name','years'],genres:['name','id'],subjects:['name','id'],'painting-genres':['artwork','classification'],'painting-subjects':['artwork','classification']};
 (async()=>{const browser=await chromium.launch({headless:true,executablePath:process.env.BROWSING_BROWSER});const page=await browser.newPage();try {
- await page.goto(base+'art-login.php'); await page.locator('#userid').fill('user1'); await page.locator('#password').fill('pass1'); await page.locator('button[type=submit], form button').first().click(); await page.waitForURL('**/admin.php'); await page.goto(base+'art-main.php');
+ await page.goto(base+'art-login.php'); await page.locator('#userid').fill('user1'); await page.locator('#password').fill('pass1'); await page.getByRole('button', { name: 'Log in', exact: true }).click(); await page.waitForURL('**/admin.php'); await page.goto(base+'art-main.php');
  for(const [type,[table,id,...fields]] of Object.entries(cases)) {
   const from=table.includes(' JOIN ')?table:table+' o'; const count=Number(sql(`SELECT COUNT(*) FROM ${from}`)[0]);
   for (let i=0;i<fields.length;i++) for(const dir of ['asc','desc']) for(const requested of [1,999999]) {

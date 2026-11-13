@@ -148,6 +148,8 @@ page_start('Add artwork', $returnUrl);
     <p class="form-note">
         All fields are required except the short description.
     </p>
+    <fieldset class="form-section">
+    <legend>Artwork details</legend>
     <div class="form-grid">
         <div class="wide">
             <label for="title">Title</label>
@@ -297,9 +299,13 @@ page_start('Add artwork', $returnUrl);
         </div>
     </div>
 
+    </fieldset>
+    <div class="form-actions">
     <button class="primary" <?= !$available && !$canUpload ? 'disabled' : '' ?>>
         Add artwork
     </button>
     <a href="<?= e($returnUrl) ?>">Cancel</a>
+    <span class="form-actions-note">Changes are saved when you add the artwork.</span>
+    </div>
 </form>
 <?php page_end(); ?>
