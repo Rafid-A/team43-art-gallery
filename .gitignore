@@ -7,4 +7,6 @@ Thumbs.db
 **/backups/
 Source/existing-volume.yaml
 Source/tests/node_modules/
+Source/artwork/images/uploads/*
+!Source/artwork/images/uploads/.htaccess
 

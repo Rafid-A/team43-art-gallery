@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 
 $id = positive_id(get_text('id'));
 $context = artwork_context($_GET);
+$collectionUrl = artwork_collection_url($context);
 $returnUrl = 'painting.php?' . http_build_query(['id' => $id] + $context);
 $record = rows('SELECT PaintingID, Title, ArtistID, GalleryID, YearOfWork, Medium FROM Paintings WHERE PaintingID=?', [$id])->fetch();
 $artists = rows('SELECT ArtistID, FirstName, LastName FROM Artists ORDER BY LastName, FirstName')->fetchAll();
@@ -13,8 +14,8 @@ $values = [];
 
 if (!$record) {
     http_response_code(404);
-    page_start('Artwork not found');
-    echo '<h1>Artwork not found</h1><p>It may have been removed.</p><a href="art-main.php">Return to artworks</a>';
+    page_start('Artwork not found', $collectionUrl);
+    echo '<h1>Artwork not found</h1><p>It may have been removed.</p><a href="' . e(directory_return_url($context) ?: $collectionUrl) . '">Return to artworks</a>';
     page_end();
     exit;
 }
@@ -23,10 +24,12 @@ $values = ['Title' => $record['Title'], 'ArtistID' => $record['ArtistID'], 'Gall
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_post();
-    foreach (array_keys($values) as $field) $values[$field] = input($field);
+    foreach (array_keys($values) as $field) $values[$field] = is_string($_POST[$field] ?? null) ? input($field) : ($_POST[$field] ?? '');
     $paintingValues = ['title' => $values['Title'], 'artist_id' => $values['ArtistID'], 'gallery_id' => $values['GalleryID'], 'year' => $values['YearOfWork'], 'medium' => $values['Medium']];
     $fieldErrors = painting_field_errors($paintingValues, array_map('strval', array_column($artists, 'ArtistID')), array_map('strval', array_column($galleries, 'GalleryID')));
-    foreach ($fieldErrors as $field => $error) $errors[ucfirst($field === 'year' ? 'YearOfWork' : ($field === 'title' ? 'Title' : ($field === 'artist_id' ? 'ArtistID' : ($field === 'gallery_id' ? 'GalleryID' : 'Medium'))))] = $error;
+    $errorFields = ['year' => 'YearOfWork', 'title' => 'Title', 'artist_id' => 'ArtistID', 'gallery_id' => 'GalleryID', 'medium' => 'Medium'];
+    foreach ($fieldErrors as $field => $error) $errors[$errorFields[$field]] = $error;
+    foreach ($values as $field => $value) if (!is_string($value)) $values[$field] = '';
     $year = filter_var($values['YearOfWork'], FILTER_VALIDATE_INT);
     if (!$errors) {
         try {

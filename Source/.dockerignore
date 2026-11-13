@@ -9,3 +9,5 @@ results/
 *.log
 backups/
 tests/node_modules/
+artwork/images/uploads/*
+!artwork/images/uploads/.htaccess

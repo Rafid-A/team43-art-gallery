@@ -46,7 +46,7 @@ def exercise(container, base):
                all(choices.values.get(name) for name in ('artist_id', 'gallery_id', 'image')))
     values = {'csrf': gate.token(body), 'title': 'Gate <art> & "quoted"',
               'artist_id': choices.values['artist_id'][0], 'gallery_id': choices.values['gallery_id'][0],
-              'image': choices.values['image'][0], 'year': '2000',
+              'image_source': 'existing', 'image': choices.values['image'][0], 'year': '2000',
               'medium': "Oil & 'ink' <canvas>", 'excerpt': 'Test & <description>'}
     before, held_parents = paintings(), parents()
     for field in ('artist_id', 'gallery_id'):

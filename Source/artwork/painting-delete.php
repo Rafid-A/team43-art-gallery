@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 $context = artwork_context($_GET);
 $collectionUrl = artwork_collection_url($context);
 $id = positive_id(get_text('id'));

@@ -42,10 +42,90 @@ const resetPendingForms = () => {
 };
 window.addEventListener('pageshow', resetPendingForms);
 
+const imageSelect = document.querySelector('select[data-image-base]');
+const imagePreview = document.querySelector('#image-preview');
+
+if (imageSelect && imagePreview) {
+  const image = imagePreview.querySelector('img');
+  const caption = imagePreview.querySelector('figcaption');
+  const fileInput = document.querySelector('#upload');
+  const sources = document.querySelectorAll('input[name="image_source"]');
+  let objectUrl = null;
+  let previewCaption = '';
+  const releasePreview = () => {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = null;
+  };
+
+  image.addEventListener('load', () => {
+    image.hidden = false;
+    imagePreview.removeAttribute('aria-busy');
+    caption.textContent = previewCaption;
+  });
+  image.addEventListener('error', () => {
+    image.hidden = true;
+    imagePreview.removeAttribute('aria-busy');
+    releasePreview();
+    image.removeAttribute('src');
+    caption.textContent = 'Preview unavailable. Choose another image or try again.';
+  });
+
+  const showImage = () => {
+    releasePreview();
+    image.removeAttribute('src');
+    const uploading = fileInput && !fileInput.disabled;
+    const file = uploading ? fileInput.files[0] : null;
+    const filename = imageSelect.value;
+    const selected = uploading ? !!file : !!filename;
+    imagePreview.hidden = !selected;
+    image.hidden = true;
+    if (selected) {
+      imagePreview.setAttribute('aria-busy', 'true');
+      caption.textContent = 'Loading image preview…';
+      previewCaption = uploading
+        ? `${file.name} — selected file preview. The server validates it and saves a new JPEG.`
+        : filename + '.jpg';
+      image.alt = uploading ? 'Selected upload preview' : 'Selected artwork image ' + filename;
+      if (uploading) {
+        objectUrl = URL.createObjectURL(file);
+        image.src = objectUrl;
+      } else {
+        image.src = imageSelect.dataset.imageBase + encodeURIComponent(filename) + '.jpg';
+      }
+    } else {
+      image.removeAttribute('src');
+      imagePreview.removeAttribute('aria-busy');
+      caption.textContent = '';
+    }
+  };
+  imageSelect.addEventListener('change', showImage);
+  fileInput?.addEventListener('change', showImage);
+  window.addEventListener('pagehide', releasePreview);
+  window.addEventListener('pageshow', (event) => { if (event.persisted) showImage(); });
+
+  // Upload or existing image: only the chosen control is submitted.
+  if (sources.length > 1 && fileInput) {
+    const syncSource = () => {
+      const existing = document.querySelector('input[name="image_source"][value="existing"]').checked;
+      imageSelect.disabled = !existing;
+      fileInput.disabled = existing;
+      showImage();
+    };
+    sources.forEach((source) => source.addEventListener('change', syncSource));
+    syncSource();
+  } else showImage();
+}
+
 const addForm = document.querySelector('form[data-unsaved-warning]');
 
 if (addForm) {
-  const formValues = () => JSON.stringify(Array.from(new FormData(addForm)));
+  // Capture after image-source controls are configured. Empty file inputs
+  // produce fresh File objects; normalize them, and compare selected metadata.
+  const formValues = () => JSON.stringify(Array.from(new FormData(addForm), ([key, value]) => [key,
+    value instanceof File
+      ? (value.name === '' && value.size === 0 ? null : [value.name, value.size, value.type, value.lastModified])
+      : value
+  ]));
   const initialValues = formValues();
   window.addEventListener('beforeunload', (event) => {
     const dirty = addForm.dataset.hasUnsavedValues === 'true' ||
@@ -64,49 +144,12 @@ if (artistForm) {
   const birth = artistForm.querySelector('#YearOfBirth');
   const death = artistForm.querySelector('#YearOfDeath');
   const checkChronology = () => {
-    const invalid = birth.value !== '' && death.value !== '' && Number(death.value) < Number(birth.value);
+    const invalid = birth.value !== '' && death.value !== '' && Number(birth.value) !== 0 && Number(death.value) !== 0 && Number(death.value) < Number(birth.value);
     death.setCustomValidity(invalid ? 'Year of death must not precede year of birth.' : '');
   };
   birth.addEventListener('input', checkChronology);
   death.addEventListener('input', checkChronology);
   checkChronology();
-}
-
-const imageSelect = document.querySelector('select[data-image-base]');
-const imagePreview = document.querySelector('#image-preview');
-
-if (imageSelect && imagePreview) {
-  const image = imagePreview.querySelector('img');
-  const caption = imagePreview.querySelector('figcaption');
-
-  image.addEventListener('load', () => {
-    image.hidden = false;
-    imagePreview.removeAttribute('aria-busy');
-    caption.textContent = imageSelect.value + '.jpg';
-  });
-  image.addEventListener('error', () => {
-    image.hidden = true;
-    imagePreview.removeAttribute('aria-busy');
-    caption.textContent = 'Preview unavailable. Choose another image or try again.';
-  });
-
-  const showImage = () => {
-    const filename = imageSelect.value;
-    imagePreview.hidden = !filename;
-    image.hidden = true;
-    if (filename) {
-      imagePreview.setAttribute('aria-busy', 'true');
-      caption.textContent = 'Loading image preview…';
-      image.src = imageSelect.dataset.imageBase + encodeURIComponent(filename) + '.jpg';
-      image.alt = 'Selected artwork image ' + filename;
-    } else {
-      image.removeAttribute('src');
-      imagePreview.removeAttribute('aria-busy');
-      caption.textContent = '';
-    }
-  };
-  imageSelect.addEventListener('change', showImage);
-  showImage();
 }
 document.querySelectorAll('[data-suggestions]').forEach((input) => {
   const wrap = input.closest('.suggestion-wrap');

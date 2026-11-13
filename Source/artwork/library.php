@@ -266,8 +266,17 @@ function field_values($object)
     foreach ($object['fields'] as $name => $field) {
         [$label, $length] = $field;
         $kind = $field[2] ?? 'text';
+        if (array_key_exists($name, $_POST) && !is_string($_POST[$name])) {
+            $values[$name] = '';
+            $errors[$name] = $label . ' must be a single text value.';
+            continue;
+        }
         $value = input($name);
         $values[$name] = $value === '' ? null : $value;
+        if (text_length($value) === false) {
+            $errors[$name] = $label . ' must contain valid UTF-8 text.';
+            continue;
+        }
         if ($kind === 'required' && $value === '') $errors[$name] = $label . ' is required.';
         if ($length && text_length($value) > $length) $errors[$name] = $label . ' must be at most ' . $length . ' characters.';
         if ($value !== '' && $kind === 'url' && !safe_link($value)) $errors[$name] = 'Enter a valid http or https URL.';
@@ -281,7 +290,10 @@ function field_values($object)
             if (!$values[$name]) $errors[$name] = 'Choose an existing ' . $label . '.';
         }
     }
-    if ($values['YearOfBirth'] !== null && $values['YearOfDeath'] !== null && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
+    // Blank and 0 both represent unknown; compare only known, valid whole years.
+    if (isset($values['YearOfBirth'], $values['YearOfDeath']) && !isset($errors['YearOfBirth']) && !isset($errors['YearOfDeath'])
+        && (int)$values['YearOfBirth'] !== 0 && (int)$values['YearOfDeath'] !== 0
+        && (int)$values['YearOfDeath'] < (int)$values['YearOfBirth']) $errors['YearOfDeath'] = 'Year of death must not precede year of birth.';
     return [$values, $errors];
 }
 
@@ -294,6 +306,12 @@ function artist_edit_fields()
 function painting_field_errors($values, $artistIds, $galleryIds)
 {
     $errors = [];
+    foreach (['title', 'artist_id', 'gallery_id', 'year', 'medium', 'excerpt'] as $field) {
+        $value = $values[$field] ?? '';
+        if (!is_string($value)) $errors[$field] = 'Enter a single text value.';
+        elseif (text_length($value) === false) $errors[$field] = 'Enter valid UTF-8 text.';
+    }
+    if ($errors) return $errors;
     if ($values['title'] === '' || text_length($values['title']) > 255) $errors['title'] = 'Enter a title of 1 to 255 characters.';
     if (!in_array($values['artist_id'], $artistIds, true)) $errors['artist_id'] = 'Choose an artist.';
     if (!in_array($values['gallery_id'], $galleryIds, true)) $errors['gallery_id'] = 'Choose a gallery.';
@@ -393,12 +411,12 @@ function artwork_cards($paintings, array $context = [])
 
 function artwork_image($painting, $eager = false)
 {
-    $file = basename($painting['ImageFileName'] ?? '');
-    if ($file === '' || !is_file(__DIR__ . '/images/art/works/square-medium/' . $file . '.jpg')) {
+    $file = artwork_image_file($painting['ImageFileName'] ?? '');
+    if (!$file) {
         echo '<span class="image-missing">Image unavailable<br><small>' . e($painting['Title']) . '</small></span>'; return;
     }
-    [$width, $height] = artwork_image_size($file);
-    echo '<img src="images/art/works/square-medium/' . e(rawurlencode($file)) . '.jpg" alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
+    [$width, $height] = artwork_image_size($painting['ImageFileName']);
+    echo '<img src="' . e($file['url']) . '" alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
 }
 
 function related_paintings($type, $id)

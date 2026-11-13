@@ -5,6 +5,8 @@ $type = get_text('type') ?: 'artists';
 $object = library_objects()[$type] ?? null;
 if (!$object) { http_response_code(404); page_start('Not found'); echo '<h1>Collection not found</h1><a href="browse.php">Browse the library</a>'; page_end(); exit; }
 $context = directory_context($type, $_GET);
+$admin = is_admin();
+if (!$admin) $context['manage'] = 0;
 $manage = (bool)$context['manage'];
 $selected = isset($_GET['id']) || isset($_GET['name']);
 $record = null;
@@ -31,7 +33,7 @@ page_start($title, $originUrl ?: 'art-main.php');
 <div class="breadcrumbs"><?php if ($originUrl): ?><a href="<?= e($originUrl) ?>"><?= $context['origin'] === 'painting' ? 'Artwork' : 'Artworks' ?></a><span>/</span><?php endif; ?><?php if ($directoryUrl): ?><a href="<?= e($directoryUrl) ?>"><?= e(library_objects()[$context['directory_type']]['label']) ?></a><span>/</span><?php endif; ?><a href="<?= $manage ? 'manage.php' : 'browse.php' ?>"><?= $manage ? 'Manage library' : 'Browse' ?></a><span>/</span><a href="objects.php?<?= e(http_build_query($context)) ?>"><?= e($object['label']) ?></a></div>
 <section class="page-heading"><div><p class="eyebrow"><?= $manage ? 'Library management' : 'Explore the collection' ?></p><h1><?= e($title) ?></h1>
 <?php if (!$selected): ?><p><?= !empty($object['relationship']) ? 'Explore the connections between artworks and their classifications.' : 'Discover the people, places, and ideas behind the art.' ?></p><?php endif; ?></div>
-<?php if (!isset($object['gate'])): ?><a class="button primary" href="object-add.php?<?= e(http_build_query($context)) ?>"><?= !empty($object['relationship']) ? 'Assign ' . ($type === 'painting-subjects' ? 'subject' : 'genre') : 'Add ' . e($object['one']) ?></a><?php endif; ?></section>
+<?php if ($admin && !isset($object['gate'])): ?><a class="button primary" href="object-add.php?<?= e(http_build_query($context)) ?>"><?= !empty($object['relationship']) ? 'Assign ' . ($type === 'painting-subjects' ? 'subject' : 'genre') : 'Add ' . e($object['one']) ?></a><?php endif; ?></section>
 <?php notices(); if (isset($object['gate'])): ?><p class="notice" role="status"><?= e($object['gate']) ?></p><?php endif; ?>
 <?php if ($selected): if (!$record): ?>
 <div class="empty"><h2>Record not found</h2><p>The link is stale, the selection is ambiguous, or the record has been removed.</p><a href="<?= e(directory_url($context)) ?>">Return to <?= e(strtolower($object['label'])) ?></a></div>
@@ -47,7 +49,7 @@ page_start($title, $originUrl ?: 'art-main.php');
 <?php else: ?><?= e($record[$field] ?? 'Not recorded') ?><?php endif; ?></dd></div>
 <?php endforeach; ?></dl>
 <?php foreach (['Details', 'Description'] as $field): if (!empty($record[$field])): ?><div class="prose"><h2><?= $field === 'Details' ? 'About the artist' : 'About this genre' ?></h2><p><?= nl2br(e(strip_tags($record[$field]))) ?></p></div><?php endif; endforeach; ?>
-<?php if ($type === 'artists'): ?><a class="button primary" href="artist-edit.php?id=<?= (int)$record['ArtistID'] ?>">Edit artist</a> <?php endif; ?><?php if ($object['key'] && !isset($object['gate'])): ?><a class="button danger" href="object-delete.php?<?= e(http_build_query(['id' => (int)$record[$object['key']]] + $context)) ?>"><?= !empty($object['relationship']) ? 'Remove assignment' : 'Delete ' . e($object['one']) ?></a><?php endif; ?></section>
+<?php if ($admin && $type === 'artists'): ?><a class="button primary" href="artist-edit.php?<?= e(http_build_query(['id' => (int)$record['ArtistID']] + $context)) ?>">Edit artist</a> <?php endif; ?><?php if ($admin && $object['key'] && !isset($object['gate'])): ?><a class="button danger" href="object-delete.php?<?= e(http_build_query(['id' => (int)$record[$object['key']]] + $context)) ?>"><?= !empty($object['relationship']) ? 'Remove assignment' : 'Delete ' . e($object['one']) ?></a><?php endif; ?></section>
 <?php if (in_array($type, ['artists', 'galleries', 'genres', 'subjects'], true)): $works = related_paintings($type, (int)$record[$object['key']]); ?>
 <section class="related"><div class="section-heading"><h2>Artworks</h2><span><?= count($works) ?> in the collection</span></div><?php artwork_cards($works, $relatedContext); ?></section>
 <?php endif; endif; else:

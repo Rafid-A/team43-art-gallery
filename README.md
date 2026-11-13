@@ -44,12 +44,15 @@ The first build requires internet access.
 
 ### Gallery accounts
 
-| Username | Password |
-| --- | --- |
-| user1 | pass1 |
-| user2 | pass2 |
-| user3 | pass3 |
-| user4 | pass4 |
+| Username | Password | Role |
+| --- | --- | --- |
+| user1 | pass1 | Administrator |
+| user2 | pass2 | Client |
+| user3 | pass3 | Client |
+| user4 | pass4 | Client |
+
+New visitors can create their own client account from the login page.
+Administrators manage accounts on the **Users** page.
 
 phpMyAdmin uses `testuser` / `mypassword`.
 
@@ -98,12 +101,14 @@ password, follow the [runtime guide](Source/README.md#reuse-an-existing-docker-d
 Artists, Paintings, Galleries, Genres, and PaintingGenres support
 list/detail/add/delete operations with application integrity checks.
 
-Issue 12 adds authenticated artist and painting editors. Artist edits allow
+Issue 12 adds administrator-only artist and painting editors. Artist edits allow
 FirstName, LastName, Nationality, YearOfBirth, and YearOfDeath. Painting edits
 allow Title, ArtistID, GalleryID, YearOfWork, and Medium. Primary keys,
 painting images, classifications, and all other columns remain immutable from
 these forms. Artist years are stored as whole years from -10000 to 2100;
-equal birth and death years are accepted, while death before birth is rejected.
+blank or 0 means unknown. Equal known birth and death years are accepted;
+death before birth is rejected. Run `09-editor-grants.sql` as described in the
+runtime guide when upgrading an existing database.
 
 Ordered paintings cannot be deleted. Permitted painting deletion removes
 its classifications and reviews together while preserving the image file.

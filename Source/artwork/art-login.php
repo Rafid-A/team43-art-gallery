@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/functions.php';
 
-if (!empty($_SESSION['user']))
-    redirect('art-main.php');
+if ($user = current_user())
+    redirect(home_url($user));
 
 page_start('Log in');
 ?>
@@ -15,7 +15,7 @@ page_start('Log in');
 
     <div class="login-form">
         <h1>Log in to the gallery</h1>
-        <p>Enter your customer account to view the collection.</p>
+        <p>Enter your client or administrator account to view the collection.</p>
         <?php notices(); ?>
 
         <form action="authenticate.php" method="post" data-submitting-label="Logging in…">
@@ -32,6 +32,7 @@ page_start('Log in');
 
             <button class="primary full">Log in</button>
         </form>
+        <p>New to the gallery? <a href="register.php">Create a client account</a></p>
     </div>
 </section>
 <?php page_end(); ?>

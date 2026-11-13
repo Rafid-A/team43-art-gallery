@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/library.php'; require_login();
+require_once __DIR__ . '/library.php'; require_admin();
 $checks = [
     'Paintings with missing artists' => 'SELECT COUNT(*) FROM Paintings p LEFT JOIN Artists a ON a.ArtistID=p.ArtistID WHERE p.ArtistID IS NOT NULL AND a.ArtistID IS NULL',
     'Paintings with missing galleries' => 'SELECT COUNT(*) FROM Paintings p LEFT JOIN Galleries g ON g.GalleryID=p.GalleryID WHERE p.GalleryID IS NOT NULL AND g.GalleryID IS NULL',

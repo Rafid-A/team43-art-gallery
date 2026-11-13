@@ -79,7 +79,7 @@ def main():
             status, body, _ = req('artwork/art-login.php')
             check('login page', status == 200)
             status, _, headers = req('artwork/authenticate.php', {'csrf': token(body), 'userid': 'user1', 'password': 'pass1'})
-            check('login', status == 303 and headers.get('Location') == 'art-main.php')
+            check('login', status == 303 and headers.get('Location') == 'admin.php')
             status, body, _ = req('artwork/object-add.php?type=eras')
             check('canonical data enables add', status == 200 and 'name="EraName"' in body)
             csrf = token(body)

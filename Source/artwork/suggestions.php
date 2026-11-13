@@ -18,7 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     header('Allow: GET');
     suggestion_error(405, 'method_not_allowed', 'Use GET for suggestions.');
 }
-if (empty($_SESSION['user'])) suggestion_error(401, 'login_required', 'Please log in to use suggestions.');
+if (empty($_SESSION['user']['username'])) suggestion_error(401, 'login_required', 'Please log in to use suggestions.');
+// Confirm the account is still active before answering; roles need migration 08.
+try {
+    $accountsReady = account_schema_ready(db(true));
+} catch (Throwable $ex) {
+    error_log('Suggestions unavailable: ' . $ex->getMessage());
+    suggestion_error(503, 'unavailable', 'Suggestions are temporarily unavailable. Please try again.');
+}
+if (!$accountsReady) suggestion_error(503, 'unavailable', 'Suggestions are unavailable until the database upgrade is complete.');
+if (!current_user()) suggestion_error(401, 'login_required', 'Please log in to use suggestions.');
 session_write_close();
 $type = $_GET['type'] ?? null;
 $prefix = $_GET['prefix'] ?? null;

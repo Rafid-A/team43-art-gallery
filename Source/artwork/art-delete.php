@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 require_post();
 
 $id = filter_var(input('painting_id'), FILTER_VALIDATE_INT);

@@ -2,8 +2,10 @@
 require_once __DIR__ . '/functions.php';
 require_post();
 
-$stmt = db()->prepare(
-    'SELECT forename, surname, username, password FROM art_users WHERE username = ?'
+$pdo = db();
+require_account_schema($pdo);
+$stmt = $pdo->prepare(
+    'SELECT forename, surname, username, password, role, status FROM art_users WHERE username = ?'
 );
 $stmt->execute([input('userid')]);
 $user = $stmt->fetch();
@@ -13,10 +15,16 @@ if (!$user || !password_verify(input('password', false), $user['password'])) {
     redirect('art-login.php');
 }
 
+if ($user['status'] !== 'active') {
+    flash('This account is disabled. Contact an administrator.', 'error');
+    redirect('art-login.php');
+}
+
 session_regenerate_id(true);
-unset($user['password']);
+$_SESSION['account_fingerprint'] = hash('sha256', $user['password']);
+unset($user['password'], $user['status']);
 $_SESSION['user'] = $user;
 $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
-flash('Welcome, ' . $user['forename'] . '. You are logged in as ' . $user['username'] . '.');
-redirect('art-main.php');
+flash('Welcome, ' . $user['forename'] . '. You are logged in as ' . $user['username'] . ' (' . strtolower(role_label($user['role'])) . ').');
+redirect(home_url($user));
