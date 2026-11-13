@@ -79,6 +79,7 @@ if (upload_request_too_large()) {
 
     if (!$errors) {
         $stored = null;
+        $commitAttempted = false;
         try {
             // Write the file first under a new name; the painting row only
             // refers to it once the insert commits.
@@ -99,24 +100,31 @@ if (upload_request_too_large()) {
                 $v['medium'],
                 $v['excerpt']
             ]);
-            $pdo->commit();
-            flash('Added artwork: ' . $v['title'] . '.');
-            redirect($returnUrl);
+            $commitAttempted = true;
+            if (!$pdo->commit()) throw new RuntimeException('Artwork commit failed.');
         } catch (DomainException $ex) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
             $errors['form'] = $ex->getMessage();
         } catch (PDOException $ex) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
             error_log($ex->getMessage());
             $errors['form'] = 'Could not add artwork. '
                 . 'The image may already be in use. Refresh and try again.';
         } catch (RuntimeException $ex) {
             $errors['form'] = $ex->getMessage() . ' No artwork was added.';
+        } catch (Throwable $ex) {
+            error_log($ex->getMessage());
+            $errors['form'] = 'Could not add artwork. Please try again.';
         }
-        // A failed save removes only the file this request created.
+        // Pre-commit failure removes only this request's file. An uncertain
+        // COMMIT retains it until an administrator checks the row and file.
         if ($errors) {
-            discard_upload($stored);
+            cleanup_failed_upload($pdo, $stored, $commitAttempted);
+            if ($commitAttempted)
+                $errors['form'] = 'The save outcome could not be confirmed. Check the collection before retrying to avoid a duplicate. '
+                    . 'If it is unclear, ask the administrator to reconcile reference ' . ($stored ?? $v['image']) . '.';
             if ($upload) $errors['upload'] ??= 'Choose the image file again.';
+        } else {
+            flash('Added artwork: ' . $v['title'] . '.');
+            redirect($returnUrl);
         }
     }
 }

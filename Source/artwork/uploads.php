@@ -128,11 +128,45 @@ function decode_upload($file)
     return $image;
 }
 
+// Writes every encoded byte and closes the stream even when writing fails.
+// imagejpeg() can return true on a full disk; its return value alone is unsafe.
+function write_upload_stream($handle, $bytes)
+{
+    try {
+        $length = strlen($bytes);
+        for ($offset = 0; $offset < $length; $offset += $written) {
+            $written = @fwrite($handle, substr($bytes, $offset, 65536));
+            if ($written === false || $written === 0)
+                throw new RuntimeException('Incomplete image write.');
+        }
+        if (!@fflush($handle)) throw new RuntimeException('Could not flush image.');
+    } finally {
+        if (!@fclose($handle)) throw new RuntimeException('Could not close image.');
+    }
+}
+
 // Writes the image under a new random name and returns that name (without
 // .jpg). Mode 'x' creates the file only if the name is unused, so a
 // colliding name can never replace another upload.
 function store_upload($image)
 {
+    // decode_upload already bounds this image to 1600px. Encode in memory
+    // before opening a file, then check the complete JPEG's actual byte writes.
+    ob_start();
+    $warnings = 0;
+    set_error_handler(function () use (&$warnings) { $warnings++; return true; });
+    try {
+        $encoded = imagejpeg($image, null, 88);
+        $jpeg = ob_get_contents();
+    } finally {
+        restore_error_handler();
+        ob_end_clean();
+    }
+    if (!$encoded || $warnings || !$jpeg
+        || strlen($jpeg) > UPLOAD_OUTPUT_SIDE ** 2 * 4 + 65536
+        || !str_ends_with($jpeg, "\xff\xd9"))
+        throw new RuntimeException('The image could not be encoded on the server.');
+
     $folder = upload_folder();
     $handle = false;
     for ($attempt = 0; $attempt < 5 && !$handle; $attempt++) {
@@ -143,14 +177,32 @@ function store_upload($image)
         error_log('Image upload: could not create a file in ' . $folder);
         throw new RuntimeException('The image could not be saved on the server.');
     }
-    $written = imagejpeg($image, $handle, 88);
-    $closed = fclose($handle);
-    if (!$written || !$closed) {
+    try {
+        write_upload_stream($handle, $jpeg);
+    } catch (Throwable $ex) {
         discard_upload($name);
-        error_log('Image upload: could not write ' . $name . '.jpg');
+        error_log('Image upload: could not write ' . $name . '.jpg: ' . $ex->getMessage());
         throw new RuntimeException('The image could not be saved on the server.');
     }
     return $name;
+}
+
+// A lost connection can make rollback throw while inTransaction() stays true.
+// Cleanup must still run before COMMIT. Once COMMIT was attempted, retain the
+// file: the server may have committed even if its reply never reached PHP.
+function cleanup_failed_upload($pdo, $name, $commitAttempted)
+{
+    try {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+    } catch (Throwable $ex) {
+        error_log('Artwork rollback failed: ' . $ex->getMessage());
+    }
+    if ($commitAttempted) {
+        error_log('Artwork COMMIT outcome uncertain; reconciliation reference: ' . ($name ?? 'existing-image')
+            . '. Check Paintings.ImageFileName and the upload file before retrying; retain referenced files, remove only confirmed unreferenced uploads.');
+    } else {
+        discard_upload($name);
+    }
 }
 
 // Removes a file this request created, after a failed save. Only names

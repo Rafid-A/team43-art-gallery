@@ -213,13 +213,22 @@ it generates (`upload-` and 32 hex digits). The original file name, metadata
 and any extra bytes are never stored, transparent areas become white, and
 the usual camera rotations are applied. Damaged or cut-off files, other
 types, oversized files and requests from clients or signed-out visitors are
-rejected without saving anything.
+rejected without saving anything. The selected file has a local browser preview;
+it is still validated by the server when submitted.
 
 Uploaded images are stored in `artwork/images/uploads/`; bundled course
 images stay in `artwork/images/art/works/square-medium/` and are never
-changed. The file is written first under its new name and the artwork row
-refers to it only after the insert commits. If the insert fails, only that
-new file is removed. A new name never replaces an existing file, so
+changed. The bounded image is encoded in memory first, then every byte is
+written to an exclusively created file, with flush and close checks. The
+artwork row refers to it only after the insert commits. On a confirmed
+failure before COMMIT, only that request's new file is removed, even if
+rollback also fails. Filesystem and database writes are not one atomic operation.
+If COMMIT is attempted but its outcome cannot be confirmed, the file is retained
+and the form warns against retrying until the collection is checked. The server
+logs a reconciliation reference (the generated image basename). An administrator
+must check `Paintings.ImageFileName` for that reference and the matching JPEG:
+retain referenced files, and remove only uploads confirmed unreferenced after
+the database connection is restored. A new name never replaces an existing file, so
 simultaneous uploads cannot overwrite each other. Deleting an artwork keeps
 its image file, as for bundled images. Docker serves the folder from the
 `gallery-uploads` volume; `.htaccess` there serves only generated JPEG names

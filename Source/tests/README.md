@@ -65,3 +65,31 @@ later public `user1`, then restore the original table in `finally`. Do not run
 another writer or suite concurrently. Account names/password hashes/roles/status
 and all eight gallery table checksums must match afterward. Only owned account
 rows are removed; the fixture lifecycle belongs to its operator.
+
+## Upload regressions
+
+With the same exclusive fixture and environment, run `node uploads_regression.cjs`.
+The suite additionally requires a writable, named `gallery-uploads` volume with
+the same fixture labels and exact Compose project/volume identity. It never
+starts, stops or removes containers or volumes. It uses the existing optional
+Playwright dependency and an installed Chromium/Edge browser.
+
+Checks cover complete/short/failed stream writes (including `/dev/full`), a real
+test-owned PDO connection loss with failed rollback, conservative file retention
+after a possible COMMIT, JPEG/PNG/WebP decoding and stripped output, invalid,
+damaged, empty and oversized files, admin/client/anonymous requests, CSRF,
+generated names, failed INSERT cleanup, separate-session parallel uploads,
+selected-file preview/replacement/clear/error/source switching, bundled previews,
+untouched and selected-file dirty state, pending submission, and viewport fit.
+Images are generated in memory by fixture GD; no external corpus is downloaded.
+The temporary trigger rejects only this run's exact title and is removed in
+`finally`. Cleanup deletes only rows with this run's marker and their recorded
+generated files. All eight gallery tables, accounts, existing upload files and
+bundled-image hashes must match the baseline afterward.
+
+The COMMIT ambiguity branch is exercised directly through the cleanup helper;
+this suite does not simulate a lost COMMIT reply at the network boundary.
+Container recreation/persistence, backup/restore, physical devices and other
+browser engines remain separate operator checks. The painting-add Python gate
+still uses its own disposable lifecycle; its valid legacy-image form now submits
+`image_source=existing` explicitly.
