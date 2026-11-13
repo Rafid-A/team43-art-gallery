@@ -8,9 +8,11 @@ USE `art`;
 --      status ENUM('active','disabled')  NOT NULL DEFAULT 'active'
 --    Existing usernames, password hashes, names and every other table are
 --    left as they are. New public registrations are always clients.
--- 2. Initial administrator: only when no administrator exists yet, and only
---    the classroom account user1 if it exists. Every other account starts
---    as a client. Reruns never change an existing role or status.
+-- 2. Initial administrator: only while adding the columns, and only the
+--    trusted classroom account user1 if it exists. Every other account starts
+--    as a client. Valid existing columns mark a completed initial upgrade;
+--    reruns never bootstrap, even if no administrator remains. If no trusted
+--    user1 exists at initial upgrade, provision an administrator explicitly.
 -- 3. The gallery account testuser gets UPDATE on art_users only, for role
 --    and status changes on the Accounts page. No other privilege changes.
 --
@@ -66,13 +68,10 @@ BEGIN
     ALTER TABLE `art_users`
       ADD COLUMN `role` ENUM('client','admin') NOT NULL DEFAULT 'client' AFTER `password`,
       ADD COLUMN `status` ENUM('active','disabled') NOT NULL DEFAULT 'active' AFTER `role`;
+    UPDATE `art_users` SET `role` = 'admin' WHERE `username` = 'user1';
   ELSEIF NOT (role_type <=> 'enum(''client'',''admin'')' AND role_nullable <=> 'NO'
           AND status_type <=> 'enum(''active'',''disabled'')' AND status_nullable <=> 'NO') THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '08: art_users has a partial or different role/status definition; nothing was changed';
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM `art_users` WHERE `role` = 'admin') THEN
-    UPDATE `art_users` SET `role` = 'admin' WHERE `username` = 'user1';
   END IF;
 
   OPEN hosts;

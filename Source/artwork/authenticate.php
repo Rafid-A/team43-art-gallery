@@ -21,6 +21,7 @@ if ($user['status'] !== 'active') {
 }
 
 session_regenerate_id(true);
+$_SESSION['account_fingerprint'] = hash('sha256', $user['password']);
 unset($user['password'], $user['status']);
 $_SESSION['user'] = $user;
 $_SESSION['csrf'] = bin2hex(random_bytes(32));

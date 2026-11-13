@@ -27,19 +27,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // bcrypt reads at most 72 bytes; a longer password would be silently cut.
     if (strlen($password) < 8 || strlen($password) > 72)
         $errors['password'] = 'Password must be 8 to 72 characters.';
+    elseif (str_contains($password, "\0"))
+        $errors['password'] = 'Password cannot contain NUL (null) bytes. Choose a different password.';
     elseif (!hash_equals($password, $confirm))
         $errors['confirm'] = 'The passwords do not match.';
 
     if (!$errors) {
         try {
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             // The role is fixed here; nothing in the request can choose it.
             $stmt = $pdo->prepare(
                 "INSERT INTO art_users (forename, surname, username, password, role, status)
                  VALUES (?, ?, ?, ?, 'client', 'active')"
             );
-            $stmt->execute([$values['forename'], $values['surname'], $values['userid'], password_hash($password, PASSWORD_DEFAULT)]);
+            $stmt->execute([$values['forename'], $values['surname'], $values['userid'], $passwordHash]);
             flash('Your client account ' . $values['userid'] . ' is ready. Log in to view the collection.');
             redirect('art-login.php');
+        } catch (Error $ex) {
+            // Hashing can fail without a database error. Never log password data.
+            error_log('Registration password hashing failed.');
+            $errors['password'] = 'The password could not be secured. Please try a different password or try again later.';
         } catch (PDOException $ex) {
             if ($ex->getCode() === '23000') $errors['userid'] = 'That user ID is already taken. Choose another.';
             else {
