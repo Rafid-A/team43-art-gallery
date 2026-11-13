@@ -3,14 +3,14 @@
 .password-field input { flex: 1; min-width: 0; margin-bottom: 0; }
 .password-field .password-toggle { flex: 0 0 auto; padding-inline: 12px; font-size: 12px; }
 .form-section { min-width: 0; margin: 0 0 24px; padding: 0; border: 0; }
-.form-section > legend { padding: 0; margin-bottom: 20px; color: var(--ink); font: 25px/1.3 Georgia, serif; }
+.form-section > legend { padding: 0; margin-bottom: 20px; color: var(--ink); font: 25px/1.3 var(--font-serif); }
 .form-actions { position: sticky; bottom: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-block: 16px; border-top: 1px solid var(--line); background: var(--paper); }
 .form-actions > a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 8px; }
 .form-actions-note { margin-inline-start: auto; max-width: 35ch; color: var(--muted); font-size: 12px; }
 .admin-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-block: 24px 40px; padding-block: 24px; border-block: 1px solid var(--line); }
 .admin-overview > div { min-width: 0; }
 .admin-overview dt { font-size: 13px; }
-.admin-overview dd { margin-top: 8px; font: 36px/1.1 Georgia, serif; font-variant-numeric: tabular-nums; }
+.admin-overview dd { margin-top: 8px; font: 36px/1.1 var(--font-serif); font-variant-numeric: tabular-nums; }
 .admin-section-title { margin-top: 32px; }
 .account-badge { display: inline-block; padding: 2px 8px; margin-inline-start: 6px; border: 1px solid var(--line); font-size: 12px; }
 .account-badge.is-disabled { color: var(--danger); border-color: currentColor; }

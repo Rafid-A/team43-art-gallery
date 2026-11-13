@@ -1,4 +1,4 @@
-# The Art Library — Team 43
+# Art Gallery
 
 Project Task 01 is a PHP/Apache/MariaDB art gallery with artwork browsing,
 title and artist filtering, artwork details, and collection management.
@@ -9,6 +9,8 @@ painting editing, persistent image uploads, sortable paginated lists, table
 summaries, and live title/artist suggestions. The collection adds an artwork-led
 opening, compact mobile navigation and filters, artist thumbnails, display
 density controls, and an image viewer with bounded zoom and collection navigation.
+The public landing introduces selected paintings and an artist story, with
+visitor-controlled featured works. Log in to open the catalogue and artwork details.
 Offline source extraction and data import remain planned under issue #16.
 
 ## Requirements
@@ -41,7 +43,7 @@ The first build requires internet access.
 
 | Service | Address |
 | --- | --- |
-| Gallery | http://localhost:8084/artwork/art-login.php |
+| Gallery | http://localhost:8084/artwork/ |
 | phpMyAdmin | http://localhost:8085/ |
 | Course examples | http://localhost:8084/artwork/examples/ |
 
@@ -112,6 +114,37 @@ these forms. Artist years are stored as whole years from -10000 to 2100;
 blank or 0 means unknown. Equal known birth and death years are accepted;
 death before birth is rejected. Run `09-editor-grants.sql` as described in the
 runtime guide when upgrading an existing database.
+
+Signed-in users can save artworks to "My collection" from an artwork page and
+see them on their profile (`account.php`). Each user sees and changes only
+their own list. Run `10-saved-works.sql` as described in the runtime guide when
+upgrading an existing database.
+
+Library text fields (artists, paintings, galleries, genres, eras and
+subjects) reject emoji and other characters outside Unicode's Basic
+Multilingual Plane, in the browser and on the server. The supplied course
+tables use MySQL's 3-byte `utf8` (`utf8mb3`); without this check such
+characters were saved as `?` while the form reported success. Converting the
+course tables to `utf8mb4` was considered and not done, because it rewrites
+every supplied table, index and foreign key on existing installations for a
+character range the gallery does not need. Accounts (`art_users`) already use
+`utf8mb4` and are unaffected.
+
+Opening a page that requires an account while signed out shows "Please log in
+to view that page" and, after logging in, returns to that page with its
+filters and position. Only same-folder pages opened with GET are remembered;
+otherwise login goes to the role's home page (Artworks for clients,
+Administration for administrators).
+
+Task 8 animation: the Home page has a rotating strip, "Across the
+collection", with one painting from each of 14 artists in date order. It moves
+leftward continuously (a CSS animation of `transform`, about 40px a second),
+pauses on hover or keyboard focus, and has a Pause rotation button. With the
+operating system's reduced-motion setting, or without JavaScript, it is a
+still row that scrolls sideways. Its images load after the rest of the page so
+the main painting is not slowed. Other motion: the featured-artwork crossfade
+on Home, a growing underline in the navigation bar, the small-screen menu
+opening, page fades between gallery pages, and the artwork viewer's zoom.
 
 Ordered paintings cannot be deleted. Permitted painting deletion removes
 its classifications and reviews together while preserving the image file.

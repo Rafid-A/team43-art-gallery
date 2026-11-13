@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
+require_once __DIR__ . '/saved-works.php';
 require_login();
 
 // Lexicographic SQL neighbors match art-main.php, including NULL ordering and
@@ -86,6 +87,10 @@ $neighbors = painting_neighbors($p, $context);
 <?php notices(); ?>
 <?php painting_neighbor_links($neighbors); ?>
 <article class="painting-detail">
+    <header class="painting-heading">
+        <p class="eyebrow">Artwork #<?= $id ?></p><h1><?= e($p['Title']) ?></h1>
+        <p class="artist-byline"><?php if ($p['ArtistID'] && $p['LastName']): ?><a href="objects.php?<?= e(http_build_query(['type' => 'artists', 'id' => (int)$p['ArtistID']] + $assignmentOrigin)) ?>"><?= e(trim($p['FirstName'] . ' ' . $p['LastName'])) ?></a><?php else: ?>Artist not recorded<?php endif; ?></p>
+    </header>
     <figure class="painting-image">
         <?php if ($hasImage): ?>
         <a class="viewer-trigger" data-artwork-viewer href="<?= e($imageFile['url']) ?>" aria-label="View larger image of <?= e($p['Title']) ?>">
@@ -96,8 +101,7 @@ $neighbors = painting_neighbors($p, $context);
         <figcaption><?= e($p['CopyrightText'] ?: 'See image credits for attribution') ?></figcaption>
     </figure>
     <div class="painting-copy">
-        <p class="eyebrow">Inside the collection · #<?= $id ?></p><h1><?= e($p['Title']) ?></h1>
-        <p class="artist-byline"><?php if ($p['ArtistID'] && $p['LastName']): ?><a href="objects.php?<?= e(http_build_query(['type' => 'artists', 'id' => (int)$p['ArtistID']] + $assignmentOrigin)) ?>"><?= e(trim($p['FirstName'] . ' ' . $p['LastName'])) ?></a><?php else: ?>Artist not recorded<?php endif; ?></p>
+        <?php if (saved_works_ready(db())): saved_work_form($id, saved_work_exists(current_user()['username'], $id), $p['Title'], 'painting.php?' . http_build_query(['id' => $id] + $context)); endif; ?>
         <dl class="metadata">
             <div><dt>Year</dt><dd><?= e($p['YearOfWork'] ?: 'Not recorded') ?></dd></div>
             <div><dt>Medium</dt><dd><?= e($p['Medium'] ?: 'Not recorded') ?></dd></div>

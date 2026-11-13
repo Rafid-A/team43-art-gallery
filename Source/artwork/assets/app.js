@@ -259,6 +259,18 @@ if (addForm) {
   addForm.querySelector('[aria-invalid="true"]')?.focus();
 }
 
+// Library tables store 3-byte UTF-8 only; mirror the server's emoji check so
+// the message appears before submitting. The server check remains the guard.
+document.querySelectorAll('form.add-form').forEach((form) => {
+  const unstorable = /[\u{10000}-\u{10FFFF}]/u;
+  form.querySelectorAll('input:not([type]), input[type="text"], input[type="url"], textarea').forEach((field) => {
+    const check = () => field.setCustomValidity(unstorable.test(field.value)
+      ? 'Remove emoji or other special symbols; the gallery cannot store them.' : '');
+    field.addEventListener('input', check);
+    check();
+  });
+});
+
 const artistForm = document.querySelector('#artist-form');
 if (artistForm) {
   const birth = artistForm.querySelector('#YearOfBirth');

@@ -1,11 +1,67 @@
 # Browsing regression checks
 
-## Gallery, viewer, and form polish
+## Public exhibition landing
+
+After preparing the ownership-labelled fixture below, run
+`node landing_regression.cjs` with the same browser/fixture environment.
+It needs no fixture-write opt-in and never changes database records or starts
+or stops services. It checks the public root, native artwork selection,
+database-derived captions, protected deep links, unchanged login destinations,
+client/admin navigation, helper-file denial, JavaScript-disabled navigation,
+320/390/768/1024/1440px sizing, uncropped images, keyboard/reduced-motion
+instant switching, rapid-switch cleanup, first-session arrival and no autoplay.
+Request interception tests image failure. Read-only PHP subprocesses exercise
+missing/empty selections and a process-local failed database connection.
+Full missing-record states are tested through the same selector/template without
+deleting fixture records; physical devices and screen readers remain manual checks.
+
+## Visitor, gallery, viewer, and form polish
+
+`node visitor_batch2_regression.cjs` checks Home/Browse thematic discovery and
+the artwork detail reading order using the same ownership-verified fixture and
+browser environment. It independently reads current Landscape, People and
+Impressionism identities, distinct counts, preview membership and recorded
+captions; checks public teasers, protected exact-record links and helper denial;
+retains Browse discovery/library links; and measures 320/390/768/1024/1440px fit,
+contained images, desktop columns and the single title/artist header before the
+mobile image. At 390x844 the title and artist must be visible on opening. Native
+navigation and the viewer open/Escape/focus path are included. PHP subprocesses
+exercise empty/deleted themes, missing media, a later valid preview and escaped
+captions without changing any fixture records. No fixture-write opt-in, source
+rewrite or container lifecycle action is used; gallery/account checksums must
+remain unchanged. Physical devices and screen readers remain manual checks.
+
+`node theme_regression.cjs` checks the shared Art Gallery palette, sans typography,
+1440px shell and header geometry across the landing, login/registration,
+collection, painting, artists, galleries, browse, profiles, administration and
+editing forms. It compares computed default/hover/focus primary states, measures
+field/text/focus contrast, opens the dark viewer, and checks public/admin/client
+navigation plus account/form actions at 320/390/768/1024/1440px. It uses the same
+ownership-verified fixture and browser environment without fixture-write opt-in;
+gallery/account checksums must remain unchanged. It never submits editing or
+account-management actions or changes container lifecycle.
+
+`node motion_regression.cjs` checks the visitor motion contract with the same
+read-only fixture. It reports native cross-document page-transition support
+separately, then verifies the deterministic fallback: pointer mode persists
+across public routes, management routes and `manage=1` never opt in, natural
+link/history navigation still runs, keyboard and reduced motion stay instant
+(including a preference change during an active effect), and denied storage or
+missing transition APIs leave ordinary navigation intact. Fine-pointer hover
+and touch `:active` are checked separately with forced pseudo-state so the
+painting and card never scale; the first-visit landing composition, feature
+crossfade and viewer zoom/drag transforms must remain. No fixture-write opt-in,
+record writes, source rewrites or container lifecycle actions are used;
+gallery/account checksums must remain unchanged. Physical touch hardware and
+assistive-technology announcement timing remain manual checks.
 
 After preparing the exclusive labelled fixture described below, run these suites
 sequentially from this directory with the same browser and fixture environment:
 
 ```powershell
+node theme_regression.cjs
+node visitor_batch2_regression.cjs
+node motion_regression.cjs
 node gallery_polish_regression.cjs
 node forms_polish_regression.cjs
 node viewer_media_regression.cjs
@@ -122,6 +178,33 @@ later public `user1`, then restore the original table in `finally`. Do not run
 another writer or suite concurrently. Account names/password hashes/roles/status
 and all eight gallery table checksums must match afterward. Only owned account
 rows are removed; the fixture lifecycle belongs to its operator.
+
+## Saved-works regressions
+
+With the same verified fixture and `BROWSING_ALLOW_FIXTURE_WRITES=yes`, run
+`node saved_works_regression.cjs`. It applies `10-saved-works.sql` twice
+(idempotence), then checks save/remove from an artwork page and the profile,
+that each user sees and changes only their own list, method/CSRF/action/id
+refusals, that unsafe `return` values fall back to the artwork page, the
+populated profile at 320px, behaviour while the table is absent (temporarily
+renamed, then restored), and account-deletion cascade. It restores the
+`user1`/`user2` saved rows it found and verifies the other gallery and
+account tables are unchanged.
+
+## Review-fix regressions
+
+With the same verified fixture and `BROWSING_ALLOW_FIXTURE_WRITES=yes`, run
+`node review_fixes_regression.cjs`. It checks that artist, painting and
+directory forms refuse emoji (server response and browser validity) without
+changing records; that a 255-character unbroken title, a 50-character
+unbroken name and right-to-left text wrap on the collection, artwork, artist
+and profile pages at 320, 768 and 1440px; singular counts ("1 painting",
+"1 artwork"); the log-in notice and return to the requested GET page (never a
+POST); the guest brand link; the Home strip moving leftward, pausing with its
+button and on keyboard focus, bringing a focused work into view, and staying
+still under reduced motion; and the navigation underline. Temporary records
+and image files are removed, and every gallery and account table checksum is
+compared before and after.
 
 ## Upload regressions
 

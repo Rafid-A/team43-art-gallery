@@ -278,6 +278,10 @@ function field_values($object)
             $errors[$name] = $label . ' must contain valid UTF-8 text.';
             continue;
         }
+        if (!gallery_storable_text($value)) {
+            $errors[$name] = gallery_unstorable_message($label);
+            continue;
+        }
         if ($kind === 'required' && $value === '') $errors[$name] = $label . ' is required.';
         if ($length && text_length($value) > $length) $errors[$name] = $label . ' must be at most ' . $length . ' characters.';
         if ($value !== '' && $kind === 'url' && !safe_link($value)) $errors[$name] = 'Enter a valid http or https URL.';
@@ -311,6 +315,7 @@ function painting_field_errors($values, $artistIds, $galleryIds)
         $value = $values[$field] ?? '';
         if (!is_string($value)) $errors[$field] = 'Enter a single text value.';
         elseif (text_length($value) === false) $errors[$field] = 'Enter valid UTF-8 text.';
+        elseif (!gallery_storable_text($value)) $errors[$field] = gallery_unstorable_message(['title' => 'The title', 'medium' => 'The medium', 'excerpt' => 'The description'][$field] ?? 'This field');
     }
     if ($errors) return $errors;
     if ($values['title'] === '' || text_length($values['title']) > 255) $errors['title'] = 'Enter a title of 1 to 255 characters.';

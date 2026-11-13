@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/library.php';
 require_login();
+require_once __DIR__ . '/visitor-themes.php';
+$themes = visitor_themes(db());
 // Pick well-represented connections from real records. Fetch representatives
 // together; neither the cards nor the artist directory query once per row.
 $discoveries = [];
@@ -19,9 +21,10 @@ if ($ids) {
     foreach (rows('SELECT * FROM Paintings WHERE PaintingID IN (' . implode(', ', array_fill(0, count($ids), '?')) . ')', $ids)->fetchAll() as $painting) $images[(int)$painting['PaintingID']] = $painting;
 }
 page_start('Browse'); ?>
-<section class="page-heading"><div><p class="eyebrow">Find a new perspective</p><h1>Ways of seeing</h1><p>Follow a movement, explore an era, or discover a subject.</p></div></section>
+<section class="page-heading"><div><p class="eyebrow">Browse</p><h1>Browse the collection</h1><p>Find artworks by movement, era, genre, and subject.</p></div></section>
+<?php visitor_theme_routes($themes); ?>
 <?php if ($discoveries): ?>
-<section class="discovery" aria-labelledby="discovery-heading"><div class="section-heading"><h2 id="discovery-heading">Explore a connection</h2><p>Artists and ideas with more to discover.</p></div><div class="discovery-grid">
+<section class="discovery" aria-labelledby="discovery-heading"><div class="section-heading"><h2 id="discovery-heading">Artists, genres, and subjects</h2><p>A selection with several recorded artworks.</p></div><div class="discovery-grid">
 <?php foreach ($discoveries as $discovery): $painting = $images[(int)$discovery['PaintingID']] ?? null; ?>
 <a class="discovery-card" href="objects.php?<?= e(http_build_query(['type' => $discovery['type'], 'id' => (int)$discovery['DiscoveryID']])) ?>">
 <div class="discovery-image" aria-hidden="true"><?php if ($painting && artwork_image_file($painting['ImageFileName'])): artwork_image($painting); else: ?><span>Explore the artworks</span><?php endif; ?></div><div class="discovery-copy"><p><?= e(['artists' => 'Artist', 'genres' => 'Genre', 'subjects' => 'Subject'][$discovery['type']]) ?></p><h3><?= e(trim($discovery['DiscoveryName'])) ?></h3><span><?= (int)$discovery['WorkCount'] ?> <?= (int)$discovery['WorkCount'] === 1 ? 'artwork' : 'artworks' ?></span></div></a>
