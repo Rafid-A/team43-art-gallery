@@ -40,7 +40,11 @@ To change occupied ports, copy `.env.example` to `.env` beside
 project. No `.env` file is required for the defaults.
 
 Stop from this directory with `docker compose down`. The database remains
-in its named volume; do not add `-v` unless intentionally erasing it.
+in its named volume, and uploaded painting images remain in the
+`gallery-uploads` volume (by default `team43-gallery_gallery-uploads`).
+Rebuilding or recreating the web container keeps them. Do not add `-v`
+unless intentionally erasing both. PHP errors are written to the container
+log (`docker compose logs web`), not shown in pages.
 Initialization runs only for a new volume. A different Compose project name
 selects a separate database, so use the same `-p` name for start and stop.
 
@@ -198,6 +202,54 @@ and has Abstract at IDs 5 and 22. Existing ID 8 is preserved as an earlier
 team-created record; its name is not verified by that source. Existing
 assignments are never moved or reseeded.
 
+### Painting image uploads
+
+On **Add artwork**, an administrator can upload a new image or choose an
+unused image already on the server. Uploads accept JPEG, PNG or WebP files
+of at most 5 MB and 6000 pixels on each side (24 megapixels). The type is
+read from the file's contents, not its name. The server decodes the image
+and saves a new JPEG of at most 1600 pixels on the longest side under a name
+it generates (`upload-` and 32 hex digits). The original file name, metadata
+and any extra bytes are never stored, transparent areas become white, and
+the usual camera rotations are applied. Damaged or cut-off files, other
+types, oversized files and requests from clients or signed-out visitors are
+rejected without saving anything. The selected file has a local browser preview;
+it is still validated by the server when submitted.
+
+Uploaded images are stored in `artwork/images/uploads/`; bundled course
+images stay in `artwork/images/art/works/square-medium/` and are never
+changed. The bounded image is encoded in memory first, then every byte is
+written to an exclusively created file, with flush and close checks. The
+artwork row refers to it only after the insert commits. On a confirmed
+failure before COMMIT, only that request's new file is removed, even if
+rollback also fails. Filesystem and database writes are not one atomic operation.
+If COMMIT is attempted but its outcome cannot be confirmed, the file is retained
+and the form warns against retrying until the collection is checked. The server
+logs a reconciliation reference (the generated image basename). An administrator
+must check `Paintings.ImageFileName` for that reference and the matching JPEG:
+retain referenced files, and remove only uploads confirmed unreferenced after
+the database connection is restored. A new name never replaces an existing file, so
+simultaneous uploads cannot overwrite each other. Deleting an artwork keeps
+its image file, as for bundled images. Docker serves the folder from the
+`gallery-uploads` volume; `.htaccess` there serves only generated JPEG names
+and runs no scripts.
+
+Back up the uploads with the database so image names and files stay
+matched. From this directory, with the gallery running:
+
+```sh
+docker compose exec -T db sh -c 'exec mariadb-dump --user=root --password="$MARIADB_ROOT_PASSWORD" --single-transaction --databases art' > art-backup.sql
+docker compose cp web:/var/www/html/artwork/images/uploads ./uploads-backup
+```
+
+To restore the images into a gallery whose database was restored from the
+same backup:
+
+```sh
+docker compose cp ./uploads-backup/. web:/var/www/html/artwork/images/uploads/
+docker compose exec -T web chown -R www-data:www-data /var/www/html/artwork/images/uploads
+```
+
 ### Sorting and suggestions
 
 Choose a sort field and ascending or descending order, then select **View
@@ -263,7 +315,10 @@ no password hash or fingerprint is sent to the browser.
 ## Optional existing XAMPP installation
 
 Copy `artwork` into `htdocs` and start Apache and MySQL/MariaDB with PDO MySQL
-and mysqli. After backing up any existing databases, import `artwork/sql/`
+and mysqli. Image uploads also need the GD extension (with JPEG, and PNG/WebP
+for those formats), `upload_max_filesize` of at least 6M, and an
+`artwork/images/uploads` folder that Apache can write; without them, Add
+artwork offers only images already on the server. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
 `06-era-identities.sql`, `07-subject-names.sql` and

@@ -374,12 +374,12 @@ function artwork_cards($paintings, array $context = [])
 
 function artwork_image($painting, $eager = false)
 {
-    $file = basename($painting['ImageFileName'] ?? '');
-    if ($file === '' || !is_file(__DIR__ . '/images/art/works/square-medium/' . $file . '.jpg')) {
+    $file = artwork_image_file($painting['ImageFileName'] ?? '');
+    if (!$file) {
         echo '<span class="image-missing">Image unavailable<br><small>' . e($painting['Title']) . '</small></span>'; return;
     }
-    [$width, $height] = artwork_image_size($file);
-    echo '<img src="images/art/works/square-medium/' . e(rawurlencode($file)) . '.jpg" alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
+    [$width, $height] = artwork_image_size($painting['ImageFileName']);
+    echo '<img src="' . e($file['url']) . '" alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
 }
 
 function related_paintings($type, $id)

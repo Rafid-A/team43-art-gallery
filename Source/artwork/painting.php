@@ -14,15 +14,15 @@ if (!$p) {
 }
 $admin = is_admin();
 page_start($p['Title'], $collectionUrl);
-$imageFile = basename($p['ImageFileName'] ?? '');
-$hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . '.jpg');
+$imageFile = artwork_image_file($p['ImageFileName'] ?? '');
+$hasImage = (bool)$imageFile;
 ?>
 <div class="breadcrumbs"><a href="<?= e($collectionUrl) ?>">Artworks</a><span>/</span><?php if ($directoryUrl): ?><a href="<?= e($directoryUrl) ?>"><?= e(library_objects()[$context['directory_type']]['label']) ?></a><span>/</span><?php endif; ?><?= e($p['Title']) ?></div>
 <?php notices(); ?>
 <article class="painting-detail">
     <figure class="painting-image">
         <?php if ($hasImage): ?>
-        <a class="viewer-trigger" data-artwork-viewer href="images/art/works/square-medium/<?= e(rawurlencode($imageFile)) ?>.jpg" aria-label="View larger image of <?= e($p['Title']) ?>">
+        <a class="viewer-trigger" data-artwork-viewer href="<?= e($imageFile['url']) ?>" aria-label="View larger image of <?= e($p['Title']) ?>">
             <?php artwork_image($p, true); ?>
             <span class="viewer-hint" aria-hidden="true">View larger ↗</span>
         </a>

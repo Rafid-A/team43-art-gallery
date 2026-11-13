@@ -11,7 +11,7 @@ session_start([
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
-header("Content-Security-Policy: default-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
 
 function e($value)
 {
@@ -206,11 +206,11 @@ function page_start($title, $artworksUrl = 'art-main.php')
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | The Art Library</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
-    <link rel="stylesheet" href="assets/style.css?v=4">
+    <link rel="stylesheet" href="assets/style.css?v=6">
     <link rel="stylesheet" href="assets/motion.css?v=2">
     <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
     <script src="assets/motion.js"></script>
-    <script src="assets/app.js?v=3" defer></script>
+    <script src="assets/app.js?v=4" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -255,10 +255,23 @@ function image_files()
     }, $files);
 }
 
+// Bundled course images first, then administrator uploads. Both are stored
+// as <ImageFileName>.jpg, and the stored name is only ever used as a basename.
+function artwork_image_file($filename)
+{
+    $name = basename((string)$filename);
+    if ($name === '' || $name === '.' || $name === '..') return null;
+    foreach (['images/art/works/square-medium/', 'images/uploads/'] as $folder) {
+        if (is_file(__DIR__ . '/' . $folder . $name . '.jpg'))
+            return ['path' => __DIR__ . '/' . $folder . $name . '.jpg', 'url' => $folder . rawurlencode($name) . '.jpg'];
+    }
+    return null;
+}
+
 function artwork_image_size($filename)
 {
-    $path = __DIR__ . '/images/art/works/square-medium/' . basename($filename) . '.jpg';
-    $size = is_file($path) ? getimagesize($path) : false;
+    $file = artwork_image_file($filename);
+    $size = $file ? getimagesize($file['path']) : false;
 
     return $size ? [$size[0], $size[1]] : [640, 480];
 }
