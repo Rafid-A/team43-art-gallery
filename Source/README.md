@@ -105,13 +105,16 @@ docker compose up -d --wait --wait-timeout 180
 The account upgrade (`08-account-roles.sql`) adds `role` (`client` or
 `admin`, default `client`) and `status` (`active` or `disabled`, default
 `active`) to `art_users` in one change. Usernames, names, password hashes
-and every other table are kept. Only when no administrator exists yet, it
-makes `user1` the administrator if that account exists; every other account
-becomes a client. It also gives the gallery's `testuser` account UPDATE on
-`art_users` only, for the Accounts page. Rerunning it changes nothing, and
-it never resets a role or status chosen later. A table that already has
-only one of the columns, or a different definition, stops it before any
-change. To make another account the administrator by hand, run as root:
+and every other table are kept. Only during the initial upgrade that adds
+both columns, it makes the trusted classroom `user1` account the administrator
+if present; every other account becomes a client. It also gives the gallery's
+`testuser` account UPDATE on `art_users` only, for the Accounts page. Rerunning it changes nothing, and
+it never resets a role or status chosen later, even if no administrator remains.
+The valid role/status columns mark the completed initial upgrade. A table that
+already has only one of the columns, or a different definition, stops it before any
+change. If no trusted `user1` existed during the initial upgrade (or the
+upgrade was interrupted after adding the columns), an operator must verify
+the intended account owner and explicitly provision an administrator as root:
 `UPDATE art.art_users SET role = 'admin' WHERE username = 'name';`.
 Until 08 runs, nobody can log in: the login page returns an
 upgrade-required response and the health check reports not ready.
@@ -249,6 +252,13 @@ request. Disabled accounts cannot log in. An administrator cannot change
 or delete their own account, and the last active administrator cannot be
 removed. Future administration features (uploads, editing, imports) call
 the same `require_admin()` check.
+
+Sessions are bound on successful login to a server-only fingerprint of the
+stored salted password hash. Deleting and registering the same user ID cannot
+transfer an old session, even with the same password or a later promotion.
+Changing the stored password hash also requires signing in again. Existing
+sessions created before this fix lack the fingerprint and must sign in again;
+no password hash or fingerprint is sent to the browser.
 
 ## Optional existing XAMPP installation
 

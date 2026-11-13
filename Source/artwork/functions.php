@@ -43,7 +43,7 @@ function require_login()
 }
 
 // The signed-in account is read again on every request, so a role change,
-// a disabled account or a deleted account applies to sessions already open.
+// a disabled account or a deleted/replaced account applies to sessions already open.
 function current_user()
 {
     static $loaded = false;
@@ -55,15 +55,19 @@ function current_user()
 
     $pdo = db();
     require_account_schema($pdo);
-    $stmt = $pdo->prepare('SELECT forename, surname, username, role, status FROM art_users WHERE username = ?');
+    $stmt = $pdo->prepare('SELECT forename, surname, username, password, role, status FROM art_users WHERE username = ?');
     $stmt->execute([$username]);
     $account = $stmt->fetch();
 
-    if (!$account || $account['status'] !== 'active') {
-        unset($_SESSION['user']);
+    // Only login captures this server-side fingerprint. A new salted hash
+    // means a new credential generation, even if a username/password is reused.
+    $fingerprint = $_SESSION['account_fingerprint'] ?? null;
+    if (!$account || $account['status'] !== 'active' || !is_string($fingerprint)
+        || !hash_equals(hash('sha256', $account['password']), $fingerprint)) {
+        unset($_SESSION['user'], $_SESSION['account_fingerprint']);
         session_regenerate_id(true);
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
-        flash('Your session ended because this account is no longer active. Contact an administrator if this is unexpected.', 'error');
+        flash('Your session ended because this account changed or is no longer active. Please sign in again.', 'error');
         return null;
     }
 
@@ -72,7 +76,7 @@ function current_user()
         session_regenerate_id(true);
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
     }
-    unset($account['status']);
+    unset($account['password'], $account['status']);
     $_SESSION['user'] = $account;
     return $account;
 }
@@ -112,7 +116,7 @@ function require_account_schema(PDO $pdo)
 {
     if (account_schema_ready($pdo)) return;
 
-    unset($_SESSION['user']);
+    unset($_SESSION['user'], $_SESSION['account_fingerprint']);
     http_response_code(503);
     header('Retry-After: 60');
     page_start('Database upgrade required');

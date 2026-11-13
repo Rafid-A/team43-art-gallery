@@ -42,3 +42,26 @@ exclusive to the test run; do not attach any other writer.
 
 Stop only the disposable project after testing. Inspect its ownership before
 removing its fresh test volume; never remove an existing gallery's volume.
+
+## Account regressions
+
+With the same labelled, exclusive disposable fixture, classroom accounts,
+optional Playwright dependency and `BROWSING_ALLOW_FIXTURE_WRITES=yes`, run:
+
+```powershell
+node accounts_regression.cjs
+```
+
+This focused suite checks registration validation (including NUL passwords,
+duplicates and forged roles), fresh/legacy sessions, client/admin access,
+session-ID/CSRF refresh, disabled/deleted accounts, and username reuse with
+both the same and a different password, including later promotion. Legacy
+server sessions are created only through container PHP CLI, with no web bypass.
+
+Migration probes run as root only inside the ownership-verified fixture. They
+temporarily retain the original `art_users` table under a random test name,
+exercise initial bootstrap, partial-schema refusal and no-admin reruns with a
+later public `user1`, then restore the original table in `finally`. Do not run
+another writer or suite concurrently. Account names/password hashes/roles/status
+and all eight gallery table checksums must match afterward. Only owned account
+rows are removed; the fixture lifecycle belongs to its operator.
