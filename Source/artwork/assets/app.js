@@ -94,6 +94,20 @@ if (imageSelect && imagePreview) {
   };
   imageSelect.addEventListener('change', showImage);
   showImage();
+
+  // Upload or existing image: only the chosen control is submitted.
+  const sources = document.querySelectorAll('input[name="image_source"]');
+  const fileInput = document.querySelector('#upload');
+  if (sources.length > 1 && fileInput) {
+    const syncSource = () => {
+      const existing = document.querySelector('input[name="image_source"][value="existing"]').checked;
+      imageSelect.disabled = !existing;
+      fileInput.disabled = existing;
+      if (existing) showImage(); else imagePreview.hidden = true;
+    };
+    sources.forEach((source) => source.addEventListener('change', syncSource));
+    syncSource();
+  }
 }
 document.querySelectorAll('[data-suggestions]').forEach((input) => {
   const wrap = input.closest('.suggestion-wrap');

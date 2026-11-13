@@ -166,3 +166,8 @@ footer strong { font: 20px Georgia, serif; color: var(--ink); }
 .artist-lookup[hidden] { display: none; }
 .account-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
 .account-actions form { margin: 0; }
+.image-source { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 12px; }
+.image-source legend { font-weight: 600; margin-bottom: 8px; }
+.image-source .choice { display: flex; gap: 10px; align-items: center; font-weight: 500; cursor: pointer; }
+.image-source .choice input { flex: 0 0 auto; width: 18px; height: 18px; min-height: 0; margin: 0; padding: 0; accent-color: var(--accent); }
+.image-source .choice-detail { padding-left: 28px; display: grid; gap: 6px; }

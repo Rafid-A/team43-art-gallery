@@ -1,0 +1,8 @@
+# Only server-generated JPEG uploads are served from this folder; nothing runs here.
+Options -Indexes
+<IfModule php_module>
+    php_flag engine off
+</IfModule>
+<FilesMatch "^(?!upload-[0-9a-f]{32}\.jpg$)">
+    Require all denied
+</FilesMatch>
