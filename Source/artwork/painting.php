@@ -12,6 +12,7 @@ if (!$p) {
     echo '<h1>Artwork not found</h1><p>It may have been removed.</p><a href="' . e($collectionUrl) . '">Return to artworks</a>';
     page_end(); exit;
 }
+$admin = is_admin();
 page_start($p['Title'], $collectionUrl);
 $imageFile = basename($p['ImageFileName'] ?? '');
 $hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . '.jpg');
@@ -38,7 +39,7 @@ $hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . 
             <?php if ($p['Width'] && $p['Height']): ?><div><dt>Dimensions</dt><dd><?= e($p['Width']) ?> × <?= e($p['Height']) ?> cm</dd></div><?php endif; ?>
         </dl>
         <div class="prose"><h2>About the artwork</h2><p><?= nl2br(e(strip_tags($p['Description'] ?: $p['Excerpt'] ?: 'A description has not been recorded for this artwork.'))) ?></p></div>
-        <a class="button danger" href="painting-delete.php?<?= e(http_build_query(['id' => $id] + $context)) ?>">Delete artwork</a>
+        <?php if ($admin): ?><a class="button danger" href="painting-delete.php?<?= e(http_build_query(['id' => $id] + $context)) ?>">Delete artwork</a><?php endif; ?>
     </div>
 </article>
 <?php if ($hasImage): ?>
@@ -53,22 +54,22 @@ $hasImage = is_file(__DIR__ . '/images/art/works/square-medium/' . $imageFile . 
 <?php endif; ?>
 <section class="classifications">
     <div>
-        <div class="section-heading"><h2>Genres</h2><a href="object-add.php?<?= e(http_build_query(['type' => 'painting-genres'] + $assignmentOrigin)) ?>">Assign genre</a></div>
+        <div class="section-heading"><h2>Genres</h2><?php if ($admin): ?><a href="object-add.php?<?= e(http_build_query(['type' => 'painting-genres'] + $assignmentOrigin)) ?>">Assign genre</a><?php endif; ?></div>
         <?php $genres = rows('SELECT j.*, g.GenreName FROM PaintingGenres j LEFT JOIN Genres g ON g.GenreID=j.GenreID WHERE j.PaintingID=? ORDER BY g.GenreName, j.PaintingGenreID', [$id])->fetchAll(); ?>
         <ul class="classification-list"><?php foreach ($genres as $g): ?><li>
             <a href="objects.php?<?= e(http_build_query(['type' => 'genres', 'id' => (int)$g['GenreID']] + $assignmentOrigin)) ?>"><?= e($g['GenreName'] ?? 'Missing genre #' . $g['GenreID']) ?></a>
             <a href="objects.php?<?= e(http_build_query(['type' => 'painting-genres', 'id' => (int)$g['PaintingGenreID']] + $assignmentOrigin)) ?>">Assignment #<?= (int)$g['PaintingGenreID'] ?></a>
-            <a href="object-delete.php?<?= e(http_build_query(['type' => 'painting-genres', 'id' => (int)$g['PaintingGenreID']] + $assignmentOrigin)) ?>">Remove<span class="visually-hidden"> genre assignment #<?= (int)$g['PaintingGenreID'] ?></span></a>
+            <?php if ($admin): ?><a href="object-delete.php?<?= e(http_build_query(['type' => 'painting-genres', 'id' => (int)$g['PaintingGenreID']] + $assignmentOrigin)) ?>">Remove<span class="visually-hidden"> genre assignment #<?= (int)$g['PaintingGenreID'] ?></span></a><?php endif; ?>
         </li><?php endforeach; ?></ul>
         <?php if (!$genres): ?><p>No genres assigned yet.</p><?php endif; ?>
     </div>
     <div>
-        <div class="section-heading"><h2>Subjects</h2><a href="object-add.php?<?= e(http_build_query(['type' => 'painting-subjects'] + $assignmentOrigin)) ?>">Assign subject</a></div>
+        <div class="section-heading"><h2>Subjects</h2><?php if ($admin): ?><a href="object-add.php?<?= e(http_build_query(['type' => 'painting-subjects'] + $assignmentOrigin)) ?>">Assign subject</a><?php endif; ?></div>
         <?php $subjects = rows('SELECT j.*, s.SubjectName FROM PaintingSubjects j LEFT JOIN Subjects s ON s.SubjectID=j.SubjectID WHERE j.PaintingID=? ORDER BY s.SubjectName, j.PaintingSubjectID', [$id])->fetchAll(); ?>
         <ul class="classification-list"><?php foreach ($subjects as $s): ?><li>
             <?php if ($s['SubjectName'] !== null): ?><a href="objects.php?<?= e(http_build_query(['type' => 'subjects', 'id' => (int)$s['SubjectID']] + $assignmentOrigin)) ?>"><?= e($s['SubjectName']) ?> · #<?= (int)$s['SubjectID'] ?></a><?php else: ?><span>Missing subject #<?= e($s['SubjectID']) ?></span><?php endif; ?>
             <a href="objects.php?<?= e(http_build_query(['type' => 'painting-subjects', 'id' => (int)$s['PaintingSubjectID']] + $assignmentOrigin)) ?>">Assignment #<?= (int)$s['PaintingSubjectID'] ?></a>
-            <a href="object-delete.php?<?= e(http_build_query(['type' => 'painting-subjects', 'id' => (int)$s['PaintingSubjectID']] + $assignmentOrigin)) ?>">Remove<span class="visually-hidden"> subject assignment #<?= (int)$s['PaintingSubjectID'] ?></span></a>
+            <?php if ($admin): ?><a href="object-delete.php?<?= e(http_build_query(['type' => 'painting-subjects', 'id' => (int)$s['PaintingSubjectID']] + $assignmentOrigin)) ?>">Remove<span class="visually-hidden"> subject assignment #<?= (int)$s['PaintingSubjectID'] ?></span></a><?php endif; ?>
         </li><?php endforeach; ?></ul>
         <?php if (!$subjects): ?><p>No subjects assigned yet. <a href="objects.php?type=painting-subjects">All assignments</a></p><?php endif; ?>
     </div>

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/library.php';
-require_login();
+require_admin();
 
 $pdo = db();
 $errors = [];

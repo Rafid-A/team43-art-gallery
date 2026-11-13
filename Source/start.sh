@@ -31,7 +31,7 @@ fi
 docker compose up -d --build --wait --wait-timeout 180
 gallery_url="http://$(docker compose port web 80)/artwork/art-login.php"
 admin_url="http://$(docker compose port phpmyadmin 80)/"
-printf '\nGallery: %s\nphpMyAdmin: %s\nLogin: user1 / pass1\n' "$gallery_url" "$admin_url"
+printf '\nGallery: %s\nphpMyAdmin: %s\nAdministrator: user1 / pass1\nClient: user2 / pass2\n' "$gallery_url" "$admin_url"
 if [ "$(uname -s)" = Darwin ]; then
     open "$gallery_url" "$admin_url"
 fi

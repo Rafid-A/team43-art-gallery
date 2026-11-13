@@ -164,3 +164,5 @@ footer strong { font: 20px Georgia, serif; color: var(--ink); }
 .suggestion-status { display: block; font-size: .875rem; }
 .artist-lookup { max-width: 24rem; margin-bottom: 24px; }
 .artist-lookup[hidden] { display: none; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+.account-actions form { margin: 0; }

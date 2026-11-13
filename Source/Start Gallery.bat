@@ -17,7 +17,8 @@ for /f "delims=" %%A in ('docker compose port web 80') do set "GALLERY_ADDRESS=%
 for /f "delims=" %%A in ('docker compose port phpmyadmin 80') do set "ADMIN_ADDRESS=%%A"
 echo Gallery: http://%GALLERY_ADDRESS%/artwork/art-login.php
 echo phpMyAdmin: http://%ADMIN_ADDRESS%/
-echo Login: user1 / pass1
+echo Administrator: user1 / pass1
+echo Client: user2 / pass2
 start "" "http://%GALLERY_ADDRESS%/artwork/art-login.php"
 start "" "http://%ADMIN_ADDRESS%/"
 popd
