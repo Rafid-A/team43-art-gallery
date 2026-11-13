@@ -106,6 +106,23 @@ generated names, failed INSERT cleanup, separate-session parallel uploads,
 selected-file preview/replacement/clear/error/source switching, bundled previews,
 untouched and selected-file dirty state, pending submission, and viewport fit.
 Images are generated in memory by fixture GD; no external corpus is downloaded.
+The suite also runs the production `prepare_upload_image()` path in an isolated
+fixture PHP CLI process as `www-data`, with `php -d memory_limit=128M`. This
+per-process setting leaves Apache/PHP web settings unchanged. The helper shares
+all image validation, decoding, resizing and EXIF rotation with `decode_upload()`;
+only PHP's HTTP uploaded-file provenance check stays in the latter. No production
+source is rewritten or upload bypass added for testing.
+
+Eight 5000x4000/4000x5000 JPEG cases check EXIF 1/3/6/8, exact output dimensions,
+colored-corner orientation after JPEG reencoding, and stripped metadata. The
+regression reproduces the former full-size rotation memory failure at 128M.
+Another valid 20MP image is rejected with the helpful memory message when the
+same bounded process already holds 32 MiB, and a small transparent PNG checks
+white compositing and no enlargement. Fixtures use one owned temporary file
+removed in `finally`; the probe writes no gallery rows or stored uploads. Rebuild
+the fresh fixture with the current `uploads.php` before running the suite. The
+CLI probe requires GD and EXIF, both included in the gallery Dockerfile.
+
 The temporary trigger rejects only this run's exact title and is removed in
 `finally`. Cleanup deletes only rows with this run's marker and their recorded
 generated files. All eight gallery tables, accounts, existing upload files and

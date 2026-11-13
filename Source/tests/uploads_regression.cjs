@@ -35,11 +35,12 @@ function sql(query, root = false) {
   if (r.status !== 0) throw Error('Fixture SQL failed: ' + r.stderr);
   return r.stdout.trim();
 }
-function php(code, result = false) {
-  const r = spawnSync('docker', ['exec', '-i', '--user', 'www-data', web, 'php'], {
-    input: '<?php ' + code, encoding: 'utf8'
+function php(code, result = false, memoryLimit = null) {
+  const options = memoryLimit ? ['-d', 'memory_limit=' + memoryLimit, '-d', 'max_execution_time=30'] : [];
+  const r = spawnSync('docker', ['exec', '-i', '--user', 'www-data', web, 'php', ...options], {
+    input: '<?php ' + code, encoding: 'utf8', timeout: 60000
   });
-  if (r.status !== 0) throw Error('Fixture PHP failed: ' + r.stderr + r.stdout);
+  if (r.error || r.status !== 0) throw Error('Fixture PHP failed: ' + (r.error || '') + r.stderr + r.stdout);
   return result ? r : r.stdout.trim();
 }
 function uploads() {
@@ -66,6 +67,99 @@ async function login(ctx, user = 'user1', password = 'pass1') {
     form: { csrf, userid: user, password }, maxRedirects: 0
   });
   check(response.status() === 303 && response.headers().location === (user === 'user1' ? 'admin.php' : 'art-main.php'), 'login ' + user);
+}
+function probeImageTransforms() {
+  // Run the real production path in its own bounded CLI process. Only the
+  // uploaded-file provenance check belongs to HTTP; no source rewriting or
+  // web memory_limit changes are needed to exercise GD and the memory guard.
+  const r = php(`require '/var/www/html/artwork/uploads.php';
+    function must($ok, $message) { if (!$ok) throw new Exception($message); }
+    must(memory_limit_bytes() === 128 * 1048576, 'CLI memory limit must be 128M');
+    must(function_exists('exif_read_data'), 'EXIF support required for rotation regressions');
+    $colors = [[220,30,30], [30,200,30], [30,30,220], [220,200,30]];
+    function jpeg_fixture($width, $height) {
+      global $colors;
+      $im = imagecreatetruecolor($width, $height);
+      foreach ($colors as $i => $rgb) {
+        $x = ($i % 2) * intdiv($width, 2); $y = intdiv($i, 2) * intdiv($height, 2);
+        imagefilledrectangle($im, $x, $y, $x + intdiv($width, 2) - 1,
+          $y + intdiv($height, 2) - 1, imagecolorallocate($im, ...$rgb));
+      }
+      ob_start(); imagejpeg($im, null, 90); $bytes = ob_get_clean();
+      unset($im); // Fixture generation must not retain a second source canvas.
+      return $bytes;
+    }
+    function with_orientation($jpeg, $orientation) {
+      // Minimal little-endian TIFF IFD containing the actual EXIF orientation.
+      $exif = "Exif\\0\\0II" . pack('vVv', 42, 8, 1)
+        . pack('vvVv', 0x0112, 3, 1, $orientation) . "\\0\\0" . pack('V', 0);
+      return substr($jpeg, 0, 2) . "\\xff\\xe1" . pack('n', strlen($exif) + 2) . $exif . substr($jpeg, 2);
+    }
+    function near_color($im, $x, $y, $expected, $message) {
+      $color = imagecolorat($im, $x, $y);
+      $rgb = [($color >> 16) & 255, ($color >> 8) & 255, $color & 255];
+      foreach ($rgb as $i => $value) must(abs($value - $expected[$i]) <= 30, $message);
+    }
+    $tmp = tempnam(sys_get_temp_dir(), 'gallery-transform-');
+    must($tmp !== false, 'temporary image file');
+    try {
+      $orders = [1 => [0,1,2,3], 3 => [3,2,1,0], 6 => [2,0,3,1], 8 => [1,3,0,2]];
+      $cases = 0;
+      foreach ([[5000,4000], [4000,5000]] as [$width, $height]) {
+        $jpeg = jpeg_fixture($width, $height);
+        foreach ($orders as $orientation => $order) {
+          $case = $width . 'x' . $height . ' EXIF ' . $orientation;
+          $bytes = with_orientation($jpeg, $orientation);
+          must(file_put_contents($tmp, $bytes) === strlen($bytes), $case . ' fixture write');
+          clearstatcache(true, $tmp);
+          must(strlen($bytes) <= UPLOAD_MAX_BYTES, $case . ' within upload byte limit');
+          must((int)exif_read_data($tmp)['Orientation'] === $orientation, $case . ' fixture EXIF');
+          $im = prepare_upload_image($tmp);
+          $expectedWidth = $width > $height ? 1600 : 1280;
+          $expectedHeight = $width > $height ? 1280 : 1600;
+          if (in_array($orientation, [6,8], true)) [$expectedWidth, $expectedHeight] = [$expectedHeight, $expectedWidth];
+          must(imagesx($im) === $expectedWidth && imagesy($im) === $expectedHeight, $case . ' dimensions');
+          // Reencode exactly as storage does, then check the saved pixel layout.
+          ob_start(); must(imagejpeg($im, null, 88), $case . ' JPEG encoding'); $out = ob_get_clean();
+          unset($im);
+          must(substr($out, 0, 2) === "\\xff\\xd8" && substr($out, -2) === "\\xff\\xd9", $case . ' complete JPEG');
+          must(strpos($out, "Exif\\0\\0") === false, $case . ' EXIF stripped');
+          $saved = imagecreatefromstring($out);
+          must(imagesx($saved) === $expectedWidth && imagesy($saved) === $expectedHeight, $case . ' saved dimensions');
+          foreach ($order as $i => $color) near_color($saved,
+            (int)(($i % 2 ? 0.75 : 0.25) * $expectedWidth),
+            (int)((intdiv($i, 2) ? 0.75 : 0.25) * $expectedHeight), $colors[$color], $case . ' corner ' . $i);
+          unset($saved, $out);
+          $cases++;
+        }
+      }
+      // Same valid 20MP file, but a busier 128M request lacks the decode budget.
+      $headroom = str_repeat('x', 32 * 1048576);
+      $rejected = false;
+      try { prepare_upload_image($tmp); }
+      catch (DomainException $e) {
+        $rejected = str_contains($e->getMessage(), 'enough memory') && str_contains($e->getMessage(), 'smaller image');
+      }
+      unset($headroom);
+      must($rejected, 'helpful memory-limit rejection instead of a fatal error');
+
+      // A small transparent PNG stays small and is composited onto white.
+      $im = imagecreatetruecolor(64, 32);
+      imagealphablending($im, false); imagesavealpha($im, true);
+      imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
+      imagefilledrectangle($im, 0, 0, 31, 31, imagecolorallocate($im, ...$colors[0]));
+      must(imagepng($im, $tmp), 'transparent fixture write'); unset($im);
+      clearstatcache(true, $tmp);
+      $im = prepare_upload_image($tmp);
+      must(imagesx($im) === 64 && imagesy($im) === 32, 'small images are never enlarged');
+      near_color($im, 16, 16, $colors[0], 'opaque PNG region');
+      near_color($im, 48, 16, [255,255,255], 'transparent PNG region becomes white');
+      unset($im);
+      echo 'bounded image transforms passed (' . $cases . ' high-resolution cases)';
+    } finally { unlink($tmp); }`, true, '128M');
+  check(r.stdout.trim() === 'bounded image transforms passed (8 high-resolution cases)' && !r.stderr.trim(),
+    '128M real GD resize/EXIF 1/3/6/8, JPEG dimensions/orientation, memory rejection and white background: '
+      + r.stdout + r.stderr);
 }
 function probeStreams() {
   const r = php(`require '/var/www/html/artwork/uploads.php';
@@ -118,6 +212,7 @@ function probeRollback() {
   const originalBundled = bundledChecksum();
   let browser, triggerCreated = false;
   try {
+    probeImageTransforms();
     probeStreams();
     probeRollback();
     const fixtures = JSON.parse(php(`$im=imagecreatetruecolor(48,32); imagefill($im,0,0,imagecolorallocate($im,40,100,180));

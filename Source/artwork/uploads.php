@@ -77,6 +77,13 @@ function decode_upload($file)
     }
     $tmp = $file['tmp_name'];
     if (!is_uploaded_file($tmp)) throw new DomainException('Choose an image file to upload.');
+    return prepare_upload_image($tmp);
+}
+
+// Processes a received file through the same validation and GD path for every
+// caller. decode_upload() additionally requires PHP's uploaded-file provenance.
+function prepare_upload_image($tmp)
+{
     $bytes = filesize($tmp);
     if (!$bytes) throw new DomainException('The image file is empty.');
     if ($bytes > UPLOAD_MAX_BYTES) throw new DomainException(upload_too_large_message());
@@ -90,7 +97,10 @@ function decode_upload($file)
     [$format, $decoder] = $formats[$info[2]];
     if ($width < 1 || $height < 1 || $width > UPLOAD_MAX_SIDE || $height > UPLOAD_MAX_SIDE || $width * $height > UPLOAD_MAX_PIXELS)
         throw new DomainException('The image must be at most ' . UPLOAD_MAX_SIDE . ' pixels on each side and ' . (UPLOAD_MAX_PIXELS / 1000000) . ' megapixels.');
-    // GD holds about 5 bytes per pixel; refuse before decoding instead of failing mid-request.
+    // Reserve about 5 bytes per pixel for the source and a bounded output canvas.
+    // Resize and release the full source BEFORE rotation: rotating it first would
+    // require a second full-size canvas that this budget cannot accommodate.
+    // After release, even two output canvases fit within the same reservation.
     if (memory_get_usage() + ($width * $height + UPLOAD_OUTPUT_SIDE ** 2) * 5 > memory_limit_bytes())
         throw new DomainException('This server does not have enough memory for an image that large. Upload a smaller image.');
 
@@ -108,23 +118,27 @@ function decode_upload($file)
     if (!$source || $warnings || imagesx($source) !== $width || imagesy($source) !== $height)
         throw new DomainException('The file could not be read as a ' . $format . ' image. It may be damaged.');
 
-    // Phone cameras store rotation as EXIF; apply the common rotations.
-    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
-        $exif = @exif_read_data($tmp);
-        $angle = [3 => 180, 6 => -90, 8 => 90][(int)($exif['Orientation'] ?? 1)] ?? 0;
-        if ($angle) {
-            $rotated = imagerotate($source, $angle, 0);
-            if ($rotated) { $source = $rotated; $width = imagesx($source); $height = imagesy($source); }
-        }
-    }
-
     // Transparent areas become white; the image is never enlarged.
     $scale = min(1, UPLOAD_OUTPUT_SIDE / max($width, $height));
     $outWidth = max(1, (int)round($width * $scale));
     $outHeight = max(1, (int)round($height * $scale));
-    $image = imagecreatetruecolor($outWidth, $outHeight);
-    imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
-    imagecopyresampled($image, $source, 0, 0, 0, 0, $outWidth, $outHeight, $width, $height);
+    $image = @imagecreatetruecolor($outWidth, $outHeight);
+    if (!$image || !@imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255))
+        || !@imagecopyresampled($image, $source, 0, 0, 0, 0, $outWidth, $outHeight, $width, $height))
+        throw new DomainException('The image could not be resized on the server. Upload a smaller image or try again.');
+    unset($source);
+
+    // Phone cameras store rotation as EXIF; rotate only the bounded result.
+    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($tmp);
+        $angle = [3 => 180, 6 => -90, 8 => 90][(int)($exif['Orientation'] ?? 1)] ?? 0;
+        if ($angle) {
+            $rotated = @imagerotate($image, $angle, 0xffffff);
+            if (!$rotated)
+                throw new DomainException('The image could not be rotated on the server. Upload a smaller image or try again.');
+            $image = $rotated;
+        }
+    }
     return $image;
 }
 
