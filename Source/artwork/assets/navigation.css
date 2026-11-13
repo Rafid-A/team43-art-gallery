@@ -1,2 +1,3 @@
-/* Enabled by motion.js only when cross-document transition events are available. */
+/* motion.js opts in only on public routes with pointer input and motion allowed.
+   Both documents must opt in; every other navigation remains native and instant. */
 @view-transition { navigation: auto; }

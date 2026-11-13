@@ -167,7 +167,8 @@ async function accountFlows() {
     await login(await context(), name, 'fixture-pass-123', 'art-login.php');
     await change(admin, name, 'status', 'active');
     await denied(roleSession); // Re-enabling must not restore the old authentication.
-    await login(roleSession, name, 'fixture-pass-123', 'art-main.php');
+    // The denied request above was for account.php, so login returns there.
+    await login(roleSession, name, 'fixture-pass-123', 'account.php');
     await change(admin, name, 'delete');
     await denied(roleSession);
     await login(await context(), name, 'fixture-pass-123', 'art-login.php');

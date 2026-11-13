@@ -3,22 +3,14 @@
     --duration-press: 150ms;
     --duration-reveal: 180ms;
     --duration-viewer: 220ms;
-    --art-hover: #e5e3d9;
-    --viewer-backdrop: rgb(12 16 12 / 92%);
-    --viewer-muted: #d9dbd3;
+    --viewer-backdrop: rgb(15 18 25 / 92%);
+    --viewer-surface: #1b1e25;
+    --viewer-ink: #f5f6f8;
+    --viewer-muted: #ccd2df;
 }
 
 html { scrollbar-gutter: stable; }
 .viewer-open { overflow: hidden; }
-.art-image { position: relative; isolation: isolate; overflow: hidden; }
-.art-image::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--art-hover);
-    opacity: 0;
-}
 
 .viewer-trigger { display: block; position: relative; }
 .viewer-hint {
@@ -39,8 +31,8 @@ html { scrollbar-gutter: stable; }
     margin: auto;
     padding: 24px;
     border: 1px solid var(--muted);
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--viewer-surface);
+    color: var(--viewer-ink);
     opacity: 0;
     transform: scale(0.97);
     transform-origin: center;
@@ -66,18 +58,18 @@ html { scrollbar-gutter: stable; }
 }
 .viewer-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .viewer-toolbar h2 { font-size: 24px; margin: 0; min-width: 0; align-self: center; overflow-wrap: anywhere; }
-.viewer-close { flex-shrink: 0; border-color: var(--muted); color: var(--paper); }
-.viewer-close:hover { background: var(--paper); color: var(--ink); }
-.viewer-close:focus-visible { outline-color: var(--paper); }
+.viewer-close { flex-shrink: 0; border-color: var(--viewer-muted); color: var(--viewer-ink); }
+.viewer-close:hover { background: var(--viewer-ink); color: var(--viewer-surface); }
+.viewer-close:focus-visible { outline-color: var(--viewer-ink); }
 .viewer-stage { flex: 1 0 128px; position: relative; overflow: hidden; min-width: 0; min-height: 128px; touch-action: none; user-select: none; }
 .viewer-stage img { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: none; max-height: none; transform: translate(-50%, -50%); transform-origin: center; }
 .viewer-stage.is-zoomed { cursor: grab; }
 .viewer-stage.is-dragging { cursor: grabbing; }
 .viewer-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .viewer-controls button { min-width: 44px; padding-inline: 12px; }
-.viewer-controls button, .viewer-neighbors a { color: var(--paper); border-color: var(--viewer-muted); }
-.viewer-controls button:hover { background: var(--paper); color: var(--ink); }
-.viewer-controls button:focus-visible, .viewer-stage:focus-visible, .viewer-neighbors a:focus-visible { outline-color: var(--paper); outline-offset: -4px; }
+.viewer-controls button, .viewer-neighbors a { color: var(--viewer-ink); border-color: var(--viewer-muted); }
+.viewer-controls button:hover { background: var(--viewer-ink); color: var(--viewer-surface); }
+.viewer-controls button:focus-visible, .viewer-stage:focus-visible, .viewer-neighbors a:focus-visible { outline-color: var(--viewer-ink); outline-offset: -4px; }
 .viewer-controls output { font-size: 12px; color: var(--viewer-muted); }
 .painting-neighbors { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-block: 16px; font-size: 14px; }
 .painting-neighbors a { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; }
@@ -88,13 +80,30 @@ html { scrollbar-gutter: stable; }
 
 /* Frequent interactions stay nearly imperceptible; keyboard actions stay instant. */
 @media (prefers-reduced-motion: no-preference) {
-    .pointer-mode :is(button, .button) { transition: transform var(--duration-press) var(--ease-out); }
+    .pointer-mode :is(button, .button) {
+        transition: transform var(--duration-press) var(--ease-out), color var(--duration-press) var(--ease-out);
+    }
     .pointer-mode :is(button, .button):active:not(:disabled) { transform: scale(0.97); }
+    /* Change the image's opacity, never its scale or framing. The viewer's
+       independently transformed image is deliberately outside these selectors. */
+    .pointer-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link) img {
+        transition: opacity var(--duration-reveal) var(--ease-out);
+    }
+    .pointer-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link):active img { opacity: .84; }
+    .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link, .landing-art-choices a) {
+        transition: color var(--duration-press) var(--ease-out), opacity var(--duration-press) var(--ease-out);
+    }
+    .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link, .landing-art-choices a):active { opacity: .72; }
     @media (hover: hover) and (pointer: fine) {
-        .pointer-mode .art-image img { transition: transform var(--duration-reveal) var(--ease-out); }
-        .pointer-mode .art-image::before { transition: opacity var(--duration-reveal) var(--ease-out); }
-        .pointer-mode .art-image:hover img { transform: scale(1.02); }
-        .pointer-mode .art-image:hover::before { opacity: 1; }
+        .pointer-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link):hover:not(:active) img { opacity: .92; }
+        .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link):hover { color: var(--accent); }
+    }
+    /* Navigation: the underline grows from the left on hover (tens of times a
+       day, so short and transform-only); the small-screen menu settles in. */
+    .pointer-mode .topbar nav > a::after { transition: transform var(--duration-reveal) var(--ease-out); }
+    @media (max-width: 1024px) {
+        .pointer-mode .site-menu[open] nav { transition: opacity var(--duration-reveal) var(--ease-out), transform var(--duration-reveal) var(--ease-out); }
+        @starting-style { .pointer-mode .site-menu[open] nav { opacity: 0; transform: translateY(-6px); } }
     }
     :root { view-transition-name: none; }
     main { view-transition-name: library-page; }
@@ -106,9 +115,11 @@ html { scrollbar-gutter: stable; }
 @keyframes page-in { from { opacity: 0; } }
 
 .keyboard-mode .artwork-viewer,
-.keyboard-mode .artwork-viewer::backdrop { transition: none; }
+.keyboard-mode .artwork-viewer::backdrop,
+.keyboard-mode :is(button, .button, .topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link, .landing-art-choices a),
+.keyboard-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link) img { transition: none; }
 @media (prefers-reduced-motion: reduce) {
-    :root { --duration-viewer: 100ms; }
+    .artwork-viewer, .artwork-viewer::backdrop { transition: none; }
     .artwork-viewer, .artwork-viewer[open] { transform: none; }
     @starting-style { .artwork-viewer[open] { transform: none; } }
     @view-transition { navigation: none; }

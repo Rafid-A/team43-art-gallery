@@ -9,7 +9,7 @@ if (!$painting) http_response_code(404);
 page_start('Delete artwork', $collectionUrl); ?>
 <section class="confirmation"><p class="eyebrow">Library management</p><h1><?= $painting ? 'Delete this artwork?' : 'Artwork not found' ?></h1>
 <?php if ($painting): ?><h2><?= e($painting['Title']) ?></h2>
-<p>Artwork #<?= $id ?> and its genre assignments, subject assignments, and reviews will be removed together. Artist, gallery, and shared image files are preserved. Artworks in an order cannot be deleted.</p>
+<p>Artwork #<?= $id ?> and its genre assignments, subject assignments, reviews, and saved-collection entries will be removed together. Artist, gallery, and shared image files are preserved. Artworks in an order cannot be deleted.</p>
 <form action="art-delete.php" method="post">
     <input type="hidden" name="csrf" value="<?= e(token()) ?>">
     <input type="hidden" name="painting_id" value="<?= $id ?>">

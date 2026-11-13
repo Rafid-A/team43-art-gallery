@@ -23,6 +23,25 @@ function text_length($value)
     return preg_match_all('/./us', $value);
 }
 
+// The course gallery tables use MySQL's 3-byte utf8 (utf8mb3). Characters
+// beyond the Basic Multilingual Plane, such as most emoji, would be stored as
+// "?" without an error, so library forms reject them before saving.
+function gallery_storable_text($value)
+{
+    return !preg_match('/[\x{10000}-\x{10FFFF}]/u', $value);
+}
+
+function gallery_unstorable_message($label)
+{
+    return $label . ' cannot contain emoji or other special symbols. Remove them and try again.';
+}
+
+// "1 artwork", "2 artworks": counts shown to people agree with their number.
+function count_label($count, $one, $many)
+{
+    return (int)$count . ' ' . ((int)$count === 1 ? $one : $many);
+}
+
 function input($name, $trim = true)
 {
     $value = $_POST[$name] ?? '';
@@ -38,8 +57,20 @@ function redirect($page)
 
 function require_login()
 {
-    if (!current_user())
-        redirect('art-login.php');
+    if (current_user()) return;
+    // Remember a page someone opened while signed out, so login can return
+    // there. Only same-folder GET pages are kept; never a host or scheme.
+    $target = basename($_SERVER['SCRIPT_NAME']) . (($_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $_SERVER['QUERY_STRING'] : '');
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && safe_return_page($target)) $_SESSION['after_login'] = $target;
+    // Keep a more specific notice, such as an ended session.
+    if (empty($_SESSION['flash'])) flash('Please log in to view that page. You will return to it after logging in.', 'info');
+    redirect('art-login.php');
+}
+
+function safe_return_page($target)
+{
+    return is_string($target) && preg_match('/\A[a-z0-9-]+\.php(?:\?[A-Za-z0-9_.%+=&;:,\[\]~-]{0,2000})?\z/D', $target)
+        && !in_array(strtok($target, '?'), ['art-login.php', 'register.php', 'authenticate.php', 'logout.php'], true);
 }
 
 // The signed-in account is read again on every request, so a role change,
@@ -184,7 +215,7 @@ function db($throwOnFailure = false)
     return $pdo;
 }
 
-function page_start($title, $artworksUrl = 'art-main.php')
+function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
 {
     $current = basename($_SERVER['SCRIPT_NAME']);
     $objectType = is_string($_GET['type'] ?? null) ? $_GET['type'] : 'artists';
@@ -195,34 +226,43 @@ function page_start($title, $artworksUrl = 'art-main.php')
             'eras', 'genres', 'subjects' => 'Browse', default => 'Manage'
         },
         'object-add.php', 'object-delete.php', 'manage.php', 'integrity.php' => 'Manage',
-        'browse.php' => 'Browse', 'account.php' => 'Account', 'admin.php' => 'Admin', 'users.php' => 'Users', default => ''
+        'index.php' => 'Home', 'browse.php' => 'Browse', 'account.php' => 'Account', 'admin.php' => 'Admin', 'users.php' => 'Users', default => ''
     };
-    $u = current_user();
+    // Public pages may have already resolved a user, including a safe error
+    // response. Reuse the result instead of reconnecting while rendering it.
+    $u = array_key_exists('user', $options) ? $options['user'] : current_user();
+    $landing = !empty($options['landing']);
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($title) ?> | The Art Library</title>
+    <title><?= e($title) ?> | Art Gallery</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
-    <link rel="stylesheet" href="assets/style.css?v=7">
-    <link rel="stylesheet" href="assets/forms.css?v=1">
-    <link rel="stylesheet" href="assets/motion.css?v=3">
-    <link rel="stylesheet" href="assets/navigation.css" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
-    <script src="assets/motion.js?v=3"></script>
-    <script src="assets/app.js?v=6" defer></script>
+    <link rel="stylesheet" href="assets/style.css?v=11">
+    <link rel="stylesheet" href="assets/forms.css?v=2">
+    <link rel="stylesheet" href="assets/motion.css?v=6">
+    <link rel="stylesheet" href="assets/navigation.css?v=2" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
+    <script src="assets/motion.js?v=5"></script>
+    <script src="assets/app.js?v=7" defer></script>
+    <?php if ($landing): ?>
+    <meta name="description" content="Discover paintings and artists in Art Gallery, from intimate portraits to gardens in bloom.">
+    <link rel="stylesheet" href="assets/landing.css?v=6">
+    <script src="assets/landing.js?v=4" defer></script>
+    <?php endif; ?>
 </head>
-<body>
+<body<?= $landing ? ' class="landing-page"' : '' ?>>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="topbar">
-        <a class="brand" href="<?= e($artworksUrl) ?>">
-            The Art Library<span>Team 43 · A collection of perspectives</span>
+        <a class="brand" href="<?= e($u ? $artworksUrl : 'index.php') ?>">
+            Art Gallery
         </a>
         <?php if ($u):
             $links = [$artworksUrl => 'Artworks', 'objects.php?type=artists' => 'Artists', 'objects.php?type=galleries' => 'Galleries', 'browse.php' => 'Browse'];
             if ($u['role'] === 'admin') $links += ['admin.php' => 'Admin', 'manage.php' => 'Manage', 'users.php' => 'Users'];
-            $links['account.php'] = 'Account'; ?>
+            $links['account.php'] = 'Account';
+            $links['index.php'] = 'Home'; ?>
         <details class="site-menu" data-mobile-disclosure>
         <summary aria-controls="main-navigation">Menu</summary>
         <nav id="main-navigation" aria-label="Main navigation">
@@ -239,6 +279,13 @@ function page_start($title, $artworksUrl = 'art-main.php')
             </form>
         </nav>
         </details>
+        <?php else: ?>
+        <nav class="public-navigation" aria-label="Main navigation">
+            <a href="index.php" <?= $section === 'Home' ? 'aria-current="page"' : '' ?>>Home</a>
+            <a href="<?= e($artworksUrl) ?>">Collection</a>
+            <a href="art-login.php" <?= $current === 'art-login.php' ? 'aria-current="page"' : '' ?>>Log in</a>
+            <a href="register.php" <?= $current === 'register.php' ? 'aria-current="page"' : '' ?>>Register</a>
+        </nav>
         <?php endif; ?>
     </header>
     <main id="main" tabindex="-1">
@@ -247,7 +294,7 @@ function page_start($title, $artworksUrl = 'art-main.php')
 
 function page_end()
 {
-    echo '</main><footer><strong>The Art Library</strong><span>Team 43 · Art, in good company.</span><a href="images/SOURCES.txt">Image credits</a></footer></body></html>';
+    echo '</main><footer><strong>Art Gallery</strong><a href="images/SOURCES.txt">Image credits</a></footer></body></html>';
 }
 
 function image_files()

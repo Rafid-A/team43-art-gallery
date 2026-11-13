@@ -9,4 +9,6 @@ COPY artwork/sql/06-era-identities.sql /docker-entrypoint-initdb.d/06-era-identi
 COPY artwork/sql/07-subject-names.sql /docker-entrypoint-initdb.d/07-subject-names.sql
 COPY artwork/sql/08-account-roles.sql /docker-entrypoint-initdb.d/08-account-roles.sql
 COPY artwork/sql/09-editor-grants.sql /docker-entrypoint-initdb.d/09-editor-grants.sql
+COPY artwork/sql/10-saved-works.sql /docker-entrypoint-initdb.d/10-saved-works.sql
 COPY artwork/sql/07-subject-names-down.sql /opt/gallery-migrations/07-subject-names-down.sql
+COPY artwork/sql/10-saved-works-down.sql /opt/gallery-migrations/10-saved-works-down.sql

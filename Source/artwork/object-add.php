@@ -31,7 +31,7 @@ $title = !empty($object['relationship']) ? 'Assign ' . ($type === 'painting-subj
 page_start($title, browsing_origin_url($context) ?: 'art-main.php');
 ?>
 <div class="breadcrumbs"><a href="manage.php">Manage library</a><span>/</span><a href="<?= e(directory_url($context)) ?>"><?= e($object['label']) ?></a></div>
-<section class="page-heading"><div><p class="eyebrow">Grow the collection</p><h1><?= e($title) ?></h1><p>Fields marked * are required. Record IDs are generated and cannot be edited.</p></div></section>
+<section class="page-heading"><div><p class="eyebrow">Library management</p><h1><?= e($title) ?></h1><p>Fields marked * are required. Record IDs are generated and cannot be edited.</p></div></section>
 <?php if (isset($object['gate'])): ?><p class="notice" role="status"><?= e($object['gate']) ?></p>
 <?php else: if ($errors): ?><div class="notice error" role="alert"><p>Please correct the following:</p><ul><?php foreach ($errors as $field => $error): ?><li><a href="#<?= e($field) ?>"><?= e($error) ?></a></li><?php endforeach; ?></ul></div><?php endif; ?>
 <form class="add-form" id="form" method="post" action="object-add.php?<?= e(http_build_query($paintingId ? ['type' => $type, 'painting' => $paintingId] + $paintingContext : $context)) ?>" data-unsaved-warning data-has-unsaved-values="<?= $errors ? 'true' : 'false' ?>">

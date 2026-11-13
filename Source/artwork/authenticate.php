@@ -26,5 +26,8 @@ unset($user['password'], $user['status']);
 $_SESSION['user'] = $user;
 $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
+// Return to the page that asked for login, rechecked here; otherwise the role's home.
+$next = $_SESSION['after_login'] ?? null;
+unset($_SESSION['after_login']);
 flash('Welcome, ' . $user['forename'] . '. You are logged in as ' . $user['username'] . ' (' . strtolower(role_label($user['role'])) . ').');
-redirect(home_url($user));
+redirect(safe_return_page($next) ? $next : home_url($user));

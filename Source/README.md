@@ -1,6 +1,6 @@
-# The Art Library · Runtime guide
+# Art Gallery · Runtime guide
 
-Team 43's local PHP/Apache/MariaDB gallery retains the course artwork,
+The local PHP/Apache/MariaDB gallery retains the course artwork,
 customer accounts and linked sample exercises.
 
 ## Requirements and startup
@@ -17,9 +17,15 @@ PDO MySQL, mysqli, MariaDB 10.11 and phpMyAdmin; no host PHP is required.
 
 | Service | Default local address |
 | --- | --- |
-| Gallery | http://localhost:8084/artwork/art-login.php |
+| Gallery | http://localhost:8084/artwork/ |
 | phpMyAdmin | http://localhost:8085/ |
 | Course examples | http://localhost:8084/artwork/examples/ |
+
+The public landing shows selected existing artworks and an artist biography.
+Featured works change only when chosen, and the selection also works without
+JavaScript. A short first-session arrival respects reduced motion. The full
+catalogue, artwork details, account pages and management tools still require
+login; logging in keeps the existing client or administrator destination.
 
 The gallery has four classroom accounts: `user1` / `pass1` through
 `user4` / `pass4`. `user1` is the initial administrator and `user2` to
@@ -104,8 +110,19 @@ docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_R
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/07-subject-names.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/08-account-roles.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/09-editor-grants.sql'
+docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/10-saved-works.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
+
+The saved-works upgrade (`10-saved-works.sql`) adds the `art_saved_works`
+table behind "My collection": signed-in users save artworks from an artwork
+page and see them on their profile. It changes no existing table, row, account
+or privilege and is safe to repeat. Deleting an account or painting removes its
+saved entries. Until it runs, the save button is hidden, the profile says the
+feature is unavailable, and the rest of the gallery works normally.
+To remove the feature, back up `art_saved_works` and run
+`/opt/gallery-migrations/10-saved-works-down.sql` the same way; it drops only
+that table, and the gallery returns to the not-yet-upgraded behaviour.
 
 The editor upgrade (`09-editor-grants.sql`) grants UPDATE only on the five
 selected artist and five painting columns to existing `testuser` accounts at
@@ -177,7 +194,8 @@ and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
 `artwork/sql/05-subject-identities.sql` and then
 `artwork/sql/06-era-identities.sql`, `artwork/sql/07-subject-names.sql`,
-`artwork/sql/08-account-roles.sql` and `artwork/sql/09-editor-grants.sql` with
+`artwork/sql/08-account-roles.sql`, `artwork/sql/09-editor-grants.sql` and
+`artwork/sql/10-saved-works.sql` with
 a database migration administrator. The corresponding down script is
 `artwork/sql/07-subject-names-down.sql`.
 
@@ -363,9 +381,9 @@ for those formats), `upload_max_filesize` of at least 6M, and an
 artwork offers only images already on the server. After backing up any existing databases, import `artwork/sql/`
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
-`06-era-identities.sql`, `07-subject-names.sql`, `08-account-roles.sql`, then
-`09-editor-grants.sql`. Do not import the down script during initialization.
+`06-era-identities.sql`, `07-subject-names.sql`, `08-account-roles.sql`,
+`09-editor-grants.sql`, then `10-saved-works.sql`. Do not import the down script during initialization.
 The starter SQL replaces the `art` database. Open
-http://localhost/artwork/art-login.php. Configure `artwork/config.php` or its
+http://localhost/artwork/. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
 SQL and protected helper files remain inaccessible through the web.

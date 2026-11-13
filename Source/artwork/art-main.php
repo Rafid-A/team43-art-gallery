@@ -34,15 +34,16 @@ if ($initialView) foreach ($paintings as $painting) {
 $clearContext = array_replace($context, ['artist' => 0, 'q' => '', 'page' => 1]);
 page_start('Artworks');
 ?>
-<section class="page-heading collection-heading"><div><h1><?= $initialView ? 'The Art Library' : 'The collection' ?></h1><p><?= $initialView ? 'Look closely. Find your next perspective.' : 'Explore artworks by title and artist.' ?></p></div><?php if (is_admin()): ?><a class="button" href="art-add.php?<?= e(http_build_query($context)) ?>">Add artwork <span aria-hidden="true">+</span></a><?php endif; ?></section>
+<section class="page-heading collection-heading"><div><h1>Artworks</h1><p>Search artworks by title, or filter and sort by artist.</p></div><?php if (is_admin()): ?><a class="button" href="art-add.php?<?= e(http_build_query($context)) ?>">Add artwork <span aria-hidden="true">+</span></a><?php endif; ?></section>
 <?php notices(); ?>
 <div data-collection-view="<?= e(artwork_collection_url($context)) ?>" data-density="comfortable">
 <?php if ($featured): $featuredUrl = 'painting.php?' . http_build_query(['id' => (int)$featured['PaintingID']] + $context); ?>
 <section class="collection-feature" aria-labelledby="featured-title" data-featured-artwork>
     <a class="featured-image" href="<?= e($featuredUrl) ?>"><?php artwork_image($featured, true); ?></a>
-    <div class="featured-copy"><p class="feature-label">A closer look</p><h2 id="featured-title"><a href="<?= e($featuredUrl) ?>"><?= e($featured['Title']) ?></a></h2><p><?= e(trim(($featured['FirstName'] ?? '') . ' ' . ($featured['LastName'] ?? '')) ?: 'Unknown artist') ?><?php if ($featured['YearOfWork']): ?> <span class="featured-year">(<?= e($featured['YearOfWork']) ?>)</span><?php endif; ?></p><a href="<?= e($featuredUrl) ?>">Explore this artwork</a></div>
+    <div class="featured-copy"><p class="feature-label">Featured artwork</p><h2 id="featured-title"><a href="<?= e($featuredUrl) ?>"><?= e($featured['Title']) ?></a></h2><p><?= e(trim(($featured['FirstName'] ?? '') . ' ' . ($featured['LastName'] ?? '')) ?: 'Unknown artist') ?><?php if ($featured['YearOfWork']): ?> <span class="featured-year">(<?= e($featured['YearOfWork']) ?>)</span><?php endif; ?></p><a href="<?= e($featuredUrl) ?>">Explore this artwork</a></div>
 </section>
 <?php endif; ?>
+<p class="collection-discovery-link"><a href="browse.php#thematic-discovery">Discover the collection by subject and movement</a></p>
 <form class="filter collection-toolbar" action="art-main.php" method="get" aria-label="Find artworks" data-browse-context="<?= e(http_build_query($context)) ?>">
 <?php foreach (directory_return_context($context) as $key => $value): ?><input type="hidden" name="<?= e($key) ?>" value="<?= e($value) ?>"><?php endforeach; ?>
 <div class="collection-search"><div class="filter-field search-field"><label for="q">Search artwork titles</label><div class="suggestion-wrap"><input id="q" type="search" data-suggestions="title" name="q" maxlength="255" value="<?= e($q) ?>" placeholder="Search the collection"><ul id="q-suggestions" class="suggestion-list" role="listbox" aria-label="Artwork title suggestions" hidden></ul><span class="suggestion-status" role="status" aria-live="polite"></span></div></div><button class="primary" type="submit">View artworks</button></div>
@@ -63,7 +64,7 @@ page_start('Artworks');
 <a href="<?= e(artwork_collection_url($clearContext)) ?>">Clear filters</a></nav>
 <?php endif; ?>
 <section id="collection-results" aria-labelledby="collection-title" tabindex="-1">
-<div class="section-heading collection-results-heading"><div><h2 id="collection-title"><?= $q !== '' || $artist ? 'Matching artworks' : 'Explore the collection' ?></h2><p class="result-count"><?= $filtered ? $offset + 1 : 0 ?>–<?= $offset + count($paintings) ?> of <?= $filtered ?> paintings<?= $filtered !== $total ? ' · ' . $total . ' in the collection' : '' ?></p></div><div class="density-controls" data-density-controls role="group" aria-label="Gallery density" hidden><button type="button" data-density="comfortable" aria-pressed="true">Comfortable</button><button type="button" data-density="compact" aria-pressed="false">Compact</button></div></div>
+<div class="section-heading collection-results-heading"><div><h2 id="collection-title"><?= $q !== '' || $artist ? 'Matching artworks' : 'Explore the collection' ?></h2><p class="result-count"><?= $filtered ? $offset + 1 : 0 ?>–<?= $offset + count($paintings) ?> of <?= e(count_label($filtered, 'painting', 'paintings')) ?><?= $filtered !== $total ? ' · ' . $total . ' in the collection' : '' ?></p></div><div class="density-controls" data-density-controls role="group" aria-label="Gallery density" hidden><button type="button" data-density="comfortable" aria-pressed="true">Comfortable</button><button type="button" data-density="compact" aria-pressed="false">Compact</button></div></div>
 <?php if ($paintings): artwork_cards($paintings, $context); else: ?>
 <div class="empty collection-empty"><h3>No matching artworks</h3><p>Try a shorter title or remove a filter to see more of the collection.</p><a class="button" href="<?= e(artwork_collection_url($clearContext)) ?>">View all artworks</a><a href="objects.php?<?= e(http_build_query(['type' => 'artists'] + browsing_origin_query($context))) ?>">Explore artists</a></div>
 <?php endif; ?>
