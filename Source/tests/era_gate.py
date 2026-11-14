@@ -115,7 +115,10 @@ def main():
             sql("UPDATE Eras SET EraName='Renaissance', EraYears='1400-1550' WHERE EraID=1;")
             before = rows()
             status, body, _ = req('artwork/objects.php?type=eras')
-            check('conflicting duplicate names retain ID links', status == 200 and 'type=eras&amp;id=1' in body and 'type=eras&amp;id=2' in body)
+            # Detail links also carry the list's sort/page settings, so match the ID parameter only.
+            links = re.findall(r'href="objects\.php\?type=eras&amp;([^"]*)"', body)
+            ids = {urllib.parse.parse_qs(query.replace('&amp;', '&')).get('id', [''])[0] for query in links}
+            check('conflicting duplicate names retain ID links', status == 200 and {'1', '2'} <= ids)
             for era_id in (1, 2):
                 status, body, _ = req('artwork/objects.php?type=eras&id=' + str(era_id))
                 check('duplicate text remains readable by ID ' + str(era_id), status == 200 and 'Renaissance' in body)
@@ -150,7 +153,7 @@ def main():
             print('COMPLETE:', count, 'checks', flush=True)
         finally:
             if created:
-                run(compose + ['down', '--remove-orphans', '--rmi', 'local'], cwd=ROOT, env=env)
+                run(compose + ['down', '--volumes', '--remove-orphans', '--rmi', 'local'], cwd=ROOT, env=env)
                 details = json.loads(run(['docker', 'volume', 'inspect', volume], capture_output=True).stdout)[0]
                 if details['Name'] != volume or details['Labels'].get('era-gate-owner') != tag:
                     raise RuntimeError('Volume ownership changed; refusing cleanup')

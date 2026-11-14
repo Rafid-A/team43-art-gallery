@@ -8,6 +8,14 @@ sys.dont_write_bytecode = True
 import subject_assignment_gate as gate
 
 
+def is_collection(url):
+    """The first collection page; the URL also carries the default sort settings."""
+    location = gate.urllib.parse.urlsplit(url or '')
+    query = gate.urllib.parse.parse_qs(location.query, keep_blank_values=True)
+    return (location.path == 'art-main.php' and query.get('artist') == ['0']
+            and query.get('page') == ['1'] and query.get('q') == [''])
+
+
 class Options(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -59,7 +67,7 @@ def exercise(container, base):
         gate.check('invalid CSRF rejected without writing', status == 403 and paintings() == before)
     status, response, headers = browser.req('artwork/art-add.php', values)
     print('Valid Add status:', status, 'Location:', headers.get('Location'), flush=True)
-    gate.check('valid Add redirects to collection', status == 303 and headers.get('Location') == 'art-main.php?artist=0&q=&page=1')
+    gate.check('valid Add redirects to collection', status == 303 and is_collection(headers.get('Location')))
     after = paintings()
     rows = [row.split('\t') for row in after.splitlines() if row not in before.splitlines()]
     expected = [values['artist_id'], values['gallery_id'], values['image'].encode().hex().upper(),
@@ -76,7 +84,7 @@ def exercise(container, base):
     status, body, _ = browser.req('artwork/art-add.php', values)
     gate.check('duplicate image rejected without writing', status == 200 and 'Choose an available image.' in body and paintings() == after)
     status, _, headers = browser.req('artwork/art-delete.php', {'csrf': values['csrf'], 'painting_id': rows[0][0]})
-    gate.check('created painting can be deleted', status == 303 and headers.get('Location') == 'art-main.php?artist=0&q=&page=1')
+    gate.check('created painting can be deleted', status == 303 and is_collection(headers.get('Location')))
     gate.check('deletion preserves unrelated paintings and parents', paintings() == before and parents() == held_parents)
 
 

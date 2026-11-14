@@ -181,7 +181,7 @@ def main():
             print('COMPLETE:', count, 'checks', flush=True)
         finally:
             if created:
-                run(compose + ['down', '--remove-orphans', '--rmi', 'local'], cwd=ROOT, env=env)
+                run(compose + ['down', '--volumes', '--remove-orphans', '--rmi', 'local'], cwd=ROOT, env=env)
                 details = json.loads(run(['docker', 'volume', 'inspect', volume], capture_output=True).stdout)[0]
                 if details['Name'] != volume or details['Labels'].get(OWNER_LABEL) != tag:
                     raise RuntimeError('Volume ownership changed; refusing cleanup')
@@ -285,7 +285,10 @@ def exercise(container, base):
     painting, subject = new_pairs(1)[0]
     before = links()
     status, _, headers = browser.assign(painting, subject, '&painting=' + painting)
-    check('assigning from an artwork returns to it', status == 303 and headers.get('Location') == 'painting.php?id=' + painting)
+    # The redirect also carries the collection's sort/page settings.
+    location = urllib.parse.urlsplit(headers.get('Location', ''))
+    check('assigning from an artwork returns to it', status == 303 and location.path == 'painting.php'
+          and urllib.parse.parse_qs(location.query).get('id') == [painting])
     check('assigning from an artwork creates one row', len(links()) == len(before) + 1 and len(pair_rows(painting, subject)) == 1)
 
     # 3. Rejected requests write nothing.
