@@ -62,7 +62,11 @@
 @media (prefers-reduced-motion: no-preference) {
     .landing-page .landing-strip[data-rotating] .landing-strip-window { overflow: hidden; }
     .landing-page .landing-strip[data-rotating] .landing-strip-track { animation: landing-strip-shift var(--strip-duration, 80s) linear infinite; }
-    .landing-page .landing-strip[data-rotating]:is(:hover, :focus-within, [data-paused]) .landing-strip-track { animation-play-state: paused; }
+    /* Pause while the pointer or keyboard focus is on the paintings, or after Pause rotation.
+       Focus on the Pause/Resume button itself must not pause, or Resume would do nothing. */
+    .landing-page .landing-strip[data-rotating][data-paused] .landing-strip-track,
+    .landing-page .landing-strip[data-rotating] .landing-strip-window:hover .landing-strip-track,
+    .landing-page .landing-strip[data-rotating] .landing-strip-track:focus-within { animation-play-state: paused; }
 }
 @media (prefers-reduced-motion: reduce) {
     .landing-page [data-strip-clone], .landing-page [data-strip-toggle] { display: none; }
