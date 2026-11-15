@@ -18,6 +18,25 @@ python tests/painting_add_gate.py
   and reruns of the subject migration.
 - `painting_add_gate.py`: adding a painting, using the subject gate's setup.
 
+## WikiArt import gate (Python)
+
+```powershell
+python tests/wikiart_import_gate.py
+```
+
+It uses its own Docker Compose project and volume, like the Task 1 gates. It
+runs the extractor in containers with no network and PHP's network functions
+disabled: the exact three artists, fifteen paintings, full dates and file
+traces, plus a diagnostic for each damaged-source case (missing, changed,
+cut-off or non-JPEG files, missing fields, cut-off or invalid HTML, emoji,
+paths outside the folder, an unlisted painting, a wrong count, a swapped
+image, and scripts in a page that must not run). It runs the generated SQL
+twice on two copies of the database (one with `NO_BACKSLASH_ESCAPES`) with
+quotes, backslashes, Unicode and a long biography. On the page it checks
+access control, a forced failure and a held lock that roll back completely,
+the import, a repeat import, re-importing a deleted artwork, the
+missing-upgrade gate, and that every record that existed before is unchanged.
+
 ## Browsing and suggestions (Node)
 
 `npm test` runs the browsing suites: sorting and paging for each object type,
