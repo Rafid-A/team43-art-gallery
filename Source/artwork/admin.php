@@ -16,6 +16,7 @@ page_start('Administration');
 <div class="directory">
 <a class="directory-row" href="manage.php"><div><h2>Manage library</h2><p>Add, view and edit artists and artworks, and manage galleries, genres, eras, subjects and classifications.</p></div><span><?= $artworkCount ?> artworks ↗</span></a>
 <a class="directory-row" href="users.php"><div><h2>Accounts</h2><p>Change account types, disable or enable accounts, and delete accounts.</p></div><span><?= (int)$accounts['admins'] ?> administrators · <?= (int)$accounts['clients'] ?> clients<?= (int)$accounts['disabled'] ? ' · ' . (int)$accounts['disabled'] . ' disabled' : '' ?> ↗</span></a>
+<a class="directory-row" href="import.php"><div><h2>Import saved WikiArt pages</h2><p>Add three artists and fifteen artworks from WikiArt pages saved with the gallery. Nothing is downloaded, and importing again adds nothing twice.</p></div><span>Preview ↗</span></a>
 <a class="directory-row" href="integrity.php"><div><h2>Integrity report</h2><p>A read-only check of references and duplicates across the collection.</p></div><span>View ↗</span></a>
 <a class="directory-row" href="art-main.php"><div><h2>Artworks</h2><p>Browse, search and sort the collection as clients see it.</p></div><span>View ↗</span></a>
 </div>

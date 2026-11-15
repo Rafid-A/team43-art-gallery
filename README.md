@@ -11,7 +11,9 @@ opening, compact mobile navigation and filters, artist thumbnails, display
 density controls, and an image viewer with bounded zoom and collection navigation.
 The public landing introduces selected paintings and an artist story, with
 visitor-controlled featured works. Log in to open the catalogue and artwork details.
-Offline source extraction and data import remain planned under issue #16.
+Administrators can import three artists and fifteen paintings extracted offline
+from saved WikiArt pages (issue #16); see "Offline WikiArt import" in
+`Source/README.md`.
 
 ## Requirements
 

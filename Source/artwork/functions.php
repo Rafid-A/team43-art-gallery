@@ -226,7 +226,7 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
             'eras', 'genres', 'subjects' => 'Browse', default => 'Manage'
         },
         'object-add.php', 'object-delete.php', 'manage.php', 'integrity.php' => 'Manage',
-        'index.php' => 'Home', 'browse.php' => 'Browse', 'account.php' => 'Account', 'admin.php' => 'Admin', 'users.php' => 'Users', default => ''
+        'index.php' => 'Home', 'browse.php' => 'Browse', 'account.php' => 'Account', 'admin.php', 'import.php' => 'Admin', 'users.php' => 'Users', default => ''
     };
     // Public pages may have already resolved a user, including a safe error
     // response. Reuse the result instead of reconnecting while rendering it.
@@ -242,7 +242,7 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
     <script src="assets/theme.js?v=1"></script>
     <link rel="stylesheet" href="assets/style.css?v=18">
-    <link rel="stylesheet" href="assets/forms.css?v=3">
+    <link rel="stylesheet" href="assets/forms.css?v=4">
     <link rel="stylesheet" href="assets/motion.css?v=8">
     <link rel="stylesheet" href="assets/navigation.css?v=2" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
     <script src="assets/motion.js?v=6"></script>

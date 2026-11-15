@@ -24,3 +24,18 @@
     .account-actions { justify-content: flex-start; }
     .directory-row:has(.account-actions) { flex-wrap: wrap; }
 }
+/* Offline WikiArt import (import.php) */
+.import-form { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-block: 0 40px; }
+.import-form .hint { margin: 0; max-width: 60ch; }
+.import-artist { margin-block: 48px; }
+.import-artist .metadata { margin-block: 16px 0; }
+.import-artist .metadata code, .import-list code { font-size: 12px; overflow-wrap: anywhere; }
+.import-list { list-style: none; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--line); }
+.import-list li { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 16px 8px; border-bottom: 1px solid var(--line); }
+.import-list li > div { min-width: 0; }
+.import-list h3 { margin: 0 0 4px; font-size: 20px; }
+.import-list p { margin: 0; font-size: 14px; }
+.import-list .hint { margin-top: 6px; font-size: 13px; }
+.import-status { flex-shrink: 0; max-width: 24ch; font-size: 12px; line-height: 1.4; padding: 4px 10px; border: 1px solid var(--line); color: var(--muted); }
+.import-status.new { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 640px) { .import-list li { flex-direction: column; gap: 8px; } .import-status { max-width: none; } }

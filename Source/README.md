@@ -111,8 +111,18 @@ docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_R
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/08-account-roles.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/09-editor-grants.sql'
 docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/10-saved-works.sql'
+docker compose exec -T db sh -c 'exec mariadb --user=root --password="$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/11-wikiart-import.sql'
 docker compose up -d --wait --wait-timeout 180
 ```
+
+The WikiArt import upgrade (`11-wikiart-import.sql`) adds the
+`art_import_sources` table used by **Import saved WikiArt pages** (see
+"Offline WikiArt import" below). It changes no existing table, row, account or
+privilege and is safe to repeat. Until it runs, the import page explains the
+upgrade and imports nothing; the rest of the gallery works normally. To remove
+it, back up `art_import_sources` and run
+`/opt/gallery-migrations/11-wikiart-import-down.sql` the same way; imported
+artists and artworks stay as ordinary records.
 
 The saved-works upgrade (`10-saved-works.sql`) adds the `art_saved_works`
 table behind "My collection": signed-in users save artworks from an artwork
@@ -194,8 +204,8 @@ and authenticated gallery pages return a clear upgrade-required response.
 For an existing XAMPP database, back it up, pause writers and run only
 `artwork/sql/05-subject-identities.sql` and then
 `artwork/sql/06-era-identities.sql`, `artwork/sql/07-subject-names.sql`,
-`artwork/sql/08-account-roles.sql`, `artwork/sql/09-editor-grants.sql` and
-`artwork/sql/10-saved-works.sql` with
+`artwork/sql/08-account-roles.sql`, `artwork/sql/09-editor-grants.sql`, `artwork/sql/10-saved-works.sql` and
+`artwork/sql/11-wikiart-import.sql` with
 a database migration administrator. The corresponding down script is
 `artwork/sql/07-subject-names-down.sql`.
 
@@ -276,6 +286,31 @@ same backup:
 docker compose cp ./uploads-backup/. web:/var/www/html/artwork/images/uploads/
 docker compose exec -T web chown -R www-data:www-data /var/www/html/artwork/images/uploads
 ```
+
+### Offline WikiArt import
+
+**Administration > Import saved WikiArt pages** (`import.php`) adds Edouard
+Manet, Berthe Morisot and Alfred Sisley with five paintings each, read only
+from the saved pages and images in `import/wikiart/sources/` (Docker copies
+them to `/opt/gallery-import/wikiart`, outside the web root). Nothing is
+downloaded and no script from the saved pages runs. Every file must match its
+SHA-256 in `manifest.json`, which also records its source URL and save time;
+any missing, changed or incomplete file is reported by name and blocks the
+import.
+
+The page previews each record and its source file first. **Import** runs in
+one transaction (on failure nothing is added and stored images are removed),
+stores images like an upload, and records each source once in
+`art_import_sources` with the full extracted dates, so importing again adds
+nothing. The course data's Edouard Manet is linked, never changed; the import
+never updates or deletes a record.
+
+`docker compose exec web php artwork/wikiart-cli.php extract` prints the
+extracted values (`--json` for everything; `--out DIR` also writes
+`extracted.json`, a reviewable `import.sql` and its images).
+`import/wikiart/prepare_sources.py` is the separate step that saved the
+Morisot and Sisley artist pages and all fifteen painting pages and images;
+the import and its tests never use the network.
 
 ### Sorting and suggestions
 
@@ -362,8 +397,7 @@ again: a role change applies on the next request with a new session ID and
 form token, and a disabled or deleted account is signed out on its next
 request. Disabled accounts cannot log in. An administrator cannot change
 or delete their own account, and the last active administrator cannot be
-removed. Uploads and editing use the same `require_admin()` check; future imports
-must enforce it as well.
+removed. Uploads, editing and the WikiArt import use the same `require_admin()` check.
 
 Sessions are bound on successful login to a server-only fingerprint of the
 stored salted password hash. Deleting and registering the same user ID cannot
@@ -382,7 +416,11 @@ artwork offers only images already on the server. After backing up any existing 
 files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
 `06-era-identities.sql`, `07-subject-names.sql`, `08-account-roles.sql`,
-`09-editor-grants.sql`, then `10-saved-works.sql`. Do not import the down script during initialization.
+`09-editor-grants.sql`, `10-saved-works.sql`, then `11-wikiart-import.sql`. Do not import the down scripts during initialization.
+For the WikiArt import, keep the `import` folder outside `htdocs` and set the
+`WIKIART_SOURCE_DIR` environment variable to its `import/wikiart/sources`
+folder; by default the gallery looks for `../import/wikiart/sources` beside
+`artwork`.
 The starter SQL replaces the `art` database. Open
 http://localhost/artwork/. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so
