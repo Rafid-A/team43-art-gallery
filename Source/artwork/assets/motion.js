@@ -139,7 +139,16 @@
     const fitButton = viewer.querySelector('[data-viewer-fit]');
     const actualButton = viewer.querySelector('[data-viewer-actual]');
     const status = viewer.querySelector('[data-viewer-status]');
-    let scale = 1, fitScale = 1, x = 0, y = 0;
+    // Fit fills the stage, enlarging small sources too (most collection images are
+    // under 750 px). Zoom reaches actual pixels, or twice the fitted size for a small
+    // source; zooming out stops at whichever of fit and actual pixels is smaller.
+    let scale = 1, fitScale = 1, minScale = 1, maxScale = 1, x = 0, y = 0;
+    const limits = () => {
+      fitScale = Math.min(stage.clientWidth / image.naturalWidth, stage.clientHeight / image.naturalHeight);
+      minScale = Math.min(fitScale, 1);
+      maxScale = Math.max(1, fitScale * 2);
+    };
+    const near = (a, b) => Math.abs(a - b) < 0.001;
     const pointers = new Map();
     const ready = () => image?.complete && image.naturalWidth > 0 && stage.clientWidth > 0 && stage.clientHeight > 0;
     const render = () => {
@@ -151,24 +160,25 @@
       image.style.width = `${image.naturalWidth}px`;
       image.style.height = `${image.naturalHeight}px`;
       image.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
-      stage.classList.toggle('is-zoomed', scale > fitScale + 0.001);
+      stage.classList.toggle('is-zoomed', image.naturalWidth * scale > stage.clientWidth + 1 || image.naturalHeight * scale > stage.clientHeight + 1);
       // Expose current state for assistive feedback, without announcing every pan.
-      const text = `${Math.round(scale * 100)}%${scale <= fitScale + 0.001 ? ' · Fit' : ''}${scale >= 0.999 ? ' · Actual pixels' : ''}`;
+      const text = `${Math.round(scale * 100)}%${near(scale, fitScale) ? ' · Fit' : ''}${near(scale, 1) ? ' · Actual pixels' : ''}`;
       if (status.textContent !== text) status.textContent = text;
-      zoomIn.disabled = actualButton.disabled = scale >= 0.999;
-      zoomOut.disabled = scale <= fitScale + 0.001;
+      zoomIn.disabled = scale >= maxScale - 0.001;
+      zoomOut.disabled = scale <= minScale + 0.001;
+      actualButton.disabled = near(scale, 1);
       fitButton.disabled = false;
     };
     const fit = () => {
       if (!ready()) return;
-      fitScale = Math.min(1, stage.clientWidth / image.naturalWidth, stage.clientHeight / image.naturalHeight);
+      limits();
       scale = fitScale; x = y = 0;
       render();
     };
     const zoom = (nextScale, anchorX = 0, anchorY = 0) => {
       if (!ready()) return;
       const previous = scale;
-      scale = Math.max(fitScale, Math.min(1, nextScale));
+      scale = Math.max(minScale, Math.min(maxScale, nextScale));
       x = anchorX - (anchorX - x) * scale / previous;
       y = anchorY - (anchorY - y) * scale / previous;
       render();
@@ -221,8 +231,8 @@
     }, { passive: false });
     stage.addEventListener('dblclick', event => {
       const anchor = point(event);
-      if (scale > fitScale + 0.001) fit();
-      else zoom(1, anchor.x, anchor.y);
+      if (!near(scale, fitScale)) fit();
+      else zoom(maxScale, anchor.x, anchor.y);
     });
     zoomIn.addEventListener('click', () => zoom(scale * 1.25));
     zoomOut.addEventListener('click', () => zoom(scale / 1.25));
@@ -255,10 +265,10 @@
     if (image?.complete && image.naturalWidth === 0) imageFailed();
     if (typeof ResizeObserver === 'function') new ResizeObserver(() => {
       if (!viewer.open || !ready()) return;
-      const wasFit = scale <= fitScale + 0.001;
-      fitScale = Math.min(1, stage.clientWidth / image.naturalWidth, stage.clientHeight / image.naturalHeight);
+      const wasFit = near(scale, fitScale);
+      limits();
       if (wasFit) fit();
-      else { scale = Math.max(fitScale, scale); render(); }
+      else { scale = Math.max(minScale, Math.min(maxScale, scale)); render(); }
     }).observe(stage);
     trigger.addEventListener('click', event => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

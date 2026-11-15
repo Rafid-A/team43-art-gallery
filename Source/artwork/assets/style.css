@@ -12,6 +12,9 @@
     --focus: #17638a;
     --artwork-wall: #e6e1d4;
     --art-hover: #e3e6d9;
+    /* A soft, still shadow so paintings read as hung on the wall, not printed on the page. */
+    --art-shadow: 0 1px 3px rgb(40 44 39 / 16%), 0 12px 30px -4px rgb(40 44 39 / 32%);
+    --wall-band: #e7eadf;
     --shadow: rgb(40 44 39 / 12%);
     --font-sans: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-serif: Georgia, "Times New Roman", serif;
@@ -80,6 +83,7 @@ input[aria-invalid], select[aria-invalid], textarea[aria-invalid] { border-color
 .art-card { min-width: 0; }
 .art-image { display: flex; align-items: center; justify-content: center; height: 300px; background: var(--surface); padding: 16px; text-decoration: none; }
 .art-image img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+:is(.art-image, .featured-image, .painting-image, .artist-profile-work, .discovery-image) img { box-shadow: var(--art-shadow); }
 .art-copy { padding-block: 16px 0; }
 .art-copy h2, .art-copy h3 { font-size: 22px; margin: 0 0 4px; line-height: 1.25; }
 .art-copy h2 a, .art-copy h3 a { text-decoration: none; }

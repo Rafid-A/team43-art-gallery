@@ -240,15 +240,15 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | Art Gallery</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
-    <link rel="stylesheet" href="assets/style.css?v=13">
+    <link rel="stylesheet" href="assets/style.css?v=14">
     <link rel="stylesheet" href="assets/forms.css?v=3">
-    <link rel="stylesheet" href="assets/motion.css?v=7">
+    <link rel="stylesheet" href="assets/motion.css?v=8">
     <link rel="stylesheet" href="assets/navigation.css?v=2" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
-    <script src="assets/motion.js?v=5"></script>
+    <script src="assets/motion.js?v=6"></script>
     <script src="assets/app.js?v=7" defer></script>
     <?php if ($landing): ?>
     <meta name="description" content="Discover paintings and artists in Art Gallery, from intimate portraits to gardens in bloom.">
-    <link rel="stylesheet" href="assets/landing.css?v=7">
+    <link rel="stylesheet" href="assets/landing.css?v=8">
     <script src="assets/landing.js?v=4" defer></script>
     <?php endif; ?>
 </head>
