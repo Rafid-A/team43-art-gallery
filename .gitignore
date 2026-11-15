@@ -5,4 +5,11 @@ Thumbs.db
 !.env.example
 *.log
 **/backups/
+Source/existing-volume.yaml
+Source/tests/node_modules/
+Source/artwork/images/uploads/*
+!Source/artwork/images/uploads/.htaccess
 
+
+# Local agent scratch (review snapshots, validation logs); never committed.
+.ao/

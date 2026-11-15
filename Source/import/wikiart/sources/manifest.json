@@ -1,0 +1,448 @@
+{
+  "format": 1,
+  "description": "Saved WikiArt sources for the Project Task 2 offline import (issue #16). Paths are relative to this folder.",
+  "expected": {
+    "artists": 3,
+    "paintings_per_artist": 5
+  },
+  "prepared_by": "import/wikiart/prepare_sources.py",
+  "artists": [
+    {
+      "key": "wikiart:/en/edouard-manet",
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "paintings": [
+        {
+          "key": "wikiart:/en/edouard-manet/the-fifer-1866",
+          "url": "https://www.wikiart.org/en/edouard-manet/the-fifer-1866",
+          "page": "edouard-manet/paintings/the-fifer-1866.html",
+          "image": "edouard-manet/images/the-fifer-1866.jpg",
+          "image_url": "https://uploads8.wikiart.org/images/edouard-manet/the-fifer-1866.jpg!Large.jpg",
+          "reference_image": "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-fifer-1866.jpg!PinterestSmall.jpg"
+        },
+        {
+          "key": "wikiart:/en/edouard-manet/lola-de-valence-1862",
+          "url": "https://www.wikiart.org/en/edouard-manet/lola-de-valence-1862",
+          "page": "edouard-manet/paintings/lola-de-valence-1862.html",
+          "image": "edouard-manet/images/lola-de-valence-1862.jpg",
+          "image_url": "https://uploads5.wikiart.org/images/edouard-manet/lola-de-valence-1862.jpg!Large.jpg",
+          "reference_image": "edouard-manet/Edouard Manet - 235 artworks - painting_files/lola-de-valence-1862.jpg!PinterestSmall.jpg"
+        },
+        {
+          "key": "wikiart:/en/edouard-manet/the-monet-family-in-their-garden-at-argenteuil-1874",
+          "url": "https://www.wikiart.org/en/edouard-manet/the-monet-family-in-their-garden-at-argenteuil-1874",
+          "page": "edouard-manet/paintings/the-monet-family-in-their-garden-at-argenteuil-1874.html",
+          "image": "edouard-manet/images/the-monet-family-in-their-garden-at-argenteuil-1874.jpg",
+          "image_url": "https://uploads3.wikiart.org/images/edouard-manet/the-monet-family-in-their-garden-at-argenteuil-1874(1).jpg!Large.jpg",
+          "reference_image": "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-monet-family-in-their-garden-at-argenteuil-1874(1).jpg!PinterestSmall.jpg"
+        },
+        {
+          "key": "wikiart:/en/edouard-manet/the-house-at-rueil-1882",
+          "url": "https://www.wikiart.org/en/edouard-manet/the-house-at-rueil-1882",
+          "page": "edouard-manet/paintings/the-house-at-rueil-1882.html",
+          "image": "edouard-manet/images/the-house-at-rueil-1882.jpg",
+          "image_url": "https://uploads8.wikiart.org/images/edouard-manet/the-house-at-rueil-1882.jpg!Large.jpg",
+          "reference_image": "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-house-at-rueil-1882.jpg!PinterestSmall.jpg"
+        },
+        {
+          "key": "wikiart:/en/edouard-manet/effect-of-snow-at-petit-montrouge-1870",
+          "url": "https://www.wikiart.org/en/edouard-manet/effect-of-snow-at-petit-montrouge-1870",
+          "page": "edouard-manet/paintings/effect-of-snow-at-petit-montrouge-1870.html",
+          "image": "edouard-manet/images/effect-of-snow-at-petit-montrouge-1870.jpg",
+          "image_url": "https://uploads5.wikiart.org/images/edouard-manet/effect-of-snow-at-petit-montrouge-1870.jpg!Large.jpg",
+          "reference_image": "edouard-manet/Edouard Manet - 235 artworks - painting_files/effect-of-snow-at-petit-montrouge-1870.jpg!PinterestSmall.jpg"
+        }
+      ],
+      "page": "edouard-manet/Edouard Manet - 235 artworks - painting.html"
+    },
+    {
+      "key": "wikiart:/en/berthe-morisot",
+      "url": "https://www.wikiart.org/en/berthe-morisot",
+      "paintings": [
+        {
+          "key": "wikiart:/en/berthe-morisot/the-cradle-1872",
+          "url": "https://www.wikiart.org/en/berthe-morisot/the-cradle-1872",
+          "page": "berthe-morisot/paintings/the-cradle-1872.html",
+          "image": "berthe-morisot/images/the-cradle-1872.jpg",
+          "image_url": "https://uploads1.wikiart.org/00452/images/berthe-morisot/1872le-berceau-the-cradle-1872-2.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/berthe-morisot/the-old-track-to-auvers-1863",
+          "url": "https://www.wikiart.org/en/berthe-morisot/the-old-track-to-auvers-1863",
+          "page": "berthe-morisot/paintings/the-old-track-to-auvers-1863.html",
+          "image": "berthe-morisot/images/the-old-track-to-auvers-1863.jpg",
+          "image_url": "https://uploads5.wikiart.org/images/berthe-morisot/the-old-track-to-auvers-1863.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/berthe-morisot/after-luncheon",
+          "url": "https://www.wikiart.org/en/berthe-morisot/after-luncheon",
+          "page": "berthe-morisot/paintings/after-luncheon.html",
+          "image": "berthe-morisot/images/after-luncheon.jpg",
+          "image_url": "https://uploads0.wikiart.org/images/berthe-morisot/after-luncheon.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/berthe-morisot/child-in-the-rose-garden",
+          "url": "https://www.wikiart.org/en/berthe-morisot/child-in-the-rose-garden",
+          "page": "berthe-morisot/paintings/child-in-the-rose-garden.html",
+          "image": "berthe-morisot/images/child-in-the-rose-garden.jpg",
+          "image_url": "https://uploads1.wikiart.org/images/berthe-morisot/child-in-the-rose-garden.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/berthe-morisot/julie-daydreaming",
+          "url": "https://www.wikiart.org/en/berthe-morisot/julie-daydreaming",
+          "page": "berthe-morisot/paintings/julie-daydreaming.html",
+          "image": "berthe-morisot/images/julie-daydreaming.jpg",
+          "image_url": "https://uploads3.wikiart.org/images/berthe-morisot/julie-daydreaming.jpg!Large.jpg"
+        }
+      ],
+      "page": "berthe-morisot/artist.html"
+    },
+    {
+      "key": "wikiart:/en/alfred-sisley",
+      "url": "https://www.wikiart.org/en/alfred-sisley",
+      "paintings": [
+        {
+          "key": "wikiart:/en/alfred-sisley/flood-at-port-marly-1876",
+          "url": "https://www.wikiart.org/en/alfred-sisley/flood-at-port-marly-1876",
+          "page": "alfred-sisley/paintings/flood-at-port-marly-1876.html",
+          "image": "alfred-sisley/images/flood-at-port-marly-1876.jpg",
+          "image_url": "https://uploads0.wikiart.org/images/alfred-sisley/flood-at-port-marly-1876.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/alfred-sisley/molesey-weir-at-hampton-court-morning-1874",
+          "url": "https://www.wikiart.org/en/alfred-sisley/molesey-weir-at-hampton-court-morning-1874",
+          "page": "alfred-sisley/paintings/molesey-weir-at-hampton-court-morning-1874.html",
+          "image": "alfred-sisley/images/molesey-weir-at-hampton-court-morning-1874.jpg",
+          "image_url": "https://uploads0.wikiart.org/images/alfred-sisley/molesey-weir-at-hampton-court-morning-1874.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/alfred-sisley/under-the-bridge-at-hampton-court-1874",
+          "url": "https://www.wikiart.org/en/alfred-sisley/under-the-bridge-at-hampton-court-1874",
+          "page": "alfred-sisley/paintings/under-the-bridge-at-hampton-court-1874.html",
+          "image": "alfred-sisley/images/under-the-bridge-at-hampton-court-1874.jpg",
+          "image_url": "https://uploads5.wikiart.org/images/alfred-sisley/under-the-bridge-at-hampton-court-1874.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/alfred-sisley/the-dam-loing-canal-at-saint-mammes-1884",
+          "url": "https://www.wikiart.org/en/alfred-sisley/the-dam-loing-canal-at-saint-mammes-1884",
+          "page": "alfred-sisley/paintings/the-dam-loing-canal-at-saint-mammes-1884.html",
+          "image": "alfred-sisley/images/the-dam-loing-canal-at-saint-mammes-1884.jpg",
+          "image_url": "https://uploads7.wikiart.org/images/alfred-sisley/the-dam-loing-canal-at-saint-mammes-1884.jpg!Large.jpg"
+        },
+        {
+          "key": "wikiart:/en/alfred-sisley/moret-sur-loing-1892-2",
+          "url": "https://www.wikiart.org/en/alfred-sisley/moret-sur-loing-1892-2",
+          "page": "alfred-sisley/paintings/moret-sur-loing-1892-2.html",
+          "image": "alfred-sisley/images/moret-sur-loing-1892-2.jpg",
+          "image_url": "https://uploads7.wikiart.org/images/alfred-sisley/moret-sur-loing-1892-2.jpg!Large.jpg"
+        }
+      ],
+      "page": "alfred-sisley/artist.html"
+    }
+  ],
+  "files": {
+    "alfred-sisley/artist.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:26Z",
+      "response_sha256": "564179b6d63ba719d0a3c9a6fc90d3f22a01c2c8f37627fffc7da25e868eda2f",
+      "sha256": "c199943c9e20e5a91b13d126f4eb19c1ad2b046e06a462d4e901d77f3ad4ee2b",
+      "bytes": 80460
+    },
+    "alfred-sisley/images/flood-at-port-marly-1876.jpg": {
+      "url": "https://uploads0.wikiart.org/images/alfred-sisley/flood-at-port-marly-1876.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:29Z",
+      "response_sha256": "04743cf3f3ce28c26b18a5b1e2174bea5a54351ed5b38b7e8bd56962ed3db90d",
+      "sha256": "04743cf3f3ce28c26b18a5b1e2174bea5a54351ed5b38b7e8bd56962ed3db90d",
+      "bytes": 86973
+    },
+    "alfred-sisley/images/molesey-weir-at-hampton-court-morning-1874.jpg": {
+      "url": "https://uploads0.wikiart.org/images/alfred-sisley/molesey-weir-at-hampton-court-morning-1874.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:32Z",
+      "response_sha256": "2987fe67d24dcd50c61057b8c907f33efc3d19427b5898a9a8cab1d878ae8698",
+      "sha256": "2987fe67d24dcd50c61057b8c907f33efc3d19427b5898a9a8cab1d878ae8698",
+      "bytes": 83884
+    },
+    "alfred-sisley/images/moret-sur-loing-1892-2.jpg": {
+      "url": "https://uploads7.wikiart.org/images/alfred-sisley/moret-sur-loing-1892-2.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:44Z",
+      "response_sha256": "2e9270a4a4385c9ee08986d875d0cb53b8a6aba09877f837223860e98c839451",
+      "sha256": "2e9270a4a4385c9ee08986d875d0cb53b8a6aba09877f837223860e98c839451",
+      "bytes": 87978
+    },
+    "alfred-sisley/images/the-dam-loing-canal-at-saint-mammes-1884.jpg": {
+      "url": "https://uploads7.wikiart.org/images/alfred-sisley/the-dam-loing-canal-at-saint-mammes-1884.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:40Z",
+      "response_sha256": "14fc81d7067a20817681fa6cec844eb7b55323cff411495ce2cd780366a96cc8",
+      "sha256": "14fc81d7067a20817681fa6cec844eb7b55323cff411495ce2cd780366a96cc8",
+      "bytes": 97394
+    },
+    "alfred-sisley/images/under-the-bridge-at-hampton-court-1874.jpg": {
+      "url": "https://uploads5.wikiart.org/images/alfred-sisley/under-the-bridge-at-hampton-court-1874.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:36Z",
+      "response_sha256": "a1521e657cbb1e2968ee146f53a2514b96fa1d2c18d989b790f430a3d4644798",
+      "sha256": "a1521e657cbb1e2968ee146f53a2514b96fa1d2c18d989b790f430a3d4644798",
+      "bytes": 84802
+    },
+    "alfred-sisley/paintings/flood-at-port-marly-1876.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley/flood-at-port-marly-1876",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:28Z",
+      "response_sha256": "dc96fd2642f318e2869914d8a3129eedf5a706ec0cc07cf5733950b42ee2af71",
+      "sha256": "ef10e9d72445a9dae2599a9283514c9ade94e88530b666d6510a79fd45305291",
+      "bytes": 76270
+    },
+    "alfred-sisley/paintings/molesey-weir-at-hampton-court-morning-1874.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley/molesey-weir-at-hampton-court-morning-1874",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:31Z",
+      "response_sha256": "ac689834ce561932304e832ddda94b2ecfafb618cf3e38d6b6be8ced8f9b1744",
+      "sha256": "40217b61c6d9534c86813903d74c58d62a4d4ff76fb63f0669d4570dd5166723",
+      "bytes": 70745
+    },
+    "alfred-sisley/paintings/moret-sur-loing-1892-2.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley/moret-sur-loing-1892-2",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:42Z",
+      "response_sha256": "3e664c1f1663869d7cd91aa1b0b68986623a5c053189a2635a70f0a8e9e88162",
+      "sha256": "27e867cbb8f8667f744c457951d1184ce5b12a1e03307d566eb7e53f4022075e",
+      "bytes": 69270
+    },
+    "alfred-sisley/paintings/the-dam-loing-canal-at-saint-mammes-1884.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley/the-dam-loing-canal-at-saint-mammes-1884",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:38Z",
+      "response_sha256": "faa02e2597a33ef57bc3c3b416cf5a7b458007c79bf6aaeada4debbbd7d119a9",
+      "sha256": "f21ebee6054af98b580cecac84dce37f719166e2fa9f858b9c77a9464118a342",
+      "bytes": 74624
+    },
+    "alfred-sisley/paintings/under-the-bridge-at-hampton-court-1874.html": {
+      "url": "https://www.wikiart.org/en/alfred-sisley/under-the-bridge-at-hampton-court-1874",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:34Z",
+      "response_sha256": "a5832517732b931aa98b0ba2605b9d9b0a0f98b1911899c4d7bd3a07684e6f1b",
+      "sha256": "fb47885ad6b4b4c6c82ad606c1f66c435aff2234c5ed18d15ce4f2846656d563",
+      "bytes": 68517
+    },
+    "berthe-morisot/artist.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:07Z",
+      "response_sha256": "8704276aff92c7e9958716d1a92f21856ea3e35726891d600aefde35d793623e",
+      "sha256": "aa0ee1e4bce42f198abb8bd0461cf6c4e3e43bd26f339348f93e428e6e19bb09",
+      "bytes": 91385
+    },
+    "berthe-morisot/images/after-luncheon.jpg": {
+      "url": "https://uploads0.wikiart.org/images/berthe-morisot/after-luncheon.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:17Z",
+      "response_sha256": "89b34d8a72f2b687f592ff9027eb08847d38cf6b0567781c6f8348e299dd131b",
+      "sha256": "89b34d8a72f2b687f592ff9027eb08847d38cf6b0567781c6f8348e299dd131b",
+      "bytes": 91874
+    },
+    "berthe-morisot/images/child-in-the-rose-garden.jpg": {
+      "url": "https://uploads1.wikiart.org/images/berthe-morisot/child-in-the-rose-garden.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:20Z",
+      "response_sha256": "ea8e64635c927ab7620b039543f2480ca8f5baf1604fd186a0dacf028863fdcf",
+      "sha256": "ea8e64635c927ab7620b039543f2480ca8f5baf1604fd186a0dacf028863fdcf",
+      "bytes": 86192
+    },
+    "berthe-morisot/images/julie-daydreaming.jpg": {
+      "url": "https://uploads3.wikiart.org/images/berthe-morisot/julie-daydreaming.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:24Z",
+      "response_sha256": "610b44c868f8a1cc4a9a3b6fcfe41dbfa4543bc1ec1497cecc15b5aa89d70bb3",
+      "sha256": "610b44c868f8a1cc4a9a3b6fcfe41dbfa4543bc1ec1497cecc15b5aa89d70bb3",
+      "bytes": 55349
+    },
+    "berthe-morisot/images/the-cradle-1872.jpg": {
+      "url": "https://uploads1.wikiart.org/00452/images/berthe-morisot/1872le-berceau-the-cradle-1872-2.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:10Z",
+      "response_sha256": "90987a34c61d1295b40dd97c993f37bf52246d60d216378ca761dc3ea5e7cd96",
+      "sha256": "90987a34c61d1295b40dd97c993f37bf52246d60d216378ca761dc3ea5e7cd96",
+      "bytes": 41141
+    },
+    "berthe-morisot/images/the-old-track-to-auvers-1863.jpg": {
+      "url": "https://uploads5.wikiart.org/images/berthe-morisot/the-old-track-to-auvers-1863.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:14Z",
+      "response_sha256": "aedd9396c084f4455a8160b15edc0cb751def04943270359f605acec6c611702",
+      "sha256": "aedd9396c084f4455a8160b15edc0cb751def04943270359f605acec6c611702",
+      "bytes": 59565
+    },
+    "berthe-morisot/paintings/after-luncheon.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot/after-luncheon",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:16Z",
+      "response_sha256": "a56824c6a3f41fd20c6a6f479c1f06975b4efbc55a56ea0504a3daa3a52aaa07",
+      "sha256": "f9fa907ff32138ea16c06a380a26bb9df8fb16c8a3e69e29a73f4302b2883fd0",
+      "bytes": 64982
+    },
+    "berthe-morisot/paintings/child-in-the-rose-garden.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot/child-in-the-rose-garden",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:19Z",
+      "response_sha256": "f80296d44c21c73204f8457d45e4ba5c16981f8608b1fdda322351f50cd1d5eb",
+      "sha256": "d7a836a633d4da7b8668422d4929b7cd6f2672e44d3bcecb00cc8186ce6e0227",
+      "bytes": 65825
+    },
+    "berthe-morisot/paintings/julie-daydreaming.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot/julie-daydreaming",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:22Z",
+      "response_sha256": "5029dc0f7c6b3ea2b4311903c7f527126bea5f0cddeb06a887c5e4b7b7964ada",
+      "sha256": "f16389b4355b306dd385a734ecfcf4c3c732975c1e0663a4cae9342bc60251d4",
+      "bytes": 67466
+    },
+    "berthe-morisot/paintings/the-cradle-1872.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot/the-cradle-1872",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:09Z",
+      "response_sha256": "7dfb749b3b42e8bcca787df807a27a6f856f5e8c14cda52fab5648a57a6a756b",
+      "sha256": "d88c5a5e21c856c617680aa500db0ea30706cfda9861379429916c7c2299aa30",
+      "bytes": 74325
+    },
+    "berthe-morisot/paintings/the-old-track-to-auvers-1863.html": {
+      "url": "https://www.wikiart.org/en/berthe-morisot/the-old-track-to-auvers-1863",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:13Z",
+      "response_sha256": "2786d79b41304bdea8d0fd086168064d113bd52c0a7d0dee06f70f7b59a6abcd",
+      "sha256": "5e403f650a8249b00b3a47332861ba310a02cbcec9515bebf3a3396c6e8261a3",
+      "bytes": 83468
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; copied unchanged (time is the ZIP entry time)",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "6ec3d0c5e8d363568e74207d871eee9cbee1283aa356d5762f75d84c9f3b3a63",
+      "sha256": "6ec3d0c5e8d363568e74207d871eee9cbee1283aa356d5762f75d84c9f3b3a63",
+      "bytes": 202911
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting_files/effect-of-snow-at-petit-montrouge-1870.jpg!PinterestSmall.jpg": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; thumbnail saved by the browser with that page, copied unchanged",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "fdfec26453207e6a596d365ebbbf0c81f77f92a4b4362791db742534071cc5f7",
+      "sha256": "fdfec26453207e6a596d365ebbbf0c81f77f92a4b4362791db742534071cc5f7",
+      "bytes": 12632
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting_files/lola-de-valence-1862.jpg!PinterestSmall.jpg": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; thumbnail saved by the browser with that page, copied unchanged",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "388e33f555aacc757ff70c211b556fea3e8aaf7e28130876b8f6c53b105613a2",
+      "sha256": "388e33f555aacc757ff70c211b556fea3e8aaf7e28130876b8f6c53b105613a2",
+      "bytes": 13226
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-fifer-1866.jpg!PinterestSmall.jpg": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; thumbnail saved by the browser with that page, copied unchanged",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "988da584a23ba505e15117fb67e75fd7d9b19ab9b933e1c05293c665cacbfe45",
+      "sha256": "988da584a23ba505e15117fb67e75fd7d9b19ab9b933e1c05293c665cacbfe45",
+      "bytes": 11820
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-house-at-rueil-1882.jpg!PinterestSmall.jpg": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; thumbnail saved by the browser with that page, copied unchanged",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "ae050bd7fcfe2a171aa85e18dc1425c1c4a082afd162669a15d37e319b903d1e",
+      "sha256": "ae050bd7fcfe2a171aa85e18dc1425c1c4a082afd162669a15d37e319b903d1e",
+      "bytes": 12386
+    },
+    "edouard-manet/Edouard Manet - 235 artworks - painting_files/the-monet-family-in-their-garden-at-argenteuil-1874(1).jpg!PinterestSmall.jpg": {
+      "url": "https://www.wikiart.org/en/edouard-manet",
+      "origin": "Prof. Min, 'artwiki web pages.zip' (Box: cs4485 shared resources / Project-Task2), saved 2026-10-29; thumbnail saved by the browser with that page, copied unchanged",
+      "retrieved_at": "2026-10-29T23:52:00Z",
+      "response_sha256": "ee62cf2a8763066cc37d5b9aa3e4d98bb9a7a09bac3e8a6df817429641e8e653",
+      "sha256": "ee62cf2a8763066cc37d5b9aa3e4d98bb9a7a09bac3e8a6df817429641e8e653",
+      "bytes": 7832
+    },
+    "edouard-manet/images/effect-of-snow-at-petit-montrouge-1870.jpg": {
+      "url": "https://uploads5.wikiart.org/images/edouard-manet/effect-of-snow-at-petit-montrouge-1870.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:05Z",
+      "response_sha256": "260d7178f63db7a91d72f5baa7f459aa05d296cba76eb26468fa77850ddb4b5e",
+      "sha256": "260d7178f63db7a91d72f5baa7f459aa05d296cba76eb26468fa77850ddb4b5e",
+      "bytes": 64190
+    },
+    "edouard-manet/images/lola-de-valence-1862.jpg": {
+      "url": "https://uploads5.wikiart.org/images/edouard-manet/lola-de-valence-1862.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:30:54Z",
+      "response_sha256": "ae0932ed78f14f8accb84f6bce0be4a3f4888bfc3d4e6e39e5b278a9117360a5",
+      "sha256": "ae0932ed78f14f8accb84f6bce0be4a3f4888bfc3d4e6e39e5b278a9117360a5",
+      "bytes": 43615
+    },
+    "edouard-manet/images/the-fifer-1866.jpg": {
+      "url": "https://uploads8.wikiart.org/images/edouard-manet/the-fifer-1866.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:30:50Z",
+      "response_sha256": "d4687cad65dcf93fbcbedbd1ec9d36606362c1b5b3143a227aed4a363bfca6ab",
+      "sha256": "d4687cad65dcf93fbcbedbd1ec9d36606362c1b5b3143a227aed4a363bfca6ab",
+      "bytes": 27381
+    },
+    "edouard-manet/images/the-house-at-rueil-1882.jpg": {
+      "url": "https://uploads8.wikiart.org/images/edouard-manet/the-house-at-rueil-1882.jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:31:02Z",
+      "response_sha256": "78ee8e72018763b6d582b5ab30c1119420b05351fe4a38515d1855823166249f",
+      "sha256": "78ee8e72018763b6d582b5ab30c1119420b05351fe4a38515d1855823166249f",
+      "bytes": 127768
+    },
+    "edouard-manet/images/the-monet-family-in-their-garden-at-argenteuil-1874.jpg": {
+      "url": "https://uploads3.wikiart.org/images/edouard-manet/the-monet-family-in-their-garden-at-argenteuil-1874(1).jpg!Large.jpg",
+      "origin": "prepare_sources.py download; saved unchanged",
+      "retrieved_at": "2026-11-15T00:30:57Z",
+      "response_sha256": "210b13a51c44ce520b58076186d0d0445385572e5a954f7be59788c4fb43f0ca",
+      "sha256": "210b13a51c44ce520b58076186d0d0445385572e5a954f7be59788c4fb43f0ca",
+      "bytes": 83163
+    },
+    "edouard-manet/paintings/effect-of-snow-at-petit-montrouge-1870.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet/effect-of-snow-at-petit-montrouge-1870",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:31:04Z",
+      "response_sha256": "eabbc9ecbe0359b337c5818c47a4b3d02f36e90bbb02b1caa0a81babb8da16d8",
+      "sha256": "5e611f28d08308f106ac7a67823e2f14a626fbc7bb3af23796c29f5dc1c18533",
+      "bytes": 77374
+    },
+    "edouard-manet/paintings/lola-de-valence-1862.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet/lola-de-valence-1862",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:30:53Z",
+      "response_sha256": "0f6e019290ef39409f2012442f80f351179d483611aeb46f22fc11687cfa15c2",
+      "sha256": "f78ec126db1d2576d572f5f9e47ced78d368c8316a0170ecb2494402ae868be9",
+      "bytes": 75026
+    },
+    "edouard-manet/paintings/the-fifer-1866.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet/the-fifer-1866",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:30:49Z",
+      "response_sha256": "138707eb751cc17695d95c12a54b8a6b5e52c47c1dc763ed1bd3ae8384047c4a",
+      "sha256": "f4d1ffaadca35f60a511558b4d307fd80a7ee89f76945d4147d23879db925aa5",
+      "bytes": 83617
+    },
+    "edouard-manet/paintings/the-house-at-rueil-1882.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet/the-house-at-rueil-1882",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:30:59Z",
+      "response_sha256": "ced2842e962c2d3efa17f2c4a4a039fbf34c4fda94ce8d7438d8b1c28d31cb08",
+      "sha256": "8e74e47882af8ff6a3d4866b59e2ec442f7e0522fb12354158676c601f2758d6",
+      "bytes": 76142
+    },
+    "edouard-manet/paintings/the-monet-family-in-their-garden-at-argenteuil-1874.html": {
+      "url": "https://www.wikiart.org/en/edouard-manet/the-monet-family-in-their-garden-at-argenteuil-1874",
+      "origin": "prepare_sources.py download; script and style elements removed",
+      "retrieved_at": "2026-11-15T00:30:56Z",
+      "response_sha256": "165138d50d1a5200e5f84a6ea5d5934cec8c28d691584e6c4e0cf0700b885e5c",
+      "sha256": "4fa855ee8e6145a1b3a366699cd085e4ed66649c262b5a49774e03d5f0768694",
+      "bytes": 78516
+    }
+  }
+}

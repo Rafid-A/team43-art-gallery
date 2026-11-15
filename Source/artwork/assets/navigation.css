@@ -1,0 +1,3 @@
+/* motion.js opts in only on public routes with pointer input and motion allowed.
+   Both documents must opt in; every other navigation remains native and instant. */
+@view-transition { navigation: auto; }

@@ -10,3 +10,5 @@ Dockerfile text eol=lf
 *.Dockerfile text eol=lf
 *.jpg binary
 *.png binary
+# Saved WikiArt sources are checked by SHA-256, so their bytes must never change.
+Source/import/wikiart/sources/** -text
