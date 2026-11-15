@@ -11,7 +11,9 @@ opening, compact mobile navigation and filters, artist thumbnails, display
 density controls, and an image viewer with bounded zoom and collection navigation.
 The public landing introduces selected paintings and an artist story, with
 visitor-controlled featured works. Log in to open the catalogue and artwork details.
-Offline source extraction and data import remain planned under issue #16.
+Administrators can import three artists and fifteen paintings extracted offline
+from saved WikiArt pages (issue #16); see "Offline WikiArt import" in
+`Source/README.md`.
 
 ## Requirements
 
@@ -118,6 +120,15 @@ runtime guide when upgrading an existing database.
 Signed-in users can save artworks to "My collection" from an artwork page and
 see them on their profile (`account.php`). Each user sees and changes only
 their own list. Run `10-saved-works.sql` as described in the runtime guide when
+upgrading an existing database.
+
+Issue 16 adds an offline WikiArt import. Administration > **Import saved
+WikiArt pages** previews and imports Edouard Manet, Berthe Morisot and Alfred
+Sisley with five paintings each, read only from the saved pages and images in
+`Source/import/wikiart/sources` (no network, no page scripts run). The import
+is one transaction, records each source once in `art_import_sources`, links
+the existing Edouard Manet instead of changing him, and adds nothing when run
+again. Run `11-wikiart-import.sql` as described in the runtime guide when
 upgrading an existing database.
 
 Library text fields (artists, paintings, galleries, genres, eras and

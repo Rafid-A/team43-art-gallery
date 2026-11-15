@@ -9,5 +9,8 @@ COPY artwork/ /var/www/html/artwork/
 # Uploaded images live in a named volume mounted here (compose.yaml); a new
 # volume takes this ownership, so Apache can write to it.
 RUN chown www-data:www-data /var/www/html/artwork/images/uploads
+# Saved WikiArt sources for the offline import (issue #16), outside the web root.
+COPY import/wikiart/sources/ /opt/gallery-import/wikiart/
+ENV WIKIART_SOURCE_DIR=/opt/gallery-import/wikiart
 COPY docker/index.php /var/www/html/index.php
 COPY docker/health.php /var/www/html/health.php
