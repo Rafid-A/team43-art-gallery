@@ -119,19 +119,19 @@ $neighbors = painting_neighbors($p, $context);
 <dialog class="artwork-viewer" id="artwork-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
     <div class="viewer-toolbar">
         <h2 id="viewer-title"><?= e($p['Title']) ?></h2>
+        <div class="viewer-controls" role="group" aria-label="Image zoom">
+            <output data-viewer-status role="status" aria-live="polite" aria-atomic="true">Loading image</output>
+            <button type="button" data-viewer-zoom="out" aria-label="Zoom out">−</button>
+            <button type="button" data-viewer-zoom="in" aria-label="Zoom in">+</button>
+            <button type="button" data-viewer-fit>Reset / fit</button>
+            <button type="button" data-viewer-actual>Actual pixels</button>
+        </div>
         <button class="viewer-close" type="button" data-viewer-close autofocus>Close <span aria-hidden="true">×</span></button>
-    </div>
-    <div class="viewer-controls" role="group" aria-label="Image zoom">
-        <button type="button" data-viewer-zoom="out" aria-label="Zoom out">−</button>
-        <button type="button" data-viewer-zoom="in" aria-label="Zoom in">+</button>
-        <button type="button" data-viewer-fit>Reset / fit</button>
-        <button type="button" data-viewer-actual>Actual pixels</button>
-        <output data-viewer-status role="status" aria-live="polite" aria-atomic="true">Loading image</output>
     </div>
     <div class="viewer-stage" tabindex="0" role="region" aria-label="Artwork image" aria-describedby="viewer-help"><?php artwork_image($p, true, 'viewer'); ?></div>
     <?php painting_neighbor_links($neighbors, true); ?>
     <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?> · <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>.</p>
-    <p class="viewer-caption" id="viewer-help">Use + / − to zoom, 0 to reset, and arrow keys to pan the focused image. Drag or pinch to explore; double-click to toggle fit and actual pixels. Zoom stops at the source's actual pixels. Press Escape to close.</p>
+    <p class="viewer-caption" id="viewer-help">+ / − zoom, 0 fits, arrow keys pan the focused image. Drag or pinch to explore; double-click toggles zoom. Escape closes.</p>
 </dialog>
 <?php endif; ?>
 <section class="classifications">

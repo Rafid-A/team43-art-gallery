@@ -42,7 +42,7 @@ html { scrollbar-gutter: stable; }
         display var(--duration-viewer) allow-discrete,
         overlay var(--duration-viewer) allow-discrete;
 }
-.artwork-viewer[open] { display: flex; flex-direction: column; gap: 16px; opacity: 1; transform: scale(1); }
+.artwork-viewer[open] { display: flex; flex-direction: column; gap: 12px; opacity: 1; transform: scale(1); }
 .artwork-viewer::backdrop {
     background: var(--viewer-backdrop);
     opacity: 0;
@@ -56,8 +56,11 @@ html { scrollbar-gutter: stable; }
     .artwork-viewer[open] { opacity: 0; transform: scale(0.97); }
     .artwork-viewer[open]::backdrop { opacity: 0; }
 }
-.viewer-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-.viewer-toolbar h2 { font-size: 24px; margin: 0; min-width: 0; align-self: center; overflow-wrap: anywhere; }
+/* Title, zoom controls and Close share one row so the image gets the height; on narrow screens the controls drop to a second row. */
+.viewer-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.viewer-toolbar h2 { flex: 1 1 12ch; font-size: 24px; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.viewer-toolbar .viewer-controls { margin-left: auto; }
+@media (max-width: 900px) { .viewer-toolbar .viewer-controls { order: 3; flex-basis: 100%; margin-left: 0; } }
 .viewer-close { flex-shrink: 0; border-color: var(--viewer-muted); color: var(--viewer-ink); }
 .viewer-close:hover { background: var(--viewer-ink); color: var(--viewer-surface); }
 .viewer-close:focus-visible { outline-color: var(--viewer-ink); }
@@ -90,12 +93,16 @@ html { scrollbar-gutter: stable; }
         transition: opacity var(--duration-reveal) var(--ease-out);
     }
     .pointer-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link):active img { opacity: .84; }
+    .pointer-mode :is(.art-image, .featured-image, .artist-profile-work > a, .landing-strip-image, .landing-highlight-image, .landing-art-wall) { transition: background-color var(--duration-reveal) var(--ease-out); }
     .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link, .landing-art-choices a) {
         transition: color var(--duration-press) var(--ease-out), opacity var(--duration-press) var(--ease-out);
     }
     .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link, .landing-art-choices a):active { opacity: .72; }
     @media (hover: hover) and (pointer: fine) {
-        .pointer-mode :is(.art-image, .featured-image, .discovery-card, .directory-row, .artist-profile-work > a, .landing-feature-image, .landing-highlight-image, .landing-artist-image, .theme-route-link):hover:not(:active) img { opacity: .92; }
+        /* Hover tints the mat around a painting; the painting itself keeps its colours. */
+        .pointer-mode :is(.discovery-card, .directory-row, .landing-artist-image, .theme-route-link):hover:not(:active) img { opacity: .92; }
+        .pointer-mode :is(.art-image, .featured-image, .artist-profile-work > a, .landing-strip-image, .landing-highlight-image):hover:not(:active),
+        .pointer-mode .landing-art-wall:has(> .landing-feature-image:hover) { background-color: var(--art-hover); }
         .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link):hover { color: var(--accent); }
     }
     /* Navigation: the underline grows from the left on hover (tens of times a

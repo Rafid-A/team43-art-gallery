@@ -17,6 +17,7 @@
 .landing-page .landing-feature-image { display: flex; width: 100%; height: 100%; min-height: 0; align-items: center; justify-content: center; color: var(--ink); text-decoration: none; }
 .landing-page .landing-feature-image:focus-visible { outline-color: var(--focus); }
 .landing-page .landing-feature-image img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+.landing-page :is(.landing-feature-image, .landing-highlight-image, .landing-artist-image) img { box-shadow: var(--art-shadow); }
 .landing-page .landing-image-failure { max-width: 28ch; padding: 24px; text-align: center; }
 .landing-page .landing-fade-ghost { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: inherit; pointer-events: none; }
 .landing-page .landing-fade-ghost img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
@@ -41,6 +42,10 @@
    still row that scrolls sideways; landing.js duplicates the items once so the
    track can move by exactly half its width and loop without a seam. */
 .landing-page .landing-strip { margin-bottom: 104px; }
+/* A different wall tone behind the strip gives the page some rhythm. The band runs
+   edge to edge (shadow plus clip, so it adds no sideways scroll) and the mats turn paper-white. */
+.landing-page .landing-strip { padding-block: 48px 40px; background: var(--wall-band); box-shadow: 0 0 0 100vmax var(--wall-band); clip-path: inset(0 -100vmax); }
+.landing-page .landing-strip .landing-strip-image { background: var(--mat); }
 .landing-page .landing-strip-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; margin-bottom: 24px; }
 .landing-page .landing-strip-heading h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; margin: 0; }
 .landing-page .landing-strip-heading p { flex: 1 1 24ch; margin: 0; color: var(--muted); font-size: 14px; }
@@ -78,7 +83,7 @@
 .landing-page .landing-highlight { min-width: 0; margin: 0; }
 .landing-page .landing-highlight:nth-child(2) { padding-top: 136px; }
 .landing-page .landing-highlight-image { display: flex; align-items: center; justify-content: center; background: var(--surface); padding: 32px; height: 440px; }
-.landing-page .landing-highlight:nth-child(2) .landing-highlight-image { height: 300px; background: var(--on-accent); }
+.landing-page .landing-highlight:nth-child(2) .landing-highlight-image { height: 300px; background: var(--mat); }
 .landing-page .landing-highlight-image img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
 .landing-page .landing-highlight figcaption { padding-top: 20px; }
 .landing-page .landing-highlight h3 { font-size: 25px; line-height: 1.2; margin: 0 0 6px; }
