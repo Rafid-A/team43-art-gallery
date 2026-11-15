@@ -289,49 +289,28 @@ docker compose exec -T web chown -R www-data:www-data /var/www/html/artwork/imag
 
 ### Offline WikiArt import
 
-**Administration → Import saved WikiArt pages** (`import.php`) adds three
-artists and five paintings of each from WikiArt pages saved with the project:
-Edouard Manet, from the saved artist page and thumbnails in Prof. Min's
-`artwiki web pages.zip`, plus Berthe Morisot and Alfred Sisley. The saved
-files are in `import/wikiart/sources/`; Docker copies them to
-`/opt/gallery-import/wikiart`, outside the web root.
+**Administration > Import saved WikiArt pages** (`import.php`) adds Edouard
+Manet, Berthe Morisot and Alfred Sisley with five paintings each, read only
+from the saved pages and images in `import/wikiart/sources/` (Docker copies
+them to `/opt/gallery-import/wikiart`, outside the web root). Nothing is
+downloaded and no script from the saved pages runs. Every file must match its
+SHA-256 in `manifest.json`, which also records its source URL and save time;
+any missing, changed or incomplete file is reported by name and blocks the
+import.
 
-The page first shows what it found: each artist's full birth and death dates
-and places, nationality and biography, and each painting's title, year,
-medium, size, style and museum, with the saved file it came from and whether
-it will be added, linked to a record already in the library, or was already
-imported. Nothing is downloaded and no script from the saved pages runs: the
-pages are read as HTML data. Every file's SHA-256 must match
-`import/wikiart/sources/manifest.json`, which also records where and when it
-was saved. A missing, changed, damaged or incomplete file, a field the
-gallery tables cannot store (for example an emoji), or a painting that is not
-listed on its artist's saved page is reported by file name, and then nothing
-can be imported.
+The page previews each record and its source file first. **Import** runs in
+one transaction (on failure nothing is added and stored images are removed),
+stores images like an upload, and records each source once in
+`art_import_sources` with the full extracted dates, so importing again adds
+nothing. The course data's Edouard Manet is linked, never changed; the import
+never updates or deletes a record.
 
-**Import** adds everything in one transaction: if any record fails, nothing
-is added and the images it had stored are removed. Images go through the same
-checks and re-encoding as an uploaded image and are saved in the uploads
-folder (and the `gallery-uploads` volume) under generated names. Each saved
-source is recorded once in `art_import_sources` with the record it created or
-linked, its file and SHA-256, and all extracted values, including the full
-dates that `Artists` stores only as years. So importing again adds nothing. An
-artist already in the library with the same first name, last name and year of
-birth (the course data's Edouard Manet) is linked and never changed; the same
-applies to an artwork with the same artist, title and year. Records are never
-updated or deleted by the import. A museum or style is linked only when a
-gallery or genre with exactly that name exists; otherwise it is left blank.
-Deleting an imported artwork removes its provenance row too, so a later
-import adds it again. Two imports cannot run at once.
-
-For inspection, `docker compose exec web php artwork/wikiart-cli.php extract`
-prints the extracted values and diagnostics (`--json` for everything). With
-`--out DIR` it also writes `extracted.json`, an `import.sql` that a database
-administrator can review and run instead (same rules; it is safe to run
-twice), and the re-encoded images that SQL names. The page remains the
-supported route. `import/wikiart/prepare_sources.py` is the separate
-preparation step that downloaded the Morisot and Sisley pages and all fifteen
-painting pages and images (with their `<script>` and `<style>` elements
-removed); the import and its tests never use the network.
+`docker compose exec web php artwork/wikiart-cli.php extract` prints the
+extracted values (`--json` for everything; `--out DIR` also writes
+`extracted.json`, a reviewable `import.sql` and its images).
+`import/wikiart/prepare_sources.py` is the separate step that saved the
+Morisot and Sisley artist pages and all fifteen painting pages and images;
+the import and its tests never use the network.
 
 ### Sorting and suggestions
 

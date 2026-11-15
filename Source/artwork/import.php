@@ -41,7 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$plan = $ready && $extraction['ok'] ? wikiart_plan($pdo, $extraction) : [];
+$plan = [];
+if ($ready && $extraction['ok']) {
+    try {
+        $plan = wikiart_plan($pdo, $extraction);
+    } catch (DomainException $ex) {
+        // More than one library record matches a source (see wikiart_artist_match).
+        $errors[] = $ex->getMessage();
+    }
+}
 $counts = wikiart_plan_counts($plan);
 $canImport = $ready && $extraction['ok'] && uploads_available() && ($counts['new'] + $counts['matches']) > 0;
 $statusLabel = ['new' => 'Will be added', 'matches' => 'Already in the library: will be linked, not changed', 'imported' => 'Imported', 'linked' => 'Linked to the existing record'];
@@ -80,7 +88,7 @@ page_start('Import saved WikiArt pages');
     <?php foreach ($entry['paintings'] as $row): $p = $row['painting']; ?>
         <li>
             <div><h3><?php if ($row['id']): ?><a href="painting.php?<?= e(http_build_query(['id' => $row['id']])) ?>"><?= e($p['title']) ?></a><?php else: ?><?= e($p['title']) ?><?php endif; ?></h3>
-            <p><?= e(implode(' · ', array_filter([$p['year'], $p['medium'], $p['height_cm'] && $p['width_cm'] ? $p['width_cm'] . ' × ' . $p['height_cm'] . ' cm' : null, $p['styles'][0] ?? null]))) ?></p>
+            <p><?= e(implode(' · ', array_filter([$p['year'], $p['medium'], $p['height_cm'] && $p['width_cm'] ? $p['height_cm'] . ' × ' . $p['width_cm'] . ' cm' : null, $p['styles'][0] ?? null]))) ?></p>
             <p class="hint">Gallery: <?= e($p['gallery_name'] ? $p['gallery_name'] . ($row['gallery_id'] ? ' (#' . $row['gallery_id'] . ')' : ' (not in the library, left blank)') : 'not recorded') ?>. Source <code><?= e($p['page']) ?></code>, image <code><?= e($p['image']['file'] ?? '') ?></code>.</p></div>
             <?php if ($row['status']): ?><span class="import-status <?= e($row['status']) ?>"><?= e($statusLabel[$row['status']]) ?><?= $row['id'] ? ' · #' . (int)$row['id'] : '' ?></span><?php endif; ?>
         </li>

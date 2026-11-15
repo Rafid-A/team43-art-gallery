@@ -50,14 +50,21 @@ if ($options['out'] !== null && $extraction['ok']) {
         fwrite(STDERR, "Could not create $out/images\n");
         exit(1);
     }
-    file_put_contents($out . '/extracted.json', json_encode($extraction, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
-    file_put_contents($out . '/import.sql', wikiart_sql($extraction));
-    foreach ($extraction['artists'] as $artist) {
-        foreach ($artist['paintings'] as $painting) {
-            // The same decoding and bounded re-encoding as an administrator upload.
-            $image = prepare_upload_image(rtrim($extraction['source_dir'], '/') . '/' . $painting['image']['file']);
-            imagejpeg($image, $out . '/images/' . wikiart_sql_image_name($painting) . '.jpg', 88);
+    try {
+        if (file_put_contents($out . '/extracted.json', json_encode($extraction, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n") === false
+            || file_put_contents($out . '/import.sql', wikiart_sql($extraction)) === false)
+            throw new RuntimeException("Could not write $out/extracted.json or $out/import.sql");
+        foreach ($extraction['artists'] as $artist) {
+            foreach ($artist['paintings'] as $painting) {
+                // The same decoding and bounded re-encoding as an administrator upload.
+                $image = prepare_upload_image(rtrim($extraction['source_dir'], '/') . '/' . $painting['image']['file']);
+                $file = $out . '/images/' . wikiart_sql_image_name($painting) . '.jpg';
+                if (!imagejpeg($image, $file, 88)) throw new RuntimeException("Could not write $file");
+            }
         }
+    } catch (Throwable $ex) {
+        fwrite(STDERR, $ex->getMessage() . "\n");
+        exit(1);
     }
     if (!$options['json']) echo "Wrote $out/extracted.json, $out/import.sql and $out/images/\n";
 }

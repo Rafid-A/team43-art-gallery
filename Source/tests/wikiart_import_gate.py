@@ -52,7 +52,7 @@ NO_NETWORK = ['-d', 'allow_url_fopen=0', '-d',
 
 def run(args, **kwargs):
     print('+', subprocess.list2cmdline(args), flush=True)
-    return subprocess.run(args, check=True, text=True, **kwargs)
+    return subprocess.run(args, check=True, text=True, encoding='utf-8', **kwargs)
 
 
 def check(label, condition):
@@ -138,7 +138,7 @@ def main():
                 run(command, capture_output=True)
                 try:
                     run(['docker', 'cp', str(directory) + '/.', name + ':/src'], capture_output=True)
-                    result = subprocess.run(['docker', 'start', '-a', name], capture_output=True, text=True)
+                    result = subprocess.run(['docker', 'start', '-a', name], capture_output=True, text=True, encoding='utf-8')
                     if out:
                         run(['docker', 'cp', name + ':/out', str(out)], capture_output=True)
                     data = json.loads(result.stdout) if result.stdout.strip().startswith('{') else None

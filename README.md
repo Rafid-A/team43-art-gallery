@@ -122,15 +122,6 @@ see them on their profile (`account.php`). Each user sees and changes only
 their own list. Run `10-saved-works.sql` as described in the runtime guide when
 upgrading an existing database.
 
-Issue 16 adds an offline WikiArt import. Administration > **Import saved
-WikiArt pages** previews and imports Edouard Manet, Berthe Morisot and Alfred
-Sisley with five paintings each, read only from the saved pages and images in
-`Source/import/wikiart/sources` (no network, no page scripts run). The import
-is one transaction, records each source once in `art_import_sources`, links
-the existing Edouard Manet instead of changing him, and adds nothing when run
-again. Run `11-wikiart-import.sql` as described in the runtime guide when
-upgrading an existing database.
-
 Library text fields (artists, paintings, galleries, genres, eras and
 subjects) reject emoji and other characters outside Unicode's Basic
 Multilingual Plane, in the browser and on the server. The supplied course
