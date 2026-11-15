@@ -384,3 +384,22 @@ document.querySelectorAll('[data-suggestions]').forEach((input) => {
   });
   input.addEventListener('blur', dismiss);
 });
+
+// Dark mode toggle. Without a saved choice the page follows the system setting;
+// a choice is remembered on this device and applied by the <head> script.
+(() => {
+  const toggle = document.querySelector('[data-theme-toggle]');
+  if (!toggle) return;
+  const root = document.documentElement;
+  const system = matchMedia('(prefers-color-scheme: dark)');
+  const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : system.matches);
+  const reflect = () => toggle.setAttribute('aria-pressed', String(isDark()));
+  toggle.hidden = false;
+  reflect();
+  system.addEventListener('change', reflect);
+  toggle.addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
+    try { localStorage.setItem('theme', root.dataset.theme); } catch (e) { /* not remembered in private mode */ }
+    reflect();
+  });
+})();

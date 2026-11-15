@@ -1,5 +1,6 @@
 :root {
     /* Warm gallery palette (from the original design) with the newer tokens mapped onto it. */
+    color-scheme: light;
     --ink: #282c27;
     --muted: #62655c;
     --paper: #faf8f3;
@@ -11,7 +12,10 @@
     --on-accent: #fff;
     --focus: #17638a;
     --artwork-wall: #e6e1d4;
-    --art-hover: #e3e6d9;
+    --art-hover: #d9dfcc;
+    --selection: #dce4d2;
+    --button-line: var(--ink);
+    --mat: #fff;
     /* A soft, still shadow so paintings read as hung on the wall, not printed on the page. */
     --art-shadow: 0 1px 3px rgb(40 44 39 / 16%), 0 12px 30px -4px rgb(40 44 39 / 32%);
     --wall-band: #e7eadf;
@@ -23,6 +27,56 @@
     --page-width: 1440px;
     --gutter: clamp(16px, 4vw, 64px);
 }
+/* Dark mode: a warm charcoal gallery wall (only the strip band keeps a sage tint). It follows the system setting until the visitor
+   chooses with the header toggle (data-theme on <html>, set before the page paints). */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --ink: #ebe7de;
+        --muted: #aaa69c;
+        --paper: #1b1a18;
+        --surface: #252421;
+        --line: #393733;
+        --control-line: #85827a;
+        --accent: #8fa889;
+        --accent-hover: #a5bc9e;
+        --on-accent: #141a12;
+        --focus: #74b9df;
+        --artwork-wall: #282622;
+        --art-hover: #33312c;
+        --shadow: rgb(0 0 0 / 45%);
+        --danger: #e5907f;
+        --error: #3b231e;
+        --selection: #3d4a38;
+        --button-line: var(--control-line);
+        --art-shadow: 0 1px 3px rgb(0 0 0 / 45%), 0 12px 30px -4px rgb(0 0 0 / 60%);
+        --wall-band: #1f221c;
+        --mat: #2d2b27;
+    }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --ink: #ebe7de;
+    --muted: #aaa69c;
+    --paper: #1b1a18;
+    --surface: #252421;
+    --line: #393733;
+    --control-line: #85827a;
+    --accent: #8fa889;
+    --accent-hover: #a5bc9e;
+    --on-accent: #141a12;
+    --focus: #74b9df;
+    --artwork-wall: #282622;
+    --art-hover: #33312c;
+    --shadow: rgb(0 0 0 / 45%);
+    --danger: #e5907f;
+    --error: #3b231e;
+    --selection: #3d4a38;
+    --button-line: var(--control-line);
+    --art-shadow: 0 1px 3px rgb(0 0 0 / 45%), 0 12px 30px -4px rgb(0 0 0 / 60%);
+    --wall-band: #1f221c;
+    --mat: #2d2b27;
+}
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { margin: 0; color: var(--ink); background: var(--paper); font: 16px/1.6 var(--font-sans); }
@@ -30,13 +84,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 button, input, select, textarea { font: inherit; }
 button, .button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-::selection { color: var(--ink); background: #dce4d2; }
+::selection { color: var(--ink); background: var(--selection); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .skip-link { position: absolute; top: -100px; left: 16px; z-index: 10; padding: 12px; background: var(--ink); color: var(--paper); }
 .skip-link:focus { top: 8px; }
 .topbar, main, footer { width: min(100%, var(--page-width)); margin-inline: auto; padding-inline: var(--gutter); }
 .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding-block: 24px; }
-.brand { text-decoration: none; font: 27px/1.2 var(--font-serif); letter-spacing: -.5px; white-space: nowrap; }
+.brand { margin-right: auto; text-decoration: none; font: 27px/1.2 var(--font-serif); letter-spacing: -.5px; white-space: nowrap; }
 .topbar nav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 20px; font-size: 14px; }
 .topbar nav > a { position: relative; display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; text-decoration: none; padding-block: 8px; }
 /* The underline is drawn, not bordered, so motion.css can grow it with transform only. */
@@ -45,6 +99,13 @@ button, .button { cursor: pointer; }
 .topbar nav > a:hover { color: var(--accent); }
 @media (hover: hover) and (pointer: fine) { .topbar nav > a:hover::after { transform: scaleX(1); } }
 .topbar form { margin: 0; }
+.theme-toggle { min-height: 44px; font-size: 14px; }
+/* "On" uses the same filled sage as every other selected or primary button. */
+.theme-toggle[aria-pressed="true"], .theme-toggle[aria-pressed="true"]:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* Narrow screens: title and toggle share the first row, the public links take the second. */
+@media (max-width: 767px) { .public-navigation { order: 1; flex-basis: 100%; justify-content: flex-start; } }
+/* Small phones: "Dark" alone keeps Title, Menu and the toggle on one row (screen readers still hear "Dark mode"). */
+@media (max-width: 400px) { .topbar { column-gap: 12px; } .topbar .theme-toggle { padding-inline: 8px; } .theme-toggle-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
 .account { display: none; }
 .quiet { background: transparent; border: 1px solid var(--control-line); padding: 8px 12px; }
 main { min-height: 70vh; padding-block: 32px 64px; }
@@ -61,7 +122,7 @@ p { margin-block: 0 16px; }
 .page-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 24px 0 32px; }
 .page-heading p:not(.eyebrow) { color: var(--muted); max-width: 70ch; }
 .collection-heading { padding-block: 16px 24px; }
-.button, button { display: inline-flex; align-items: center; justify-content: center; gap: 16px; text-decoration: none; border: 1px solid var(--ink); border-radius: 0; padding: 10px 20px; color: var(--ink); background: transparent; min-height: 44px; font-size: 14px; }
+.button, button { display: inline-flex; align-items: center; justify-content: center; gap: 16px; text-decoration: none; border: 1px solid var(--button-line); border-radius: 0; padding: 10px 20px; color: var(--ink); background: transparent; min-height: 44px; font-size: 14px; }
 .primary, .landing-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 button:hover, .button:hover { background: var(--surface); color: var(--ink); }
 .primary:hover, .landing-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
