@@ -42,6 +42,12 @@ function count_label($count, $one, $many)
     return (int)$count . ' ' . ((int)$count === 1 ? $one : $many);
 }
 
+function image_credit($text)
+{
+    // The seed data stores credits with HTML entities such as &copy;; decode them so they are not shown literally.
+    return e(html_entity_decode($text ?: 'See image credits for attribution', ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+}
+
 function input($name, $trim = true)
 {
     $value = $_POST[$name] ?? '';
@@ -241,15 +247,15 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
     <title><?= e($title) ?> | Art Gallery</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
     <script src="assets/theme.js?v=1"></script>
-    <link rel="stylesheet" href="assets/style.css?v=18">
+    <link rel="stylesheet" href="assets/style.css?v=19">
     <link rel="stylesheet" href="assets/forms.css?v=4">
-    <link rel="stylesheet" href="assets/motion.css?v=8">
+    <link rel="stylesheet" href="assets/motion.css?v=9">
     <link rel="stylesheet" href="assets/navigation.css?v=2" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
-    <script src="assets/motion.js?v=6"></script>
-    <script src="assets/app.js?v=8" defer></script>
+    <script src="assets/motion.js?v=7"></script>
+    <script src="assets/app.js?v=9" defer></script>
     <?php if ($landing): ?>
-    <meta name="description" content="Discover paintings and artists in Art Gallery, from intimate portraits to gardens in bloom.">
-    <link rel="stylesheet" href="assets/landing.css?v=9">
+    <meta name="description" content="Art Gallery: a library of paintings, artists, genres and subjects.">
+    <link rel="stylesheet" href="assets/landing.css?v=10">
     <script src="assets/landing.js?v=4" defer></script>
     <?php endif; ?>
 </head>
@@ -329,11 +335,3 @@ function artwork_image_size($filename)
     return $size ? [$size[0], $size[1]] : [640, 480];
 }
 
-function description_preview($description)
-{
-    preg_match('/^.{1,180}/us', $description, $match);
-    $preview = $match[0] ?? '';
-    $wholeWords = preg_replace('/\s+\S*$/u', '', $preview);
-
-    return ($wholeWords ?: $preview) . '…';
-}

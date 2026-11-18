@@ -94,11 +94,11 @@ function visitor_theme_routes(array $themes, $headingId = 'theme-heading')
             <a class="theme-route-link" href="objects.php?<?= e(http_build_query(['type' => $theme['ThemeType'], 'id' => (int)$theme['ThemeID']])) ?>">
                 <div class="theme-preview">
                 <?php if ($preview): $source = $preview['image']; ?>
-                    <img src="<?= e($source['url']) ?>" srcset="<?= e(artwork_media_srcset($source)) ?>" sizes="(max-width: 767px) 88vw, 44vw" alt="<?= e($preview['Title']) ?>" width="<?= (int)$source['width'] ?>" height="<?= (int)$source['height'] ?>" loading="lazy" decoding="async">
-                <?php else: ?><span>Explore the artworks.<br>Preview image unavailable.</span><?php endif; ?>
+                    <img src="<?= e($source['url']) ?>" srcset="<?= e(artwork_media_srcset($source)) ?>" sizes="(max-width: 767px) min(88vw, <?= (int)$source['width'] ?>px), min(44vw, <?= (int)$source['width'] ?>px)" alt="<?= e($preview['Title']) ?>" width="<?= (int)$source['width'] ?>" height="<?= (int)$source['height'] ?>" loading="lazy" decoding="async">
+                <?php else: ?><span>Preview image unavailable.</span><?php endif; ?>
                 </div>
-                <div class="theme-copy"><p class="theme-type"><?= e($theme['label']) ?></p><h3><?= e($theme['ThemeName']) ?></h3><p class="theme-count"><?= (int)$theme['WorkCount'] ?> <?= (int)$theme['WorkCount'] === 1 ? 'artwork' : 'artworks' ?></p>
-                <?php if ($preview): ?><p class="theme-caption"><?= e($preview['Title']) ?><?php if ($preview['YearOfWork']): ?>, <?= e($preview['YearOfWork']) ?><?php endif; ?><span><?= e(trim(($preview['FirstName'] ?? '') . ' ' . ($preview['LastName'] ?? '')) ?: 'Artist not recorded') ?></span><small><?= e($preview['CopyrightText'] ?: 'See image credits for attribution') ?></small></p><?php endif; ?>
+                <div class="theme-copy"><p class="theme-type"><?= e($theme['label']) ?></p><h3><?= e($theme['ThemeName']) ?></h3><p class="theme-count"><?= e(count_label($theme['WorkCount'], 'artwork', 'artworks')) ?></p>
+                <?php if ($preview): ?><p class="theme-caption"><?= e($preview['Title']) ?><?php if ($preview['YearOfWork']): ?>, <?= e($preview['YearOfWork']) ?><?php endif; ?><span><?= e(trim(($preview['FirstName'] ?? '') . ' ' . ($preview['LastName'] ?? '')) ?: 'Artist not recorded') ?></span><small><?= image_credit($preview['CopyrightText']) ?></small></p><?php endif; ?>
                 </div>
             </a>
         </article>

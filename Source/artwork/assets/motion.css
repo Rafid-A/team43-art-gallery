@@ -65,7 +65,8 @@ html { scrollbar-gutter: stable; }
 .viewer-close:hover { background: var(--viewer-ink); color: var(--viewer-surface); }
 .viewer-close:focus-visible { outline-color: var(--viewer-ink); }
 .viewer-stage { flex: 1 0 128px; position: relative; overflow: hidden; min-width: 0; min-height: 128px; touch-action: none; user-select: none; }
-.viewer-stage img { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: none; max-height: none; transform: translate(-50%, -50%); transform-origin: center; }
+.viewer-stage img { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: none; max-height: none; transform: translate(-50%, -50%); transform-origin: center; visibility: hidden; }
+/* motion.js shows the image once it is loaded and fitted, so it never flashes at full size. */
 .viewer-stage.is-zoomed { cursor: grab; }
 .viewer-stage.is-dragging { cursor: grabbing; }
 .viewer-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -84,7 +85,7 @@ html { scrollbar-gutter: stable; }
 /* Frequent interactions stay nearly imperceptible; keyboard actions stay instant. */
 @media (prefers-reduced-motion: no-preference) {
     .pointer-mode :is(button, .button) {
-        transition: transform var(--duration-press) var(--ease-out), color var(--duration-press) var(--ease-out);
+        transition: transform var(--duration-press) var(--ease-out), color var(--duration-press) var(--ease-out), background-color var(--duration-press) var(--ease-out);
     }
     .pointer-mode :is(button, .button):active:not(:disabled) { transform: scale(0.97); }
     /* Change the image's opacity, never its scale or framing. The viewer's
@@ -104,6 +105,7 @@ html { scrollbar-gutter: stable; }
         .pointer-mode :is(.art-image, .featured-image, .artist-profile-work > a, .landing-strip-image, .landing-highlight-image):hover:not(:active),
         .pointer-mode .landing-art-wall:has(> .landing-feature-image:hover) { background-color: var(--art-hover); }
         .pointer-mode :is(.topbar a, .breadcrumbs a, .painting-neighbors a, .browse-tile, .landing-text-link):hover { color: var(--accent); }
+        .pointer-mode .viewer-neighbors a:hover { color: var(--viewer-ink); }
     }
     /* Navigation: the underline grows from the left on hover (tens of times a
        day, so short and transform-only); the small-screen menu settles in. */

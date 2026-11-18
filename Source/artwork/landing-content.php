@@ -61,8 +61,12 @@ function landing_artist_name(array $work)
 function landing_image(array $work, $eager = false, $hero = false, $sizes = null)
 {
     $source = $work['image'];
+    $w = (int)$source['width'] . 'px'; // cap each slot at the original's width so it is never upscaled
+    $sizes = $sizes !== null ? "min($sizes, $w)" : ($hero
+        ? "(max-width: 767px) min(88vw, $w), (max-width: 1199px) min(48vw, $w), min(647px, $w)"
+        : "(max-width: 767px) min(88vw, $w), min(42vw, $w)");
     echo '<img src="' . e($source['url']) . '" srcset="' . e(artwork_media_srcset($source))
-        . '" sizes="' . ($sizes ?? ($hero ? '(max-width: 767px) 88vw, (max-width: 1199px) 48vw, 647px' : '(max-width: 767px) 88vw, 42vw'))
+        . '" sizes="' . $sizes
         . '" alt="' . e($work['Title']) . '" width="' . (int)$source['width'] . '" height="' . (int)$source['height']
         . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async"' . ($eager ? ' fetchpriority="high"' : '') . '>';
 }

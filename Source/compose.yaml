@@ -1,8 +1,6 @@
 name: team43-gallery
 services:
   db:
-    labels:
-      ao.session: "${AO_SESSION_ID:-local}"
     build:
       context: .
       dockerfile: docker/db.Dockerfile
@@ -17,8 +15,6 @@ services:
       retries: 30
       start_period: 30s
   web:
-    labels:
-      ao.session: "${AO_SESSION_ID:-local}"
     build: .
     ports:
       - "127.0.0.1:${GALLERY_PORT:-8084}:80"
@@ -40,8 +36,6 @@ services:
       db:
         condition: service_healthy
   phpmyadmin:
-    labels:
-      ao.session: "${AO_SESSION_ID:-local}"
     image: phpmyadmin:5.2.3-apache@sha256:fb0cb638f7d1c2529407921d86679b2b2faf5bb8542314821e9f16e7e3d2954f
     ports:
       - "127.0.0.1:${PHPMYADMIN_PORT:-8085}:80"

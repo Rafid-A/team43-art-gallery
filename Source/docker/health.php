@@ -17,6 +17,7 @@ try {
     if (!account_schema_ready($pdo)) throw new RuntimeException('Account role upgrade required.');
     echo "ready\n";
 } catch (Throwable $error) {
+    error_log('health: ' . $error->getMessage());
     http_response_code(503);
     echo "not ready\n";
 }

@@ -206,8 +206,9 @@ For an existing XAMPP database, back it up, pause writers and run only
 `artwork/sql/06-era-identities.sql`, `artwork/sql/07-subject-names.sql`,
 `artwork/sql/08-account-roles.sql`, `artwork/sql/09-editor-grants.sql`, `artwork/sql/10-saved-works.sql` and
 `artwork/sql/11-wikiart-import.sql` with
-a database migration administrator. The corresponding down script is
-`artwork/sql/07-subject-names-down.sql`.
+a database migration administrator. The down scripts are
+`artwork/sql/07-subject-names-down.sql`, `artwork/sql/10-saved-works-down.sql`
+and `artwork/sql/11-wikiart-import-down.sql`.
 
 ## Collection behavior
 
@@ -272,18 +273,20 @@ its image file, as for bundled images. Docker serves the folder from the
 and runs no scripts.
 
 Back up the uploads with the database so image names and files stay
-matched. From this directory, with the gallery running:
+matched. From this directory, with the gallery running (`backups/` is ignored
+by Git; the dump contains password hashes):
 
 ```sh
-docker compose exec -T db sh -c 'exec mariadb-dump --user=root --password="$MARIADB_ROOT_PASSWORD" --single-transaction --databases art' > art-backup.sql
-docker compose cp web:/var/www/html/artwork/images/uploads ./uploads-backup
+mkdir -p backups
+docker compose exec -T db sh -c 'exec mariadb-dump --user=root --password="$MARIADB_ROOT_PASSWORD" --single-transaction --databases art' > backups/art-backup.sql
+docker compose cp web:/var/www/html/artwork/images/uploads ./backups/uploads
 ```
 
 To restore the images into a gallery whose database was restored from the
 same backup:
 
 ```sh
-docker compose cp ./uploads-backup/. web:/var/www/html/artwork/images/uploads/
+docker compose cp ./backups/uploads/. web:/var/www/html/artwork/images/uploads/
 docker compose exec -T web chown -R www-data:www-data /var/www/html/artwork/images/uploads
 ```
 
@@ -417,10 +420,10 @@ files in order: `art-small.sql`, `02-art-users.sql`, `03-samples.sql`,
 `04-xampp-grants.sql`, `05-subject-identities.sql`, then
 `06-era-identities.sql`, `07-subject-names.sql`, `08-account-roles.sql`,
 `09-editor-grants.sql`, `10-saved-works.sql`, then `11-wikiart-import.sql`. Do not import the down scripts during initialization.
-For the WikiArt import, keep the `import` folder outside `htdocs` and set the
-`WIKIART_SOURCE_DIR` environment variable to its `import/wikiart/sources`
-folder; by default the gallery looks for `../import/wikiart/sources` beside
-`artwork`.
+For the WikiArt import, copy the `import` folder into `htdocs` next to
+`artwork`; the gallery reads `../import/wikiart/sources` beside `artwork`.
+To keep the files elsewhere, set the optional `WIKIART_SOURCE_DIR`
+environment variable to that `import/wikiart/sources` folder.
 The starter SQL replaces the `art` database. Open
 http://localhost/artwork/. Configure `artwork/config.php` or its
 DB environment variables for the local server, and enable `.htaccess` so

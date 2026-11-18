@@ -26,6 +26,9 @@ MySQL directly on your computer is unnecessary for the Docker setup.
 
 ## Get the project
 
+On Windows, clone or unzip into a short folder such as `C:\team43`; some saved
+WikiArt file paths are long.
+
 ```sh
 git clone --branch project-task-02 https://github.com/Rafid-A/team43-art-gallery.git
 cd team43-art-gallery/Source
@@ -62,6 +65,10 @@ New visitors can create their own client account from the login page.
 Administrators manage accounts on the **Users** page.
 
 phpMyAdmin uses `testuser` / `mypassword`.
+
+A fresh install has no WikiArt artists until an administrator logs in as
+`user1`, opens **Admin** › **Import saved WikiArt pages**, and selects
+**Import**.
 
 These are shared classroom credentials for a local demonstration.
 

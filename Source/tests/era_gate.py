@@ -1,7 +1,6 @@
-"""Disposable integration test: python tests/era_gate.py [--baseline]. Requires Docker Compose.
+"""Disposable integration test: python tests/era_gate.py. Requires Docker Compose.
 
 Creates a uniquely named volume and project; never connects to an existing gallery.
---baseline demonstrates the pre-fix defect and is expected to pass only before the fix.
 """
 import http.cookiejar
 import json
@@ -10,7 +9,6 @@ from pathlib import Path
 import re
 import socket
 import subprocess
-import sys
 import tempfile
 import urllib.error
 import urllib.parse
@@ -94,10 +92,6 @@ def main():
             sql("UPDATE Eras SET EraName='Conflict' WHERE EraID=1;")
             before = rows()
             status, body, _ = req('artwork/object-add.php?type=eras')
-            if '--baseline' in sys.argv:
-                check('baseline defect: conflict enables form', status == 200 and 'name="EraName"' in body)
-                check('baseline check is read-only', rows() == before)
-                return
             check('conflicting name disables form', status == 200 and 'name="EraName"' not in body)
             check('add POST refused', req('artwork/object-add.php?type=eras', {'csrf': csrf, 'EraName': 'Should not add', 'EraYears': 'x'})[0] == 422)
             check('delete POST refused', req('artwork/object-delete.php?type=eras&id=2', {'csrf': csrf})[0] == 409)

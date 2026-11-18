@@ -57,6 +57,7 @@
 .landing-page .landing-strip-track figure { display: flex; flex-direction: column; margin: 0; }
 .landing-page .landing-strip-image { display: flex; align-items: center; justify-content: center; height: 220px; padding: 16px; background: var(--surface); }
 .landing-page .landing-strip-image img { display: block; width: auto; height: 100%; max-width: 280px; object-fit: contain; }
+.landing-page .landing-strip-image:focus-visible { outline-offset: -3px; }
 .landing-page .landing-strip-track figcaption { width: 0; min-width: 100%; padding-top: 10px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
 .landing-page .landing-strip-track figcaption span { display: block; color: var(--muted); font-size: 12px; }
 /* Held back until the page has loaded (motion.js / landing.js); display:none images are not fetched. */

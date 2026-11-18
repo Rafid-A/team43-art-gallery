@@ -8,7 +8,7 @@
     </div>
     <div class="landing-feature-notes" aria-live="polite" aria-atomic="true">
     <?php foreach ($featured as $name => $work): $name = (string)$name; ?>
-        <div data-feature-caption="<?= e($name) ?>" <?= $name !== $selected ? 'hidden' : '' ?>><h2><a href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?= e($work['Title']) ?></a></h2><p><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></p><small><?= e($work['CopyrightText'] ?: 'See image credits for attribution') ?></small></div>
+        <div data-feature-caption="<?= e($name) ?>" <?= $name !== $selected ? 'hidden' : '' ?>><h2><a href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?= e($work['Title']) ?></a></h2><p><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></p><small><?= image_credit($work['CopyrightText']) ?></small></div>
     <?php endforeach; ?>
     </div>
     <nav class="landing-art-choices" aria-label="Featured artworks">
@@ -17,6 +17,6 @@
     <?php endforeach; ?>
     </nav>
 <?php else: ?>
-    <div class="landing-art-wall landing-art-empty"><h2>There is always<br>more to discover.</h2><p>Featured artworks will appear here when they are available.</p><a href="art-main.php">Visit the collection</a></div>
+    <div class="landing-art-wall landing-art-empty"><h2>No featured artworks</h2><p>Featured artworks appear here when they are available.</p><a href="art-main.php">Visit the collection</a></div>
 <?php endif; ?>
 </div>

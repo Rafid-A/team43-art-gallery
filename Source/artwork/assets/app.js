@@ -118,14 +118,6 @@ document.querySelectorAll('[data-password-toggle]').forEach((button) => {
   });
 });
 
-document.querySelectorAll('form[data-confirm]').forEach((form) => {
-  form.addEventListener('submit', (event) => {
-    if (pendingForms.has(form) || !window.confirm(form.dataset.confirm)) {
-      event.preventDefault();
-    }
-  });
-});
-
 const pendingForms = new Map();
 
 document.addEventListener('submit', (event) => {
@@ -360,7 +352,7 @@ document.querySelectorAll('[data-suggestions]').forEach((input) => {
           list.append(option);
         });
         list.hidden = false; input.setAttribute('aria-expanded', 'true');
-        status.textContent = `${results.length} suggestions available. Use arrow keys to browse.`;
+        status.textContent = `${results.length} suggestion${results.length === 1 ? '' : 's'} available. Use arrow keys to browse.`;
       } catch (error) {
         if (current !== sequence || error.name === 'AbortError') return;
         status.textContent = error.message === 'login' ? 'Please log in again to use suggestions.' : 'Suggestions are unavailable. Please try again.';

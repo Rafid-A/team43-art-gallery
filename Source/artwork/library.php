@@ -320,7 +320,7 @@ function painting_field_errors($values, $artistIds, $galleryIds)
     if ($errors) return $errors;
     if ($values['title'] === '' || text_length($values['title']) > 255) $errors['title'] = 'Enter a title of 1 to 255 characters.';
     if (!in_array($values['artist_id'], $artistIds, true)) $errors['artist_id'] = 'Choose an artist.';
-    if (!in_array($values['gallery_id'], $galleryIds, true)) $errors['gallery_id'] = 'Choose a gallery.';
+    if ($values['gallery_id'] !== '' && !in_array($values['gallery_id'], $galleryIds, true)) $errors['gallery_id'] = 'Choose a gallery.';
     $year = filter_var($values['year'], FILTER_VALIDATE_INT);
     if ($year === false || $year < 1 || $year > 2100) $errors['year'] = 'Enter a year from 1 to 2100.';
     if ($values['medium'] === '' || text_length($values['medium']) > 255) $errors['medium'] = 'Enter a medium of 1 to 255 characters.';
@@ -335,7 +335,7 @@ function safe_link($url)
 
 function lock_parent($table, $key, $id, $label)
 {
-    if (!rows("SELECT $key FROM $table WHERE $key = ? FOR UPDATE", [$id])->fetch()) throw new DomainException('The selected ' . $label . ' no longer exists. Refresh and choose again; no assignment was added.');
+    if (!rows("SELECT $key FROM $table WHERE $key = ? FOR UPDATE", [$id])->fetch()) throw new DomainException('The selected ' . $label . ' no longer exists. Refresh and choose again; nothing was saved.');
 }
 
 function add_object($type, $values)
@@ -403,14 +403,14 @@ function delete_object($type, $id)
 function artwork_cards($paintings, array $context = [])
 {
     $context = artwork_context($context);
-    if (!$paintings) { echo '<p class="empty">No artworks here yet. Try another selection or add an artwork.</p>'; return; }
+    if (!$paintings) { echo '<p class="empty">No artworks here yet. Try another selection' . (is_admin() ? ' or add an artwork' : '') . '.</p>'; return; }
     echo '<div class="collection">';
     foreach ($paintings as $index => $painting) {
         $name = trim(($painting['FirstName'] ?? '') . ' ' . ($painting['LastName'] ?? '')) ?: 'Unknown artist';
         $detailUrl = 'painting.php?' . http_build_query(['id' => (int)$painting['PaintingID']] + $context);
         echo '<article class="art-card"><a class="art-image" href="' . e($detailUrl) . '">';
         artwork_image($painting, $index < 3);
-        echo '</a><div class="art-copy"><h2><a href="' . e($detailUrl) . '">' . e($painting['Title']) . '</a></h2><p class="artist-name">' . e($name) . '</p><p class="art-meta">' . e($painting['YearOfWork'] ?: 'Year unknown') . '</p></div></article>';
+        echo '</a><div class="art-copy"><h3><a href="' . e($detailUrl) . '">' . e($painting['Title']) . '</a></h3><p class="artist-name">' . e($name) . '</p><p class="art-meta">' . e($painting['YearOfWork'] ?: 'Year unknown') . '</p></div></article>';
     }
     echo '</div>';
 }
@@ -421,11 +421,13 @@ function artwork_image($painting, $eager = false, $usage = 'thumbnail')
     if (!$file) {
         echo '<span class="image-missing">Image unavailable<br><small>' . e($painting['Title']) . '</small></span>'; return;
     }
-    [$width, $height] = artwork_image_size($painting['ImageFileName']);
     $source = artwork_media_source($painting['ImageFileName'] ?? '');
+    [$width, $height] = $source ? [$source['width'], $source['height']] : artwork_image_size($painting['ImageFileName']);
     $responsive = '';
     if ($source && $usage !== 'viewer') {
-        $sizes = $usage === 'detail' ? '(max-width: 768px) 90vw, 48vw' : '(max-width: 480px) 90vw, (max-width: 768px) 45vw, 30vw';
+        // Each slot is capped at the original's width so small originals are not upscaled.
+        $sizes = ['detail' => "(max-width: 768px) min(90vw, {$width}px), min(48vw, {$width}px)", 'directory' => '112px'][$usage]
+            ?? "(max-width: 480px) min(90vw, {$width}px), (max-width: 768px) min(45vw, {$width}px), min(30vw, {$width}px)";
         $responsive = ' srcset="' . e(artwork_media_srcset($source)) . '" sizes="' . e($sizes) . '"';
     }
     echo '<img src="' . e($file['url']) . '"' . $responsive . ' alt="' . e($painting['Title']) . '" width="' . $width . '" height="' . $height . '" loading="' . ($eager ? 'eager' : 'lazy') . '" decoding="async">';
