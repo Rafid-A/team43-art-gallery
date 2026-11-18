@@ -60,7 +60,7 @@ function painting_neighbor_links(array $neighbors, $viewer = false)
 {
     echo '<nav class="painting-neighbors' . ($viewer ? ' viewer-neighbors' : '') . '" aria-label="' . ($viewer ? 'Viewer collection navigation' : 'Collection navigation') . '">';
     foreach (['prev' => 'Previous artwork', 'next' => 'Next artwork'] as $rel => $label) {
-        if (isset($neighbors[$rel])) echo '<a rel="' . $rel . '" href="' . e($neighbors[$rel]['url']) . '" aria-label="' . e($label . ': ' . $neighbors[$rel]['title']) . '">' . $label . '<span aria-hidden="true"> ' . ($rel === 'prev' ? '←' : '→') . '</span></a>';
+        if (isset($neighbors[$rel])) echo '<a rel="' . $rel . '" href="' . e($neighbors[$rel]['url']) . '" aria-label="' . e($label . ': ' . $neighbors[$rel]['title']) . '">' . ($rel === 'prev' ? '<span aria-hidden="true">← </span>' . $label : $label . '<span aria-hidden="true"> →</span>') . '</a>';
         else echo '<span class="neighbor-unavailable">' . $label . ' unavailable</span>';
     }
     echo '</nav>';
@@ -95,10 +95,10 @@ $neighbors = painting_neighbors($p, $context);
         <?php if ($hasImage): ?>
         <a class="viewer-trigger" data-artwork-viewer href="<?= e($imageFile['url']) ?>" aria-label="View larger image of <?= e($p['Title']) ?>">
             <?php artwork_image($p, true, 'detail'); ?>
-            <span class="viewer-hint" aria-hidden="true">View larger ↗</span>
+            <span class="viewer-hint" aria-hidden="true">View larger</span>
         </a>
         <?php else: artwork_image($p, true); endif; ?>
-        <figcaption><?= e($p['CopyrightText'] ?: 'See image credits for attribution') ?></figcaption>
+        <figcaption><?= image_credit($p['CopyrightText']) ?></figcaption>
     </figure>
     <div class="painting-copy">
         <?php if (saved_works_ready(db())): saved_work_form($id, saved_work_exists(current_user()['username'], $id), $p['Title'], 'painting.php?' . http_build_query(['id' => $id] + $context)); endif; ?>
@@ -128,7 +128,7 @@ $neighbors = painting_neighbors($p, $context);
         </div>
         <button class="viewer-close" type="button" data-viewer-close autofocus>Close <span aria-hidden="true">×</span></button>
     </div>
-    <div class="viewer-stage" tabindex="0" role="region" aria-label="Artwork image" aria-describedby="viewer-help"><?php artwork_image($p, true, 'viewer'); ?></div>
+    <div class="viewer-stage" tabindex="0" role="region" aria-label="Artwork image" aria-describedby="viewer-help"><?php artwork_image($p, false, 'viewer'); ?></div>
     <?php painting_neighbor_links($neighbors, true); ?>
     <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?> · <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>.</p>
     <p class="viewer-caption" id="viewer-help">+ / − zoom, 0 fits, arrow keys pan the focused image. Drag or pinch to explore; double-click toggles zoom. Escape closes.</p>

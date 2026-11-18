@@ -25,7 +25,7 @@ popd
 pause
 exit /b 0
 :failed
-echo Startup failed. See README.md for troubleshooting.
+echo Startup failed. Run "docker compose logs web db" in this folder to see why.
 popd
 pause
 exit /b 1

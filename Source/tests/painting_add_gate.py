@@ -58,7 +58,8 @@ def exercise(container, base):
               'medium': "Oil & 'ink' <canvas>", 'excerpt': 'Test & <description>'}
     before, held_parents = paintings(), parents()
     for field in ('artist_id', 'gallery_id'):
-        for value in ('', '999999999'):
+        # An empty gallery is allowed (stored as NULL); only an unknown one is rejected.
+        for value in (('', '999999999') if field == 'artist_id' else ('999999999',)):
             status, response, _ = browser.req('artwork/art-add.php', dict(values, **{field: value}))
             gate.check(field + ' ' + repr(value) + ' rejected without writing', status == 200 and
                        ('Choose an artist.' if field == 'artist_id' else 'Choose a gallery.') in response and paintings() == before)
@@ -86,6 +87,13 @@ def exercise(container, base):
     status, _, headers = browser.req('artwork/art-delete.php', {'csrf': values['csrf'], 'painting_id': rows[0][0]})
     gate.check('created painting can be deleted', status == 303 and is_collection(headers.get('Location')))
     gate.check('deletion preserves unrelated paintings and parents', paintings() == before and parents() == held_parents)
+    status, _, _ = browser.req('artwork/art-add.php', dict(values, gallery_id=''))
+    added = [row.split('\t')[0] for row in paintings().splitlines() if row not in before.splitlines()]
+    null_gallery = len(added) == 1 and sql('SELECT GalleryID IS NULL FROM Paintings WHERE PaintingID=' + str(int(added[0])) + ';').strip() == '1'
+    gate.check('empty gallery is stored as NULL', status == 303 and null_gallery)
+    for painting_id in added:
+        browser.req('artwork/art-delete.php', {'csrf': values['csrf'], 'painting_id': painting_id})
+    gate.check('NULL-gallery painting deleted cleanly', paintings() == before)
 
 
 gate.exercise = exercise

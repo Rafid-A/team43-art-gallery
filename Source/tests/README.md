@@ -58,6 +58,13 @@ cd tests
 npm test
 ```
 
-The suites add and remove only their own rows, then check that every gallery
-table's checksum is the same as before. When you're done, stop and remove
-only the `team43-browsing-test` project.
+The writing suites remove their own rows; two also compare table checksums.
+When you're done, stop and remove only the `team43-browsing-test` project:
+
+```sh
+cd ..
+docker compose -p team43-browsing-test -f compose.yaml -f tests/compose.browsing.yaml down -v
+```
+
+Never run `down -v` on the gallery project (`team43-gallery`); it deletes the
+gallery's database and uploads.

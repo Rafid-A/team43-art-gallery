@@ -39,7 +39,7 @@ page_start('Home', 'art-main.php', ['landing' => true, 'user' => $user]);
         <h1 id="landing-title">Art Gallery</h1>
         <p>Paintings from the collection, with their artists, galleries, eras, genres, and subjects.</p>
         <a class="button landing-primary" href="art-main.php">Explore the collection</a>
-        <?php if (!$user): ?><p class="landing-access">A first look is open to everyone.<br><a href="art-login.php">Log in</a> or <a href="register.php">create an account</a> for artwork details and the full collection.</p><?php else: ?><p class="landing-access">Welcome back, <?= e($user['forename']) ?>. <a href="<?= e(home_url($user)) ?>"><?= $user['role'] === 'admin' ? 'Open administration' : 'Continue exploring' ?></a></p><?php endif; ?>
+        <?php if (!$user): ?><p class="landing-access">Sign in to browse the full collection.<br><a href="art-login.php">Log in</a> or <a href="register.php">create an account</a>.</p><?php else: ?><p class="landing-access">Welcome back, <?= e($user['forename']) ?>. <a href="<?= e(home_url($user)) ?>"><?= $user['role'] === 'admin' ? 'Open administration' : 'Continue exploring' ?></a></p><?php endif; ?>
     </div>
     <?php require __DIR__ . '/landing-feature.php'; ?>
 </section>
@@ -64,7 +64,7 @@ page_start('Home', 'art-main.php', ['landing' => true, 'user' => $user]);
     <?php foreach ($highlights as $work): ?>
         <figure class="landing-highlight">
             <a class="landing-highlight-image" href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?php landing_image($work); ?></a>
-            <figcaption><h3><a href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?= e($work['Title']) ?></a></h3><p><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></p><small><?= e($work['CopyrightText'] ?: 'See image credits for attribution') ?></small></figcaption>
+            <figcaption><h3><a href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?= e($work['Title']) ?></a></h3><p><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></p><small><?= image_credit($work['CopyrightText']) ?></small></figcaption>
         </figure>
     <?php endforeach; ?>
     </div>
@@ -78,7 +78,7 @@ page_start('Home', 'art-main.php', ['landing' => true, 'user' => $user]);
         <?php if ($biography = landing_biography($spotlight)): ?><p><?= e($biography) ?></p><?php else: ?><p>No biography has been recorded for this artist.</p><?php endif; ?>
         <a class="landing-text-link" href="<?= e($artistUrl) ?>">View the artist and their works</a>
     </div>
-    <figure><a class="landing-artist-image" href="<?= e($artistUrl) ?>"><?php landing_image($spotlight); ?></a><figcaption><?= e($spotlight['Title']) ?><?php if ($spotlight['YearOfWork']): ?>, <?= e($spotlight['YearOfWork']) ?><?php endif; ?><br><small><?= e($spotlight['CopyrightText'] ?: 'See image credits for attribution') ?></small></figcaption></figure>
+    <figure><a class="landing-artist-image" href="<?= e($artistUrl) ?>"><?php landing_image($spotlight); ?></a><figcaption><?= e($spotlight['Title']) ?><?php if ($spotlight['YearOfWork']): ?>, <?= e($spotlight['YearOfWork']) ?><?php endif; ?><br><small><?= image_credit($spotlight['CopyrightText']) ?></small></figcaption></figure>
 </section>
 <?php endif; ?>
 

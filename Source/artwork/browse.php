@@ -27,11 +27,11 @@ page_start('Browse'); ?>
 <section class="discovery" aria-labelledby="discovery-heading"><div class="section-heading"><h2 id="discovery-heading">Artists, genres, and subjects</h2><p>A selection with several recorded artworks.</p></div><div class="discovery-grid">
 <?php foreach ($discoveries as $discovery): $painting = $images[(int)$discovery['PaintingID']] ?? null; ?>
 <a class="discovery-card" href="objects.php?<?= e(http_build_query(['type' => $discovery['type'], 'id' => (int)$discovery['DiscoveryID']])) ?>">
-<div class="discovery-image" aria-hidden="true"><?php if ($painting && artwork_image_file($painting['ImageFileName'])): artwork_image($painting); else: ?><span>Explore the artworks</span><?php endif; ?></div><div class="discovery-copy"><p><?= e(['artists' => 'Artist', 'genres' => 'Genre', 'subjects' => 'Subject'][$discovery['type']]) ?></p><h3><?= e(trim($discovery['DiscoveryName'])) ?></h3><span><?= (int)$discovery['WorkCount'] ?> <?= (int)$discovery['WorkCount'] === 1 ? 'artwork' : 'artworks' ?></span></div></a>
+<div class="discovery-image" aria-hidden="true"><?php if ($painting && artwork_image_file($painting['ImageFileName'])): artwork_image($painting); else: ?><span>No image</span><?php endif; ?></div><div class="discovery-copy"><p><?= e(['artists' => 'Artist', 'genres' => 'Genre', 'subjects' => 'Subject'][$discovery['type']]) ?></p><h3><?= e(trim($discovery['DiscoveryName'])) ?></h3><span><?= e(count_label($discovery['WorkCount'], 'artwork', 'artworks')) ?></span></div></a>
 <?php endforeach; ?></div></section>
 <?php endif; ?>
 <div class="section-heading"><h2>Browse the library</h2></div>
 <div class="browse-grid">
-<?php foreach (['genres' => ['Movements & genres', 'The ideas that bring artworks together.'], 'eras' => ['Through the eras', 'An introduction to art across time.'], 'subjects' => ['Art by subject', 'The world, as artists see it.']] as $type => [$title, $copy]): ?>
-<a class="browse-tile" href="objects.php?type=<?= e($type) ?>"><h3><?= e($title) ?></h3><p><?= e($copy) ?></p><span>Explore <span aria-hidden="true">↗</span></span></a><?php endforeach; ?></div>
+<?php foreach (['genres' => ['Genres', 'Artworks grouped by genre.'], 'eras' => ['Eras', 'Artworks grouped by era.'], 'subjects' => ['Subjects', 'Artworks grouped by subject.']] as $type => [$title, $copy]): ?>
+<a class="browse-tile" href="objects.php?type=<?= e($type) ?>"><h3><?= e($title) ?></h3><p><?= e($copy) ?></p><span>View</span></a><?php endforeach; ?></div>
 <?php page_end(); ?>

@@ -73,14 +73,15 @@ if (upload_request_too_large()) {
             $image = $upload ? ($stored = store_upload($upload)) : $v['image'];
             $pdo->beginTransaction();
             lock_parent('Artists', 'ArtistID', (int)$v['artist_id'], 'artist');
-            lock_parent('Galleries', 'GalleryID', (int)$v['gallery_id'], 'gallery');
+            $galleryId = $v['gallery_id'] === '' ? null : (int)$v['gallery_id'];
+            if ($galleryId !== null) lock_parent('Galleries', 'GalleryID', $galleryId, 'gallery');
             $stmt = $pdo->prepare('INSERT INTO Paintings
                 (ArtistID, GalleryID, ImageFileName, Title,
                  YearOfWork, Medium, Excerpt)
                 VALUES (?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $v['artist_id'],
-                $v['gallery_id'],
+                $galleryId,
                 $image,
                 $v['title'],
                 $year,
@@ -189,11 +190,11 @@ page_start('Add artwork', $returnUrl);
 
         <div>
             <label for="gallery_id">Gallery</label>
-            <select id="gallery_id" name="gallery_id" required
+            <select id="gallery_id" name="gallery_id"
                    <?= isset($errors['gallery_id'])
                     ? 'aria-invalid="true" aria-describedby="gallery_id-error"'
                     : '' ?>>
-                <option value="">Choose a gallery</option>
+                <option value="">No gallery recorded</option>
                 <?php foreach ($galleries as $g): ?>
                     <option value="<?= e($g['GalleryID']) ?>"
                             <?= $v['gallery_id'] == $g['GalleryID']

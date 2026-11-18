@@ -118,10 +118,18 @@
 
   const initialize = () => {
     // Visible by default. Cached, failed, and reduced-motion images never wait on JS.
+    // A loading image stays hidden until it finishes, so a slow one cannot paint and then restart at opacity 0.
     document.querySelectorAll('.art-image img, .painting-image img, .login-intro img, #image-preview img').forEach(image => {
-      image.addEventListener('load', () => {
-        if (image.naturalWidth > 0 && !reducedMotion.matches) enter(image, [{ opacity: 0 }, { opacity: 1 }], 180);
-      });
+      if (image.complete || reducedMotion.matches || inputMode === 'keyboard' || typeof image.animate !== 'function') return;
+      // Already on screen means its frame may have painted before this ran; hiding it now would flash.
+      if (image.getBoundingClientRect().top < window.innerHeight) return;
+      image.style.opacity = '0';
+      const show = () => {
+        image.style.opacity = '';
+        if (image.naturalWidth > 0) enter(image, [{ opacity: 0 }, { opacity: 1 }], 180);
+      };
+      image.addEventListener('load', show, { once: true });
+      image.addEventListener('error', show, { once: true });
     });
     document.querySelectorAll('.notice.success').forEach(notice => {
       enter(notice, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], 180);
@@ -160,6 +168,7 @@
       image.style.width = `${image.naturalWidth}px`;
       image.style.height = `${image.naturalHeight}px`;
       image.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
+      image.style.visibility = 'visible';
       stage.classList.toggle('is-zoomed', image.naturalWidth * scale > stage.clientWidth + 1 || image.naturalHeight * scale > stage.clientHeight + 1);
       // Expose current state for assistive feedback, without announcing every pan.
       const text = `${Math.round(scale * 100)}%${near(scale, fitScale) ? ' · Fit' : ''}${near(scale, 1) ? ' · Actual pixels' : ''}`;
@@ -262,7 +271,7 @@
     };
     image?.addEventListener('error', imageFailed);
     [zoomIn, zoomOut, fitButton, actualButton].forEach(button => { button.disabled = true; });
-    if (image?.complete && image.naturalWidth === 0) imageFailed();
+    if (image?.complete && image.currentSrc && image.naturalWidth === 0) imageFailed();
     if (typeof ResizeObserver === 'function') new ResizeObserver(() => {
       if (!viewer.open || !ready()) return;
       const wasFit = near(scale, fitScale);
