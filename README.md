@@ -15,7 +15,91 @@ Administrators can import three artists and fifteen paintings extracted offline
 from saved WikiArt pages (issue #16); see "Offline WikiArt import" in
 `Source/README.md`.
 
-## Requirements
+## Install with XAMPP (Windows)
+
+These steps were tested with XAMPP 8.2.12 (Apache 2.4.58, PHP 8.2.12 and
+MariaDB 10.4.32) on Windows.
+
+1. Install XAMPP 8.2 for Windows from <https://www.apachefriends.org> into
+   `C:\xampp`.
+2. Turn on PHP's GD extension, which image uploads need: open
+   `C:\xampp\php\php.ini`, find the line `;extension=gd`, delete the
+   semicolon and save the file.
+3. Download this repository (**Code** › **Download ZIP** on GitHub) and unzip
+   it into a short folder such as `C:\team43`; some saved page file names are
+   long. Copy `Source\artwork` and `Source\import` into `C:\xampp\htdocs`, so
+   that you have `C:\xampp\htdocs\artwork` and `C:\xampp\htdocs\import`.
+4. Open the XAMPP Control Panel and select **Start** for Apache and MySQL.
+5. Create the database by importing the SQL files in
+   `C:\xampp\htdocs\artwork\sql` in this order: `art-small.sql`,
+   `02-art-users.sql`, `03-samples.sql`, `04-xampp-grants.sql`,
+   `05-subject-identities.sql`, `06-era-identities.sql`,
+   `07-subject-names.sql`, `08-account-roles.sql`, `09-editor-grants.sql`,
+   `10-saved-works.sql`, `11-wikiart-import.sql`.
+
+   Use phpMyAdmin (<http://localhost/phpmyadmin/>, **Import** tab, one file
+   at a time), or run these lines in Command Prompt (not PowerShell):
+
+   ```bat
+   cd C:\xampp\htdocs\artwork\sql
+   C:\xampp\mysql\bin\mysql -u root < art-small.sql
+   C:\xampp\mysql\bin\mysql -u root < 02-art-users.sql
+   C:\xampp\mysql\bin\mysql -u root < 03-samples.sql
+   C:\xampp\mysql\bin\mysql -u root < 04-xampp-grants.sql
+   C:\xampp\mysql\bin\mysql -u root < 05-subject-identities.sql
+   C:\xampp\mysql\bin\mysql -u root < 06-era-identities.sql
+   C:\xampp\mysql\bin\mysql -u root < 07-subject-names.sql
+   C:\xampp\mysql\bin\mysql -u root < 08-account-roles.sql
+   C:\xampp\mysql\bin\mysql -u root < 09-editor-grants.sql
+   C:\xampp\mysql\bin\mysql -u root < 10-saved-works.sql
+   C:\xampp\mysql\bin\mysql -u root < 11-wikiart-import.sql
+   ```
+
+   `art-small.sql` creates the `art` database and replaces an existing one.
+   `04-xampp-grants.sql` creates the database user the site connects with.
+   Do not import the files ending in `-down.sql`.
+6. Open <http://localhost/artwork/>. The Home page appears.
+7. Log in with one of the [gallery accounts](#gallery-accounts), for example
+   `user1` / `pass1` (administrator), or register a new client account.
+8. To add the imported artists, log in as `user1`, open **Admin** ›
+   **Import saved WikiArt pages**, check the preview and select
+   **Import 18 records**. This adds 2 artists and 15 artworks and links the
+   existing Edouard Manet. Importing again adds nothing.
+
+### Stop and restart
+
+In the XAMPP Control Panel, select **Stop** for Apache and MySQL. The database
+and uploaded images stay in place; select **Start** for both to run the site
+again.
+
+### Database settings
+
+The site connects to the `art` database on `127.0.0.1:3306` as `testuser` /
+`mypassword`, the user that `04-xampp-grants.sql` creates. To use other
+settings, edit `artwork/config.php` or set the `DB_HOST`, `DB_PORT`,
+`DB_NAME`, `DB_USER` and `DB_PASS` environment variables. To upgrade an
+existing database instead of starting fresh, see "Upgrade an existing
+database" in [Source/README.md](Source/README.md#upgrade-an-existing-database).
+
+## Gallery accounts
+
+| Username | Password | Role |
+| --- | --- | --- |
+| user1 | pass1 | Administrator |
+| user2 | pass2 | Client |
+| user3 | pass3 | Client |
+| user4 | pass4 | Client |
+
+New visitors can create their own client account from the login page.
+Administrators manage accounts on the **Users** page.
+
+These are shared classroom credentials for a local demonstration.
+
+## Run with Docker
+
+Docker is an alternative to XAMPP.
+
+### Requirements
 
 - Git
 - Docker Desktop, or Docker Engine with Docker Compose v2.20 or newer
@@ -24,7 +108,7 @@ from saved WikiArt pages (issue #16); see "Offline WikiArt import" in
 Docker provides PHP, Apache, MariaDB, and phpMyAdmin. Installing PHP or
 MySQL directly on your computer is unnecessary for the Docker setup.
 
-## Get the project
+### Get the project
 
 On Windows, clone or unzip into a short folder such as `C:\team43`; some saved
 WikiArt file paths are long.
@@ -36,7 +120,7 @@ cd team43-art-gallery/Source
 
 Run all following Docker commands from the `Source` directory.
 
-## Start the project
+### Start the project
 
 Start Docker Desktop or Docker Engine, then run:
 
@@ -52,17 +136,7 @@ The first build requires internet access.
 | phpMyAdmin | http://localhost:8085/ |
 | Course examples | http://localhost:8084/artwork/examples/ |
 
-### Gallery accounts
-
-| Username | Password | Role |
-| --- | --- | --- |
-| user1 | pass1 | Administrator |
-| user2 | pass2 | Client |
-| user3 | pass3 | Client |
-| user4 | pass4 | Client |
-
-New visitors can create their own client account from the login page.
-Administrators manage accounts on the **Users** page.
+Log in with the [gallery accounts](#gallery-accounts) above.
 
 phpMyAdmin uses `testuser` / `mypassword`.
 
@@ -70,9 +144,7 @@ A fresh install has no WikiArt artists until an administrator logs in as
 `user1`, opens **Admin** › **Import saved WikiArt pages**, and selects
 **Import**.
 
-These are shared classroom credentials for a local demonstration.
-
-## Change the ports
+### Change the ports
 
 If ports 8084 or 8085 are occupied, copy `.env.example` to `.env` inside
 `Source` and select available ports. For example:
@@ -90,7 +162,7 @@ docker compose up -d
 
 The gallery and phpMyAdmin will then use the selected ports.
 
-## Stop the project
+### Stop the project
 
 ```sh
 docker compose down
@@ -101,7 +173,7 @@ you intend to delete that database.
 
 Database initialization runs when a new database volume is created.
 
-## Existing installations and data
+### Existing installations and data
 
 The default Compose project `team43-gallery` uses its own
 `team43-gallery_gallery-db` volume, separate from the older Task04C
@@ -171,8 +243,8 @@ and the rest of the gallery keeps working.
 
 ## Additional setup information
 
-See [Source/README.md](Source/README.md) for platform launchers and
-manual XAMPP setup.
+See [Source/README.md](Source/README.md) for platform launchers and more
+setup details.
 
 Artwork attribution is recorded in
 [image credits](Source/artwork/images/SOURCES.txt).
