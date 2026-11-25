@@ -20,7 +20,7 @@ $record = rows(object_select($type) . ' WHERE o.' . $object['key'] . '=?', [$id]
 if (!$record) http_response_code(404);
 page_start('Confirm removal', browsing_origin_url($context) ?: 'art-main.php');
 ?>
-<section class="confirmation"><p class="eyebrow">Library management</p><h1><?= $record ? 'Remove this ' . e($object['one']) . '?' : 'Record not found' ?></h1>
+<section class="confirmation"><h1><?= $record ? 'Remove this ' . e($object['one']) . '?' : 'Record not found' ?></h1>
 <?php if ($record): ?><h2><?= e(object_title($type, $record)) ?></h2><p>Record #<?= $id ?>. <?= !empty($object['relationship']) ? 'Only this assignment will be removed. Both parent records and other assignments are preserved.' : 'Deletion is blocked while artworks or assignments reference this record.' ?></p>
 <form method="post" action="object-delete.php?<?= e(http_build_query(['id' => $id] + $actionContext)) ?>"><input type="hidden" name="csrf" value="<?= e(token()) ?>"><button class="danger">Confirm removal</button> <a href="<?= e($paintingId ? $paintingUrl : object_url($type, $record, (bool)$context['manage'], $context)) ?>">Keep record</a></form>
 <?php else: ?><a href="<?= e(directory_url($context)) ?>">Return to directory</a><?php endif; ?></section><?php page_end(); ?>

@@ -7,7 +7,7 @@ $savedReady = saved_works_ready(db());
 $saved = $savedReady ? saved_works($user['username']) : [];
 page_start('Your profile');
 ?>
-<section class="page-heading"><div><p class="eyebrow">Account</p><h1>Your profile</h1><p><?= $user['role'] === 'admin' ? 'You are signed in as an administrator. You can manage the library and accounts.' : 'You are signed in with a client account. You can browse the whole collection and save artworks to your own collection.' ?></p></div><?php if ($user['role'] === 'admin'): ?><a class="button" href="admin.php">Administration</a><?php endif; ?></section>
+<section class="page-heading"><div><h1>Your profile</h1><p><?= $user['role'] === 'admin' ? 'You are signed in as an administrator. You can manage the library and accounts.' : 'You are signed in with a client account. You can browse the whole collection and save artworks to your own collection.' ?></p></div><?php if ($user['role'] === 'admin'): ?><a class="button" href="admin.php">Administration</a><?php endif; ?></section>
 <?php notices(); ?>
 <dl class="metadata"><div><dt>Name</dt><dd><?= e($user['forename'] . ' ' . $user['surname']) ?></dd></div><div><dt>User ID</dt><dd><?= e($user['username']) ?></dd></div><div><dt>Account type</dt><dd><?= e(role_label($user['role'])) ?></dd></div><?php if ($savedReady): ?><div><dt>Saved artworks</dt><dd><?= count($saved) ?></dd></div><?php endif; ?></dl>
 <section class="my-collection" id="my-collection" aria-labelledby="my-collection-title" tabindex="-1">

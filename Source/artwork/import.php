@@ -56,7 +56,7 @@ $statusLabel = ['new' => 'Will be added', 'matches' => 'Already in the library: 
 page_start('Import saved WikiArt pages');
 ?>
 <div class="breadcrumbs"><a href="admin.php">Administration</a><span>/</span>Import</div>
-<section class="page-heading"><div><p class="eyebrow">Offline import</p><h1>Import saved WikiArt pages</h1><p>Adds the artists and artworks extracted from WikiArt pages saved with the gallery. Only the saved files are read: nothing is downloaded and no script from those pages runs.</p></div></section>
+<section class="page-heading"><div><h1>Import saved WikiArt pages</h1><p>Adds the artists and artworks extracted from WikiArt pages saved with the gallery. Only the saved files are read: nothing is downloaded and no script from those pages runs.</p></div></section>
 <?php notices(); ?>
 <?php if ($errors): ?><div class="notice error" role="alert"><ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
 <?php if (!$ready): ?><section class="notice error"><h2>Database upgrade required</h2><p>The import records each saved source in <code>art_import_sources</code>, added by upgrade <code>11-wikiart-import.sql</code>. Ask the person running this gallery to follow the existing-database upgrade steps in the runtime guide. The rest of the gallery works without it.</p></section><?php endif; ?>
@@ -77,7 +77,7 @@ page_start('Import saved WikiArt pages');
 <?php endif; ?>
 <?php foreach ($plan ?: array_map(fn($a) => ['artist' => $a, 'status' => null, 'id' => null, 'paintings' => array_map(fn($p) => ['painting' => $p, 'status' => null, 'id' => null, 'gallery_id' => null, 'genre_id' => null], $a['paintings'])], $extraction['artists']) as $entry): $a = $entry['artist']; ?>
 <section class="import-artist">
-    <div class="section-heading"><h2><?php if ($entry['id']): ?><a href="objects.php?<?= e(http_build_query(['type' => 'artists', 'id' => $entry['id']])) ?>"><?= e($a['name']) ?></a><?php else: ?><?= e($a['name']) ?><?php endif; ?></h2><?php if ($entry['status']): ?><span class="import-status <?= e($entry['status']) ?>"><?= e($statusLabel[$entry['status']]) ?><?= $entry['id'] ? ' · #' . (int)$entry['id'] : '' ?></span><?php endif; ?></div>
+    <div class="section-heading"><h2><?php if ($entry['id']): ?><a href="objects.php?<?= e(http_build_query(['type' => 'artists', 'id' => $entry['id']])) ?>"><?= e($a['name']) ?></a><?php else: ?><?= e($a['name']) ?><?php endif; ?></h2><?php if ($entry['status']): ?><span class="import-status <?= e($entry['status']) ?>"><?= e($statusLabel[$entry['status']]) ?><?= $entry['id'] ? ' (#' . (int)$entry['id'] . ')' : '' ?></span><?php endif; ?></div>
     <dl class="metadata">
         <div><dt>Born</dt><dd><?= e(($a['birth']['text'] ?? 'Not found') . (!empty($a['birth']['place']) ? ', ' . $a['birth']['place'] : '')) ?></dd></div>
         <div><dt>Died</dt><dd><?= e(($a['death']['text'] ?? 'Not recorded') . (!empty($a['death']['place']) ? ', ' . $a['death']['place'] : '')) ?></dd></div>
@@ -88,9 +88,9 @@ page_start('Import saved WikiArt pages');
     <?php foreach ($entry['paintings'] as $row): $p = $row['painting']; ?>
         <li>
             <div><h3><?php if ($row['id']): ?><a href="painting.php?<?= e(http_build_query(['id' => $row['id']])) ?>"><?= e($p['title']) ?></a><?php else: ?><?= e($p['title']) ?><?php endif; ?></h3>
-            <p><?= e(implode(' · ', array_filter([$p['year'], $p['medium'], $p['height_cm'] && $p['width_cm'] ? $p['height_cm'] . ' × ' . $p['width_cm'] . ' cm' : null, $p['styles'][0] ?? null]))) ?></p>
+            <p><?= e(implode(', ', array_filter([$p['year'], $p['medium'], $p['height_cm'] && $p['width_cm'] ? $p['height_cm'] . ' × ' . $p['width_cm'] . ' cm' : null, $p['styles'][0] ?? null]))) ?></p>
             <p class="hint">Gallery: <?= e($p['gallery_name'] ? $p['gallery_name'] . ($row['gallery_id'] ? ' (#' . $row['gallery_id'] . ')' : ' (not in the library, left blank)') : 'not recorded') ?>. Source <code><?= e($p['page']) ?></code>, image <code><?= e($p['image']['file'] ?? '') ?></code>.</p></div>
-            <?php if ($row['status']): ?><span class="import-status <?= e($row['status']) ?>"><?= e($statusLabel[$row['status']]) ?><?= $row['id'] ? ' · #' . (int)$row['id'] : '' ?></span><?php endif; ?>
+            <?php if ($row['status']): ?><span class="import-status <?= e($row['status']) ?>"><?= e($statusLabel[$row['status']]) ?><?= $row['id'] ? ' (#' . (int)$row['id'] . ')' : '' ?></span><?php endif; ?>
         </li>
     <?php endforeach; ?>
     </ul>

@@ -60,7 +60,7 @@ function painting_neighbor_links(array $neighbors, $viewer = false)
 {
     echo '<nav class="painting-neighbors' . ($viewer ? ' viewer-neighbors' : '') . '" aria-label="' . ($viewer ? 'Viewer collection navigation' : 'Collection navigation') . '">';
     foreach (['prev' => 'Previous artwork', 'next' => 'Next artwork'] as $rel => $label) {
-        if (isset($neighbors[$rel])) echo '<a rel="' . $rel . '" href="' . e($neighbors[$rel]['url']) . '" aria-label="' . e($label . ': ' . $neighbors[$rel]['title']) . '">' . ($rel === 'prev' ? '<span aria-hidden="true">← </span>' . $label : $label . '<span aria-hidden="true"> →</span>') . '</a>';
+        if (isset($neighbors[$rel])) echo '<a rel="' . $rel . '" href="' . e($neighbors[$rel]['url']) . '" aria-label="' . e($label . ': ' . $neighbors[$rel]['title']) . '">' . $label . '</a>';
         else echo '<span class="neighbor-unavailable">' . $label . ' unavailable</span>';
     }
     echo '</nav>';
@@ -130,7 +130,7 @@ $neighbors = painting_neighbors($p, $context);
     </div>
     <div class="viewer-stage" tabindex="0" role="region" aria-label="Artwork image" aria-describedby="viewer-help"><?php artwork_image($p, false, 'viewer'); ?></div>
     <?php painting_neighbor_links($neighbors, true); ?>
-    <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?> · <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>.</p>
+    <p class="viewer-caption" id="viewer-caption"><?= e(trim($p['FirstName'] . ' ' . $p['LastName']) ?: 'Artist not recorded') ?>, <?= e($p['YearOfWork'] ?: 'Year not recorded') ?>.</p>
     <p class="viewer-caption" id="viewer-help">+ / − zoom, 0 fits, arrow keys pan the focused image. Drag or pinch to explore; double-click toggles zoom. Escape closes.</p>
 </dialog>
 <?php endif; ?>

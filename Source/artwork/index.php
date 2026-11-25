@@ -50,7 +50,7 @@ page_start('Home', 'art-main.php', ['landing' => true, 'user' => $user]);
     <div class="landing-strip-window">
         <ul class="landing-strip-track" role="list">
         <?php foreach ($strip as $work): ?>
-            <li><figure><a class="landing-strip-image" href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?php landing_image($work, false, false, '240px'); ?></a><figcaption><?= e($work['Title']) ?><span><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></span></figcaption></figure></li>
+            <li><figure><a class="landing-strip-image" href="painting.php?id=<?= (int)$work['PaintingID'] ?>"><?php landing_image($work, false, false, '360px'); ?></a><figcaption><?= e($work['Title']) ?><span><?= e(landing_artist_name($work)) ?><?php if ($work['YearOfWork']): ?>, <?= e($work['YearOfWork']) ?><?php endif; ?></span></figcaption></figure></li>
         <?php endforeach; ?>
         </ul>
     </div>
@@ -73,7 +73,7 @@ page_start('Home', 'art-main.php', ['landing' => true, 'user' => $user]);
 
 <?php if ($spotlight): $artistUrl = 'objects.php?' . http_build_query(['type' => 'artists', 'id' => (int)$spotlight['ArtistID']]); ?>
 <section class="landing-artist" aria-labelledby="landing-artist-title">
-    <div class="landing-artist-copy"><p class="landing-kicker">Featured artist</p><h2 id="landing-artist-title"><?= e(landing_artist_name($spotlight)) ?></h2>
+    <div class="landing-artist-copy"><h2 id="landing-artist-title"><?= e(landing_artist_name($spotlight)) ?></h2>
         <?php if ($spotlight['YearOfBirth'] || $spotlight['YearOfDeath'] || $spotlight['Nationality']): ?><p class="landing-artist-facts"><?php if ($spotlight['YearOfBirth'] && $spotlight['YearOfDeath']): ?><?= e($spotlight['YearOfBirth']) ?>–<?= e($spotlight['YearOfDeath']) ?><?php elseif ($spotlight['YearOfBirth']): ?>Born <?= e($spotlight['YearOfBirth']) ?><?php elseif ($spotlight['YearOfDeath']): ?>Died <?= e($spotlight['YearOfDeath']) ?><?php endif; ?><?php if ($spotlight['Nationality']): ?> <span><?= e($spotlight['Nationality']) ?></span><?php endif; ?></p><?php endif; ?>
         <?php if ($biography = landing_biography($spotlight)): ?><p><?= e($biography) ?></p><?php else: ?><p>No biography has been recorded for this artist.</p><?php endif; ?>
         <a class="landing-text-link" href="<?= e($artistUrl) ?>">View the artist and their works</a>

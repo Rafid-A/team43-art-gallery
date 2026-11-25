@@ -132,7 +132,7 @@ function require_admin()
 
     http_response_code(403);
     page_start('Administrators only');
-    echo '<section class="confirmation"><p class="eyebrow">Access</p><h1>Administrators only</h1><p>Your client account can browse the collection and view your profile. Changes to the library and to accounts need an administrator.</p><a href="art-main.php">Return to artworks</a></section>';
+    echo '<section class="confirmation"><h1>Administrators only</h1><p>Your client account can browse the collection and view your profile. Changes to the library and to accounts need an administrator.</p><a href="art-main.php">Return to artworks</a></section>';
     page_end();
     exit;
 }
@@ -247,15 +247,15 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
     <title><?= e($title) ?> | Art Gallery</title>
     <link rel="icon" type="image/jpeg" href="images/art/works/square-medium/019130.jpg">
     <script src="assets/theme.js?v=1"></script>
-    <link rel="stylesheet" href="assets/style.css?v=19">
-    <link rel="stylesheet" href="assets/forms.css?v=4">
-    <link rel="stylesheet" href="assets/motion.css?v=9">
+    <link rel="stylesheet" href="assets/style.css?v=22">
+    <link rel="stylesheet" href="assets/forms.css?v=6">
+    <link rel="stylesheet" href="assets/motion.css?v=10">
     <link rel="stylesheet" href="assets/navigation.css?v=2" media="(prefers-reduced-motion: no-preference)" id="browse-motion" disabled>
-    <script src="assets/motion.js?v=7"></script>
+    <script src="assets/motion.js?v=8"></script>
     <script src="assets/app.js?v=9" defer></script>
+    <meta name="description" content="A library of paintings with their artists, galleries, eras, genres and subjects.">
     <?php if ($landing): ?>
-    <meta name="description" content="Art Gallery: a library of paintings, artists, genres and subjects.">
-    <link rel="stylesheet" href="assets/landing.css?v=10">
+    <link rel="stylesheet" href="assets/landing.css?v=12">
     <script src="assets/landing.js?v=4" defer></script>
     <?php endif; ?>
 </head>
@@ -275,7 +275,7 @@ function page_start($title, $artworksUrl = 'art-main.php', array $options = [])
         <nav id="main-navigation" aria-label="Main navigation">
             <span class="account">
                 <span class="account-name"><?= e($u['forename'] . ' ' . $u['surname']) ?></span>
-                <small>(<?= e($u['username']) ?> · <?= e(role_label($u['role'])) ?>)</small>
+                <small>(<?= e($u['username']) ?>, <?= e(role_label($u['role'])) ?>)</small>
             </span>
             <?php foreach ($links as $href => $label): ?>
             <a href="<?= e($href) ?>" <?= $label === $section ? 'aria-current="page"' : '' ?>><?= e($label) ?></a>

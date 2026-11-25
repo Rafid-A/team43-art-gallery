@@ -171,7 +171,7 @@
       image.style.visibility = 'visible';
       stage.classList.toggle('is-zoomed', image.naturalWidth * scale > stage.clientWidth + 1 || image.naturalHeight * scale > stage.clientHeight + 1);
       // Expose current state for assistive feedback, without announcing every pan.
-      const text = `${Math.round(scale * 100)}%${near(scale, fitScale) ? ' · Fit' : ''}${near(scale, 1) ? ' · Actual pixels' : ''}`;
+      const text = `${Math.round(scale * 100)}%${near(scale, fitScale) ? ', fit' : ''}${near(scale, 1) ? ', actual pixels' : ''}`;
       if (status.textContent !== text) status.textContent = text;
       zoomIn.disabled = scale >= maxScale - 0.001;
       zoomOut.disabled = scale <= minScale + 0.001;

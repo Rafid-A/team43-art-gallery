@@ -21,7 +21,7 @@ if ($ids) {
     foreach (rows('SELECT * FROM Paintings WHERE PaintingID IN (' . implode(', ', array_fill(0, count($ids), '?')) . ')', $ids)->fetchAll() as $painting) $images[(int)$painting['PaintingID']] = $painting;
 }
 page_start('Browse'); ?>
-<section class="page-heading"><div><p class="eyebrow">Browse</p><h1>Browse the collection</h1><p>Find artworks by movement, era, genre, and subject.</p></div></section>
+<section class="page-heading"><div><h1>Browse the collection</h1><p>Find artworks by movement, era, genre, and subject.</p></div></section>
 <?php visitor_theme_routes($themes); ?>
 <?php if ($discoveries): ?>
 <section class="discovery" aria-labelledby="discovery-heading"><div class="section-heading"><h2 id="discovery-heading">Artists, genres, and subjects</h2><p>A selection with several recorded artworks.</p></div><div class="discovery-grid">

@@ -44,7 +44,7 @@ $artistYears = static function (array $artist) {
 page_start($title, $originUrl ?: 'art-main.php');
 ?>
 <div class="breadcrumbs"><?php if ($originUrl): ?><a href="<?= e($originUrl) ?>"><?= $context['origin'] === 'painting' ? 'Artwork' : 'Artworks' ?></a><span>/</span><?php endif; ?><?php if ($directoryUrl): ?><a href="<?= e($directoryUrl) ?>"><?= e(library_objects()[$context['directory_type']]['label']) ?></a><span>/</span><?php endif; ?><a href="<?= $manage ? 'manage.php' : 'browse.php' ?>"><?= $manage ? 'Manage library' : 'Browse' ?></a><span>/</span><a href="objects.php?<?= e(http_build_query($context)) ?>"><?= e($object['label']) ?></a></div>
-<section class="page-heading"><div><p class="eyebrow"><?= $manage ? 'Library management' : 'Browse' ?></p><h1><?= e($title) ?></h1>
+<section class="page-heading"><div><h1><?= e($title) ?></h1>
 <?php if (!$selected): ?><p><?= !empty($object['relationship']) ? 'Links between artworks and their classifications.' : e($object['label']) . ' in the collection.' ?></p><?php endif; ?></div>
 <?php if ($admin && !isset($object['gate'])): ?><a class="button primary" href="object-add.php?<?= e(http_build_query($context)) ?>"><?= !empty($object['relationship']) ? 'Assign ' . ($type === 'painting-subjects' ? 'subject' : 'genre') : 'Add ' . e($object['one']) ?></a><?php endif; ?></section>
 <?php notices(); if (isset($object['gate'])): ?><p class="notice" role="status"><?= e($object['gate']) ?></p><?php endif; ?>
@@ -55,7 +55,7 @@ page_start($title, $originUrl ?: 'art-main.php');
 <?php if ($type === 'artists'): ?>
 <div class="artist-profile-intro">
 <?php if ($artistFeature): ?><figure class="artist-profile-work"><a href="painting.php?<?= e(http_build_query(['id' => (int)$artistFeature['PaintingID']] + $relatedContext)) ?>"><?php artwork_image($artistFeature, true); ?></a><figcaption><?= e($artistFeature['Title']) ?><?php if ($artistFeature['YearOfWork']): ?>, <?= e($artistFeature['YearOfWork']) ?><?php endif; ?></figcaption></figure><?php endif; ?>
-<div class="artist-story"><p class="artist-life"><?= e($artistYears($record)) ?><?php if ($record['Nationality']): ?> · <?= e($record['Nationality']) ?><?php endif; ?></p><h2>About the artist</h2>
+<div class="artist-story"><p class="artist-life"><?= e($artistYears($record)) ?><?php if ($record['Nationality']): ?>, <?= e($record['Nationality']) ?><?php endif; ?></p><h2>About the artist</h2>
 <?php if (!empty($record['Details'])): ?><div class="prose"><p><?= nl2br(e(strip_tags($record['Details']))) ?></p></div><?php else: ?><p class="hint">A biography has not been recorded for this artist.</p><?php endif; ?>
 <a href="#artist-artworks"><?= e(count_label(count($works), 'artwork', 'artworks')) ?> in the collection</a></div></div>
 <details class="artist-facts"><summary>Artist details &amp; references</summary>
@@ -67,7 +67,7 @@ page_start($title, $originUrl ?: 'art-main.php');
 <?php if ($field === 'PaintingID'): if ($record['Title'] !== null): ?><a href="painting.php?<?= e(http_build_query(['id' => (int)$record[$field]] + $relatedContext)) ?>"><?= e($record['Title']) ?> · #<?= (int)$record[$field] ?></a><?php else: ?><span>Missing artwork #<?= e($record[$field]) ?></span><?php endif; ?>
 <?php elseif ($field === 'GenreID'): ?><a href="objects.php?<?= e(http_build_query(['type' => 'genres', 'id' => (int)$record[$field]] + $relatedOrigin)) ?>"><?= e($record['GenreName'] ?? 'Missing genre') ?> · #<?= (int)$record[$field] ?></a>
 <?php elseif ($field === 'SubjectID'): if ($record['SubjectName'] !== null): ?><a href="objects.php?<?= e(http_build_query(['type' => 'subjects', 'id' => (int)$record[$field]] + $relatedOrigin)) ?>"><?= e($record['SubjectName']) ?> · #<?= (int)$record[$field] ?></a><?php else: ?><span>Missing subject #<?= e($record[$field]) ?></span><?php endif; ?>
-<?php elseif (($definition[2] ?? '') === 'url' && safe_link($record[$field] ?? '')): ?><a href="<?= e($record[$field]) ?>" rel="noreferrer">Visit reference ↗</a>
+<?php elseif (($definition[2] ?? '') === 'url' && safe_link($record[$field] ?? '')): ?><a href="<?= e($record[$field]) ?>" rel="noreferrer">Visit reference</a>
 <?php else: ?><?= e($record[$field] ?? 'Not recorded') ?><?php endif; ?></dd></div>
 <?php endforeach; ?></dl>
 <?php if ($type === 'artists'): ?></details><?php endif; ?>
@@ -96,7 +96,7 @@ if ($type === 'artists' && $records) {
 <?php foreach (browsing_origin($context) + directory_return_context($context) as $key => $value): ?><input type="hidden" name="<?= e($key) ?>" value="<?= e($value) ?>"><?php endforeach; ?>
 <div class="filter-field"><label for="directory-sort">Sort by</label><select id="directory-sort" name="sort"><?php foreach (directory_sorts($type) as $key => $option): ?><option value="<?= e($key) ?>" <?= $context['sort'] === $key ? 'selected' : '' ?>><?= e($option[0]) ?></option><?php endforeach; ?></select></div>
 <div class="filter-field"><label for="directory-dir">Direction</label><select id="directory-dir" name="dir"><option value="asc" <?= $context['dir'] === 'asc' ? 'selected' : '' ?>>Ascending</option><option value="desc" <?= $context['dir'] === 'desc' ? 'selected' : '' ?>>Descending</option></select></div><button type="submit">Apply</button></form>
-<p class="result-count"><?= e(count_label($count, $object['one'], strtolower($object['label']))) ?> · Page <?= $page ?> of <?= $pages ?></p>
+<p class="result-count"><?= e(count_label($count, $object['one'], strtolower($object['label']))) ?>. Page <?= $page ?> of <?= $pages ?></p>
 <div class="directory <?= $type === 'artists' ? 'artist-directory' : '' ?>">
 <?php foreach ($records as $r): ?><a class="directory-row" href="<?= e(object_url($type, $r, $manage, $context)) ?>">
 <?php if ($type === 'artists'): ?><div class="artist-thumbnail" aria-hidden="true"><?php $representative = $representatives[(int)$r['ArtistID']] ?? null; if ($representative && artwork_image_file($representative['ImageFileName'])): artwork_image($representative, false, 'directory'); else: ?><span>No image</span><?php endif; ?></div><?php endif; ?>

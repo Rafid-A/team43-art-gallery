@@ -1,6 +1,17 @@
 /* Account and editing surfaces share the gallery's palette and controls. */
 .password-field { display: flex; align-items: stretch; gap: 8px; margin-bottom: 20px; }
 .password-field input { flex: 1; min-width: 0; margin-bottom: 0; }
+/* Register: first and last name share a row above phone width, so the form fits a laptop screen. */
+@media (min-width: 481px) {
+    form[action="register.php"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+    form[action="register.php"] > * { grid-column: 1 / -1; }
+    form[action="register.php"] > :is([for="forename"], #forename, #forename-hint, #forename-error) { grid-column: 1; }
+    form[action="register.php"] > :is([for="surname"], #surname, #surname-hint, #surname-error) { grid-column: 2; }
+    form[action="register.php"] > :is([for="forename"], [for="surname"]) { grid-row: 1; }
+    form[action="register.php"] > :is(#forename, #surname) { grid-row: 2; }
+    form[action="register.php"] > :is(#forename-hint, #surname-hint) { grid-row: 3; }
+    form[action="register.php"] > :is(#forename-error, #surname-error) { grid-row: 4; }
+}
 .password-field .password-toggle { flex: 0 0 auto; padding-inline: 12px; font-size: 12px; }
 .form-section { min-width: 0; margin: 0 0 24px; padding: 0; border: 0; }
 .form-section > legend { padding: 0; margin-bottom: 20px; color: var(--ink); font: 25px/1.3 var(--font-serif); }
@@ -12,7 +23,7 @@
 .admin-overview dt { font-size: 13px; }
 .admin-overview dd { margin-top: 8px; font: 36px/1.1 var(--font-serif); font-variant-numeric: tabular-nums; }
 .admin-section-title { margin-top: 32px; }
-.account-badge { display: inline-block; padding: 2px 8px; margin-inline-start: 6px; border: 1px solid var(--line); font-size: 12px; }
+.account-badge { display: inline-block; padding: 2px 8px; margin-inline-start: 8px; border: 1px solid var(--line); font-size: 12px; }
 .account-badge.is-disabled { color: var(--danger); border-color: currentColor; }
 .account-actions { max-width: 100%; }
 .account-actions > a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px; }
@@ -35,7 +46,7 @@
 .import-list li > div { min-width: 0; }
 .import-list h3 { margin: 0 0 4px; font-size: 20px; }
 .import-list p { margin: 0; font-size: 14px; }
-.import-list .hint { margin-top: 6px; font-size: 13px; }
-.import-status { flex-shrink: 0; max-width: 24ch; font-size: 12px; line-height: 1.4; padding: 4px 10px; border: 1px solid var(--line); color: var(--muted); }
+.import-list .hint { margin-top: 8px; font-size: 13px; max-width: 75ch; }
+.import-status { flex-shrink: 0; max-width: 24ch; font-size: 12px; line-height: 1.4; padding: 4px 12px; border: 1px solid var(--line); color: var(--muted); }
 .import-status.new { border-color: var(--accent); color: var(--accent); }
 @media (max-width: 640px) { .import-list li { flex-direction: column; gap: 8px; } .import-status { max-width: none; } }

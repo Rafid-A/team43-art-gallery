@@ -24,9 +24,9 @@ html { scrollbar-gutter: stable; }
 }
 .viewer-trigger:hover .viewer-hint { text-decoration: underline; }
 .artwork-viewer {
-    width: calc(100vw - 32px);
+    width: calc(100% - 32px);
     height: calc(100dvh - 32px);
-    max-width: calc(100vw - 32px);
+    max-width: calc(100% - 32px);
     max-height: calc(100dvh - 32px);
     margin: auto;
     padding: 24px;
@@ -135,7 +135,7 @@ html { scrollbar-gutter: stable; }
     ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 @media (max-width: 480px) {
-    .artwork-viewer { width: calc(100vw - 16px); height: calc(100dvh - 16px); max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); padding: 16px; }
+    .artwork-viewer { width: calc(100% - 16px); height: calc(100dvh - 16px); max-width: calc(100% - 16px); max-height: calc(100dvh - 16px); padding: 16px; }
     .viewer-toolbar { gap: 16px; }
     .viewer-toolbar h2 { font-size: 18px; }
     .viewer-close { padding-inline: 12px; }
