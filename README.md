@@ -3,8 +3,8 @@
 Project Task 01 is a PHP/Apache/MariaDB art gallery with artwork browsing,
 title and artist filtering, artwork details, and collection management.
 
-The `project-task-02` branch continues Project Task 01. Its application files
-are in `Source`. It includes client and administrator accounts, artist and
+Project Task 02 continues Project Task 01. The application files are in
+`Source`. It includes client and administrator accounts, artist and
 painting editing, persistent image uploads, sortable paginated lists, table
 summaries, and live title/artist suggestions. The collection adds an artwork-led
 opening, compact mobile navigation and filters, artist thumbnails, display
@@ -114,7 +114,7 @@ On Windows, clone or unzip into a short folder such as `C:\team43`; some saved
 WikiArt file paths are long.
 
 ```sh
-git clone --branch project-task-02 https://github.com/Rafid-A/team43-art-gallery.git
+git clone https://github.com/Rafid-A/team43-art-gallery.git
 cd team43-art-gallery/Source
 ```
 
